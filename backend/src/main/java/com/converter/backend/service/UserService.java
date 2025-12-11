@@ -44,23 +44,31 @@ public class UserService {
         return mapToResponseDto(user);
     }
 
-    public UserResponseDto updateUser(Long id, UserUpdateDto dto) {
-    User user = userRepository.findById(id)
-            .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
-
-    // Vérifier si l’email est déjà utilisé par un autre utilisateur
-    if (userRepository.existsByEmail(dto.getEmail()) && !user.getEmail().equals(dto.getEmail())) {
-        throw new EmailAlreadyExistsException("Email already in use: " + dto.getEmail());
+    public UserResponseDto getUserByEmail(String email){
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(()-> new ResourceNotFoundException("User not found with email: " + email));
+        return mapToResponseDto(user);
     }
 
-    user.setFullName(dto.getFullName());
-    user.setEmail(dto.getEmail());
-    user.setPassword(passwordEncoder.encode(dto.getPassword()));
+    public UserResponseDto updateUser(Long id, UserUpdateDto dto) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
 
-    User updatedUser = userRepository.save(user);
+        // Vérifier si l’email est déjà utilisé par un autre utilisateur
+        if (userRepository.existsByEmail(dto.getEmail()) && !user.getEmail().equals(dto.getEmail())) {
+            throw new EmailAlreadyExistsException("Email already in use: " + dto.getEmail());
+        }
 
-    return mapToResponseDto(updatedUser);
-}
+        user.setFullName(dto.getFullName());
+        user.setEmail(dto.getEmail());
+        if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        }
+
+        User updatedUser = userRepository.save(user);
+
+        return mapToResponseDto(updatedUser);
+    }
     
 
     public void deleteUserById(Long id) {

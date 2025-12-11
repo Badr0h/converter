@@ -1,6 +1,8 @@
 package com.converter.backend.configuration;
 
 import com.converter.backend.repository.UserRepository;
+
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
