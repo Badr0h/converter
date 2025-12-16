@@ -1,1 +1,111 @@
-<p>plans works!</p>
+<div class="plans-container">
+  <!-- Header -->
+  <div class="plans-header">
+    <h1>Choose Your Plan</h1>
+    <p>Select the perfect plan for your conversion needs</p>
+  </div>
+
+  <!-- Current Subscription Info -->
+  <div class="current-subscription" *ngIf="currentSubscription">
+    <div class="subscription-badge">
+      <span class="badge-icon">💎</span>
+      <div class="badge-content">
+        <h3>Current Plan</h3>
+        <p>{{ currentSubscription.status }} - {{ currentSubscription.remainingConversions }} conversions remaining</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner-large"></div>
+    <p>Loading subscription plans...</p>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage && !loading" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Plans Grid -->
+  <div class="plans-grid" *ngIf="!loading">
+    <div 
+      class="plan-card" 
+      *ngFor="let plan of plans"
+      [class.popular]="plan.name === 'Pro'"
+      [class.current]="isCurrentPlan(plan)"
+    >
+      <!-- Plan Badge -->
+      <div class="plan-badge" *ngIf="getPlanBadge(plan)">
+        {{ getPlanBadge(plan) }}
+      </div>
+
+      <!-- Current Plan Indicator -->
+      <div class="current-indicator" *ngIf="isCurrentPlan(plan)">
+        ✓ Your Current Plan
+      </div>
+
+      <!-- Plan Header -->
+      <div class="plan-header">
+        <h2 class="plan-name">{{ plan.name }}</h2>
+        <div class="plan-price">
+          <span class="price-amount">{{ formatPrice(plan.price, plan.currency) }}</span>
+          <span class="price-period" *ngIf="plan.price > 0">/month</span>
+        </div>
+        <p class="plan-conversions">
+          {{ formatConversions(plan.maxConversions) }} conversions per month
+        </p>
+      </div>
+
+      <!-- Plan Features -->
+      <div class="plan-features">
+        <div class="feature-item" *ngFor="let feature of plan.features">
+          <span class="feature-icon">✓</span>
+          <span class="feature-text">{{ feature }}</span>
+        </div>
+      </div>
+
+      <!-- Plan Action Button -->
+      <button 
+        class="plan-button"
+        [class.current-plan-btn]="isCurrentPlan(plan)"
+        [disabled]="isCurrentPlan(plan)"
+        (click)="selectPlan(plan)"
+      >
+        {{ getPlanButtonText(plan) }}
+      </button>
+    </div>
+  </div>
+
+  <!-- FAQ Section -->
+  <div class="faq-section" *ngIf="!loading">
+    <h2>Frequently Asked Questions</h2>
+    
+    <div class="faq-grid">
+      <div class="faq-item">
+        <h3>Can I change plans anytime?</h3>
+        <p>Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>What happens to unused conversions?</h3>
+        <p>Unused conversions expire at the end of each billing cycle and do not roll over.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>Do you offer refunds?</h3>
+        <p>We offer a 14-day money-back guarantee on all paid plans. No questions asked.</p>
+      </div>
+
+      <div class="faq-item">
+        <h3>What payment methods do you accept?</h3>
+        <p>We accept all major credit cards, PayPal, and bank transfers for business plans.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Back to Dashboard -->
+  <div class="back-section">
+    <a routerLink="/dashboard" class="back-link">← Back to Dashboard</a>
+  </div>
+</div>

@@ -1,1 +1,144 @@
-<p>user-dashboard works!</p>
+<div class="dashboard-container">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <h1>Welcome back, {{ currentUser?.fullName }}!</h1>
+      <p>Manage your AI conversions and subscription</p>
+    </div>
+    <button class="btn btn-danger" (click)="logout()">Logout</button>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-container" *ngIf="!statsLoading">
+    <div class="stat-card">
+      <div class="stat-icon">📊</div>
+      <div class="stat-content">
+        <h3>{{ totalConversions }}</h3>
+        <p>Total Conversions</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">⚡</div>
+      <div class="stat-content">
+        <h3>{{ remainingConversions }}</h3>
+        <p>Remaining Conversions</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon">💎</div>
+      <div class="stat-content">
+        <h3>{{ subscriptionStatus }}</h3>
+        <p>Subscription Status</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Stats -->
+  <div class="stats-container" *ngIf="statsLoading">
+    <div class="stat-card loading">
+      <div class="skeleton skeleton-text"></div>
+    </div>
+    <div class="stat-card loading">
+      <div class="skeleton skeleton-text"></div>
+    </div>
+    <div class="stat-card loading">
+      <div class="skeleton skeleton-text"></div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions">
+    <button class="action-btn action-primary" (click)="navigateToConverter()">
+      <span class="action-icon">🔄</span>
+      <div class="action-content">
+        <h3>New Conversion</h3>
+        <p>Convert text with AI</p>
+      </div>
+    </button>
+
+    <button class="action-btn action-secondary" (click)="navigateToPlans()">
+      <span class="action-icon">⭐</span>
+      <div class="action-content">
+        <h3>Upgrade Plan</h3>
+        <p>Get more conversions</p>
+      </div>
+    </button>
+  </div>
+
+  <!-- Recent Conversions -->
+  <div class="recent-conversions">
+    <div class="section-header">
+      <h2>Recent Conversions</h2>
+      <a routerLink="/conversion" class="link">View All</a>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-container">
+      <div class="spinner-large"></div>
+      <p>Loading conversions...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && recentConversions.length === 0" class="empty-state">
+      <div class="empty-icon">📝</div>
+      <h3>No conversions yet</h3>
+      <p>Start converting text formats with AI to see them here</p>
+      <button class="btn btn-primary" (click)="navigateToConverter()">
+        Start Converting
+      </button>
+    </div>
+
+    <!-- Conversions List -->
+    <div *ngIf="!loading && recentConversions.length > 0" class="conversions-list">
+      <div class="conversion-card" *ngFor="let conversion of recentConversions">
+        <div class="conversion-info">
+          <div class="conversion-header">
+            <div class="conversion-formats">
+              <span class="format-badge format-input">{{ conversion.inputFormat }}</span>
+              <span class="arrow">→</span>
+              <span class="format-badge format-output">{{ conversion.outputFormat }}</span>
+            </div>
+            <span class="conversion-date">{{ formatDate(conversion.createdAt) }}</span>
+          </div>
+          
+          <div class="conversion-content">
+            <div class="content-section">
+              <label>Input:</label>
+              <p class="content-text">{{ truncateText(conversion.prompt, 80) }}</p>
+            </div>
+            <div class="content-section">
+              <label>Output:</label>
+              <p class="content-text">{{ truncateText(conversion.aiResponse, 80) }}</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="conversion-actions">
+          <button 
+            class="btn-icon" 
+            (click)="viewConversion(conversion)"
+            title="View Full Conversion"
+          >
+            👁️
+          </button>
+          <button 
+            class="btn-icon" 
+            (click)="copyAiResponse(conversion.aiResponse)"
+            title="Copy Result"
+          >
+            📋
+          </button>
+          <button 
+            class="btn-icon btn-icon-danger" 
+            (click)="deleteConversion(conversion.id)"
+            title="Delete"
+          >
+            🗑️
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

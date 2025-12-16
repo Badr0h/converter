@@ -1,11 +1,11 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { LandingComponent } from './features/home/landing/landing.component';
 
 export const routes: Routes = [
   {
     path: '',
-    redirectTo: '/dashboard',
-    pathMatch: 'full'
+    component: LandingComponent  // Home page - accessible to everyone
   },
   {
     path: 'auth',
@@ -14,20 +14,20 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     loadChildren: () => import('./features/dashboard/dashboard.routes').then(m => m.DASHBOARD_ROUTES),
-    canActivate: [authGuard]
+    canActivate: [authGuard]  // Protected - requires login
   },
   {
     path: 'conversion',
     loadChildren: () => import('./features/conversion/conversion.routes').then(m => m.CONVERSION_ROUTES),
-    canActivate: [authGuard]
+    canActivate: [authGuard]  // Protected - requires login
   },
   {
     path: 'subscription',
     loadChildren: () => import('./features/subscription/subscription.routes').then(m => m.SUBSCRIPTION_ROUTES),
-    canActivate: [authGuard]
+    canActivate: [authGuard]  // Protected - requires login
   },
   {
     path: '**',
-    redirectTo: '/dashboard'
+    redirectTo: ''  // Redirect unknown routes to home
   }
 ];

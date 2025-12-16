@@ -1,0 +1,59 @@
+<nav class="navbar">
+  <div class="navbar-container">
+    <!-- Logo -->
+    <a [routerLink]="isAuthenticated() ? '/dashboard' : '/'" class="navbar-logo" (click)="closeMenu()">
+      <span class="logo-icon">🔄</span>
+      <span class="logo-text">AI Converter</span>
+    </a>
+
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-toggle" (click)="toggleMenu()" *ngIf="isAuthenticated()">
+      <span class="toggle-icon">{{ isMenuOpen ? '✕' : '☰' }}</span>
+    </button>
+
+    <!-- Navigation Links (Only show when authenticated) -->
+    <div class="navbar-menu" [class.active]="isMenuOpen" *ngIf="isAuthenticated()">
+      <a 
+        routerLink="/dashboard" 
+        routerLinkActive="active"
+        class="nav-link"
+        (click)="closeMenu()"
+      >
+        Dashboard
+      </a>
+      <a 
+        routerLink="/conversion" 
+        routerLinkActive="active"
+        class="nav-link"
+        (click)="closeMenu()"
+      >
+        Convert
+      </a>
+      <a 
+        routerLink="/subscription/plans" 
+        routerLinkActive="active"
+        class="nav-link"
+        (click)="closeMenu()"
+      >
+        Plans
+      </a>
+    </div>
+
+    <!-- User Menu (When authenticated) -->
+    <div class="navbar-user" *ngIf="isAuthenticated()">
+      <div class="user-info">
+        <span class="user-icon">👤</span>
+        <span class="user-name">{{ currentUser?.fullName }}</span>
+      </div>
+      <button class="logout-btn" (click)="logout()">
+        Logout
+      </button>
+    </div>
+
+    <!-- Guest Links (When NOT authenticated) -->
+    <div class="navbar-guest" *ngIf="!isAuthenticated()">
+      <a routerLink="/auth/login" class="btn btn-outline">Login</a>
+      <a routerLink="/auth/register" class="btn btn-primary">Sign Up</a>
+    </div>
+  </div>
+</nav>

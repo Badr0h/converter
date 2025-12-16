@@ -2,6 +2,7 @@ package com.converter.backend.controller;
 
 import com.converter.backend.dto.auth.AuthRequest;
 import com.converter.backend.dto.auth.AuthResponse;
+import com.converter.backend.dto.auth.RefreshTokenRequest;
 import com.converter.backend.dto.user.UserCreateDto;
 import com.converter.backend.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -26,5 +27,10 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
         return ResponseEntity.ok(authService.login(request));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthResponse> refreshToken(@RequestBody RefreshTokenRequest request) {
+        return ResponseEntity.ok(authService.refreshToken(request.getRefreshToken()));
     }
 }

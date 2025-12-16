@@ -1,3 +1,5 @@
+import { UserResponseDto } from './user.model';
+
 export interface AuthRequest {
   email: string;
   password: string;
@@ -6,4 +8,5 @@ export interface AuthRequest {
 export interface AuthResponse {
   token: string;
   refreshToken?: string;
+  user: UserResponseDto;
 }

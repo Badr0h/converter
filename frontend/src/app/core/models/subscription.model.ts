@@ -20,6 +20,8 @@ export interface SubscriptionResponseDto {
   createdAt: Date;
   planName: string;
   price: number;
+  // Optional UI field
+  remainingConversions?: number;
 }
 
 export interface SubscriptionCreateDto {

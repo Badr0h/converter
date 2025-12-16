@@ -7,6 +7,9 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
+import com.converter.backend.model.User;
+
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.function.Function;
@@ -31,6 +34,9 @@ public class JwtService {
 
     public String generateToken(UserDetails userDetails) {
         return buildToken(userDetails, jwtExpiration);
+    }
+    public String generateRefreshToken(User user) {
+        return generateToken(user);
     }
 
     private String buildToken(UserDetails userDetails, long expiration) {

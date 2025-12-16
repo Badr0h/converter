@@ -1,1 +1,155 @@
-<p>converter works!</p>
+<div class="converter-container">
+  <!-- Header -->
+  <div class="converter-header">
+    <div class="header-content">
+      <h1>AI Text Converter</h1>
+      <p>Convert text between different formats using AI</p>
+    </div>
+    <button class="btn btn-secondary" (click)="toggleHistory()">
+      {{ showHistory ? 'Hide' : 'Show' }} History ({{ conversionHistory.length }})
+    </button>
+  </div>
+
+  <div class="converter-layout">
+    <!-- Main Converter Area -->
+    <div class="converter-main" [class.with-history]="showHistory">
+      <!-- Conversion Form -->
+      <form [formGroup]="conversionForm" (ngSubmit)="onSubmit()" class="conversion-form">
+        <!-- Format Selectors -->
+        <div class="format-selector-container">
+          <div class="format-group">
+            <label for="inputFormat">Input Format</label>
+            <select id="inputFormat" formControlName="inputFormat" class="form-select">
+              <option *ngFor="let format of availableFormats" [value]="format">
+                {{ format }}
+              </option>
+            </select>
+          </div>
+
+          <button type="button" class="swap-button" (click)="swapFormats()" title="Swap formats">
+            ⇄
+          </button>
+
+          <div class="format-group">
+            <label for="outputFormat">Output Format</label>
+            <select id="outputFormat" formControlName="outputFormat" class="form-select">
+              <option *ngFor="let format of availableFormats" [value]="format">
+                {{ format }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="input-section">
+          <div class="section-header">
+            <label for="prompt">Input Text</label>
+            <button type="button" class="btn-text" (click)="copyInput()">📋 Copy</button>
+          </div>
+          <textarea
+            id="prompt"
+            formControlName="prompt"
+            class="form-textarea"
+            placeholder="Enter your text here to convert..."
+            rows="12"
+          ></textarea>
+          <div *ngIf="f['prompt'].invalid && f['prompt'].touched" class="error-message">
+            Text must be at least 10 characters long
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <button type="submit" class="btn btn-primary btn-large" [disabled]="loading || conversionForm.invalid">
+            <span *ngIf="loading" class="spinner"></span>
+            <span *ngIf="!loading">🔄 Convert</span>
+            <span *ngIf="loading">Converting...</span>
+          </button>
+          <button type="button" class="btn btn-outline" (click)="clearForm()" [disabled]="loading">
+            🗑️ Clear
+          </button>
+        </div>
+
+        <!-- Error Message -->
+        <div *ngIf="errorMessage" class="alert alert-danger">
+          {{ errorMessage }}
+        </div>
+      </form>
+
+      <!-- Output Area -->
+      <div class="output-section" *ngIf="conversionResult">
+        <div class="output-header">
+          <h3>Conversion Result</h3>
+          <div class="output-actions">
+            <button class="btn-text" (click)="useAsInput()">↩️ Use as Input</button>
+            <button class="btn-text" (click)="copyOutput()">📋 Copy</button>
+          </div>
+        </div>
+
+        <div class="output-content">
+          <div class="output-meta">
+            <span class="meta-item">
+              <strong>From:</strong> {{ conversionResult.inputFormat }}
+            </span>
+            <span class="meta-item">
+              <strong>To:</strong> {{ conversionResult.outputFormat }}
+            </span>
+            <span class="meta-item">
+              <strong>Date:</strong> {{ formatDate(conversionResult.createdAt) }}
+            </span>
+          </div>
+
+          <div class="output-box">
+            <pre class="output-text">{{ conversionResult.aiResponse }}</pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div class="loading-state" *ngIf="loading">
+        <div class="loading-animation">
+          <div class="spinner-large"></div>
+          <p>AI is converting your text...</p>
+          <p class="loading-subtitle">This may take a few seconds</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- History Sidebar -->
+    <div class="history-sidebar" *ngIf="showHistory">
+      <div class="history-header">
+        <h3>Conversion History</h3>
+        <button class="btn-close" (click)="toggleHistory()">✕</button>
+      </div>
+
+      <div class="history-list" *ngIf="conversionHistory.length > 0">
+        <div 
+          class="history-item" 
+          *ngFor="let conversion of conversionHistory"
+          (click)="loadFromHistory(conversion)"
+        >
+          <div class="history-item-header">
+            <div class="history-formats">
+              <span class="format-mini">{{ conversion.inputFormat }}</span>
+              <span class="arrow-mini">→</span>
+              <span class="format-mini">{{ conversion.outputFormat }}</span>
+            </div>
+            <button 
+              class="btn-delete" 
+              (click)="deleteFromHistory(conversion.id, $event)"
+              title="Delete"
+            >
+              🗑️
+            </button>
+          </div>
+          <p class="history-preview">{{ conversion.prompt.substring(0, 60) }}...</p>
+          <span class="history-date">{{ formatDate(conversion.createdAt) }}</span>
+        </div>
+      </div>
+
+      <div class="history-empty" *ngIf="conversionHistory.length === 0">
+        <p>No conversion history yet</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -26,11 +26,22 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
+// Dans auth.service.ts
+
   login(credentials: AuthRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials)
       .pipe(
         tap(response => {
-          localStorage.setItem('token', response.token);
+          // 1. Stocker le jeton
+          localStorage.setItem('token', response.token); 
+          // 2. Stocker le refreshToken
+          if (response.refreshToken) {
+            localStorage.setItem('refreshToken', response.refreshToken);
+          }
+          // 3. Stocker l'utilisateur dans le localStorage
+          localStorage.setItem('currentUser', JSON.stringify(response.user));
+          // 4. Mettre à jour le BehaviorSubject pour notifier les autres composants
+          this.currentUserSubject.next(response.user as unknown as UserResponseDto); 
         })
       );
   }
@@ -39,16 +50,28 @@ export class AuthService {
     return this.http.post<AuthResponse>(`${this.apiUrl}/register`, data)
       .pipe(
         tap(response => {
+          // 1. Stocker le jeton
           localStorage.setItem('token', response.token);
+          // 2. Stocker le refreshToken
+          if (response.refreshToken) {
+            localStorage.setItem('refreshToken', response.refreshToken);
+          }
+          // 3. Stocker l'utilisateur dans le localStorage
+          localStorage.setItem('currentUser', JSON.stringify(response.user));
+          // 4. Mettre à jour le BehaviorSubject
+          this.currentUserSubject.next(response.user as unknown as UserResponseDto);
         })
       );
   }
+  // Dans auth.service.ts
 
   logout(): void {
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('token');
-    this.currentUserSubject.next(null);
-    this.router.navigate(['/auth/login']);
+      localStorage.removeItem('currentUser');
+      localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
+      
+      this.currentUserSubject.next(null);
+      this.router.navigate(['/auth/login']);
   }
 
   isAuthenticated(): boolean {
@@ -66,6 +89,8 @@ export class AuthService {
         tap(response => {
           localStorage.setItem('token', response.token);
         })
-      );
+      );  
+      
+        
   }
 }

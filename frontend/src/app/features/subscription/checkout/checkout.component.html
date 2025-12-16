@@ -1,1 +1,204 @@
-<p>checkout works!</p>
+<div class="checkout-container">
+  <!-- Header -->
+  <div class="checkout-header">
+    <h1>Complete Your Purchase</h1>
+    <p>Securely upgrade to {{ plan?.name }} plan</p>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner-large"></div>
+    <p>Loading checkout...</p>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage && !plan" class="alert alert-danger">
+    {{ errorMessage }}
+    <button class="btn btn-secondary" (click)="cancel()">Back to Plans</button>
+  </div>
+
+  <!-- Checkout Content -->
+  <div class="checkout-content" *ngIf="!loading && plan">
+    <!-- Order Summary -->
+    <div class="order-summary">
+      <h2>Order Summary</h2>
+      
+      <div class="summary-item">
+        <div class="plan-info">
+          <h3>{{ plan.name }} Plan</h3>
+          <p>{{ plan.maxConversions === -1 ? 'Unlimited' : plan.maxConversions }} conversions/month</p>
+        </div>
+        <div class="plan-price">
+          {{ formatPrice(plan.price) }}
+        </div>
+      </div>
+
+      <div class="summary-features">
+        <h4>What's included:</h4>
+        <ul>
+          <li *ngFor="let feature of plan.features">{{ feature }}</li>
+        </ul>
+      </div>
+
+      <div class="summary-total">
+        <span>Total (monthly)</span>
+        <span class="total-amount">{{ formatPrice(calculateTotal()) }}</span>
+      </div>
+
+      <div class="summary-note">
+        <p>💳 Secure payment processing</p>
+        <p>🔒 Your data is encrypted</p>
+        <p>✓ Cancel anytime</p>
+      </div>
+    </div>
+
+    <!-- Payment Form -->
+    <div class="payment-form-container">
+      <h2>Payment Information</h2>
+
+      <form [formGroup]="checkoutForm" (ngSubmit)="onSubmit()">
+        <!-- Card Number -->
+        <div class="form-group">
+          <label for="cardNumber">Card Number</label>
+          <input
+            type="text"
+            id="cardNumber"
+            formControlName="cardNumber"
+            class="form-control"
+            placeholder="1234 5678 9012 3456"
+            maxlength="19"
+            (input)="formatCardNumber($event)"
+          />
+          <div *ngIf="f['cardNumber'].invalid && f['cardNumber'].touched" class="error-message">
+            Please enter a valid 16-digit card number
+          </div>
+        </div>
+
+        <!-- Card Holder Name -->
+        <div class="form-group">
+          <label for="cardName">Cardholder Name</label>
+          <input
+            type="text"
+            id="cardName"
+            formControlName="cardName"
+            class="form-control"
+            placeholder="John Doe"
+          />
+          <div *ngIf="f['cardName'].invalid && f['cardName'].touched" class="error-message">
+            Cardholder name is required
+          </div>
+        </div>
+
+        <!-- Expiry and CVV -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="expiryDate">Expiry Date</label>
+            <input
+              type="text"
+              id="expiryDate"
+              formControlName="expiryDate"
+              class="form-control"
+              placeholder="MM/YY"
+              maxlength="5"
+              (input)="formatExpiryDate($event)"
+            />
+            <div *ngIf="f['expiryDate'].invalid && f['expiryDate'].touched" class="error-message">
+              Format: MM/YY
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="cvv">CVV</label>
+            <input
+              type="text"
+              id="cvv"
+              formControlName="cvv"
+              class="form-control"
+              placeholder="123"
+              maxlength="4"
+            />
+            <div *ngIf="f['cvv'].invalid && f['cvv'].touched" class="error-message">
+              3-4 digits
+            </div>
+          </div>
+        </div>
+
+        <!-- Billing Address -->
+        <div class="form-group">
+          <label for="billingAddress">Billing Address</label>
+          <input
+            type="text"
+            id="billingAddress"
+            formControlName="billingAddress"
+            class="form-control"
+            placeholder="123 Main St"
+          />
+        </div>
+
+        <!-- City and Zip -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="city">City</label>
+            <input
+              type="text"
+              id="city"
+              formControlName="city"
+              class="form-control"
+              placeholder="New York"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="zipCode">ZIP Code</label>
+            <input
+              type="text"
+              id="zipCode"
+              formControlName="zipCode"
+              class="form-control"
+              placeholder="12345"
+              maxlength="5"
+            />
+          </div>
+        </div>
+
+        <!-- Country -->
+        <div class="form-group">
+          <label for="country">Country</label>
+          <select id="country" formControlName="country" class="form-control">
+            <option value="USA">United States</option>
+            <option value="CAN">Canada</option>
+            <option value="GBR">United Kingdom</option>
+            <option value="AUS">Australia</option>
+          </select>
+        </div>
+
+        <!-- Error Message -->
+        <div *ngIf="errorMessage" class="alert alert-danger">
+          {{ errorMessage }}
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <button 
+            type="submit" 
+            class="btn btn-primary btn-large"
+            [disabled]="processing || checkoutForm.invalid"
+          >
+            <span *ngIf="processing" class="spinner"></span>
+            <span *ngIf="!processing">Complete Purchase {{ formatPrice(calculateTotal()) }}</span>
+            <span *ngIf="processing">Processing...</span>
+          </button>
+          
+          <button 
+            type="button" 
+            class="btn btn-outline"
+            (click)="cancel()"
+            [disabled]="processing"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
