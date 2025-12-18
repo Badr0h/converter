@@ -30,4 +30,10 @@ public class Plan {
 
     @Column(nullable = false)
     private Integer duration; // en jours, mois, etc.
+
+    @Column(name = "monthly_price")
+    private BigDecimal monthlyPrice;
+
+    @Column(name = "annual_price")
+    private BigDecimal annualPrice;
 }

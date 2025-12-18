@@ -26,5 +26,9 @@ export class SubscriptionService {
     return this.http.get<PlanResponseDto[]>(`${environment.apiUrl}/plans`);
   }
 
+  activateSubscription(id: number): Observable<SubscriptionResponseDto> {
+    return this.http.put<SubscriptionResponseDto>(`${this.apiUrl}/${id}/activate`, null as any);
+  }
+
   
 }

@@ -5,13 +5,30 @@
     <p>Select the perfect plan for your conversion needs</p>
   </div>
 
+  <!-- Billing toggle -->
+  <div class="billing-toggle">
+    <button [class.active]="billingCycle==='monthly'" (click)="toggleBilling('monthly')">Monthly</button>
+    <button [class.active]="billingCycle==='annual'" (click)="toggleBilling('annual')">Annual</button>
+  </div>
+
   <!-- Current Subscription Info -->
   <div class="current-subscription" *ngIf="currentSubscription">
     <div class="subscription-badge">
       <span class="badge-icon">💎</span>
       <div class="badge-content">
-        <h3>Current Plan</h3>
-        <p>{{ currentSubscription.status }} - {{ currentSubscription.remainingConversions }} conversions remaining</p>
+        <h3>Your Current Plan: <strong>{{ getCurrentPlanName() }}</strong></h3>
+        <p>Status: {{ currentSubscription.status }} | {{ currentSubscription.remainingConversions }} conversions remaining</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- No Subscription Info -->
+  <div class="no-subscription" *ngIf="!currentSubscription && !loading">
+    <div class="subscription-badge info">
+      <span class="badge-icon">🚀</span>
+      <div class="badge-content">
+        <h3>No Active Plan</h3>
+        <p>Get started by choosing one of our plans below</p>
       </div>
     </div>
   </div>
@@ -45,12 +62,24 @@
         ✓ Your Current Plan
       </div>
 
+      <!-- Upgrade/Downgrade Badge -->
+      <div class="upgrade-badge" *ngIf="!isCurrentPlan(plan) && currentSubscription">
+        <span *ngIf="getPlanButtonText(plan) === 'Upgrade'" class="badge-upgrade">⬆ UPGRADE</span>
+        <span *ngIf="getPlanButtonText(plan) === 'Downgrade'" class="badge-downgrade">⬇ DOWNGRADE</span>
+      </div>
+
       <!-- Plan Header -->
       <div class="plan-header">
         <h2 class="plan-name">{{ plan.name }}</h2>
         <div class="plan-price">
-          <span class="price-amount">{{ formatPrice(plan.price, plan.currency) }}</span>
-          <span class="price-period" *ngIf="plan.price > 0">/month</span>
+          <ng-container *ngIf="billingCycle === 'monthly'">
+            <span class="price-amount">{{ formatPrice(plan.monthlyPrice ?? plan.price, plan.currency) }}</span>
+            <span class="price-period">/month</span>
+          </ng-container>
+          <ng-container *ngIf="billingCycle === 'annual'">
+            <span class="price-amount">{{ formatPrice(plan.annualPrice ?? ((plan.monthlyPrice ?? plan.price) * 10), plan.currency) }}</span>
+            <span class="price-period">/year</span>
+          </ng-container>
         </div>
         <p class="plan-conversions">
           {{ formatConversions(plan.maxConversions) }} conversions per month

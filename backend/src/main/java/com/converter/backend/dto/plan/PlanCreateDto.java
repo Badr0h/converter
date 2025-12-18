@@ -16,6 +16,10 @@ public class PlanCreateDto {
     @Positive(message = "Price must be positive")
     private BigDecimal price;
 
+    // Optional new fields for explicit monthly and annual pricing
+    private BigDecimal monthlyPrice;
+    private BigDecimal annualPrice;
+
     @NotBlank(message = "Currency cannot be blank")
     private String currency;
 

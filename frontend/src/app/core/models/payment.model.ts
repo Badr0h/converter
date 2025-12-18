@@ -21,4 +21,5 @@ export interface PaymentCreateDto {
   subscriptionId: number;
   paymentMethod: string;
   paymentToken: string;
+  billingCycle?: 'monthly' | 'annual' | string;
 }

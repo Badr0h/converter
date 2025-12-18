@@ -10,4 +10,6 @@ public class PlanResponseDto {
     private BigDecimal price;
     private String currency;
     private Integer duration; // in days
+    private BigDecimal monthlyPrice;
+    private BigDecimal annualPrice;
 }

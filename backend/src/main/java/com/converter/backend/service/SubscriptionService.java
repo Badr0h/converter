@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,9 +16,11 @@ import com.converter.backend.exception.IllegalStateException;
 import com.converter.backend.exception.ResourceNotFoundException;
 import com.converter.backend.model.Plan;
 import com.converter.backend.model.Subscription;
+import com.converter.backend.model.User;
 import com.converter.backend.model.Subscription.Status;
 import com.converter.backend.repository.PlanRepository;
 import com.converter.backend.repository.SubscriptionRepository;
+import com.converter.backend.repository.UserRepository;
 
 @Service
 public class SubscriptionService {
@@ -26,10 +30,12 @@ public class SubscriptionService {
 
     private final SubscriptionRepository subscriptionRepository ; 
     private final PlanRepository planRepository ; 
+    private final UserRepository userRepository;
 
-    public SubscriptionService(SubscriptionRepository subscriptionRepository,PlanRepository planRepository){
+    public SubscriptionService(SubscriptionRepository subscriptionRepository, PlanRepository planRepository, UserRepository userRepository){
         this.subscriptionRepository = subscriptionRepository ;
         this.planRepository = planRepository ;
+        this.userRepository = userRepository;
     }
 
     public List<SubscriptionResponseDto> getAllSubscriptions(){
@@ -53,7 +59,14 @@ public class SubscriptionService {
         Plan plan = planRepository.findById(dto.getPlanId())
             .orElseThrow(() -> new ResourceNotFoundException("Plan not found with id " + dto.getPlanId()));
 
+        // Get the current authenticated user from security context
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+        User user = userRepository.findByEmail(currentUsername)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + currentUsername));
+
         Subscription subscription = new Subscription() ; 
+        subscription.setUser(user);
         subscription.setStartDate(dto.getStartDate());
         subscription.setDuration(dto.getDuration());
         subscription.setPlan(plan);

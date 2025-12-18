@@ -20,8 +20,6 @@ public class ConversionService {
     private final AiService aiService ; 
 
 
-
-
     public ConversionService(ConversionRepository conversionRepository, AiService aiService){
         this.conversionRepository = conversionRepository ; 
         this.aiService = aiService ; 
@@ -50,17 +48,15 @@ public class ConversionService {
         conversion.setOutputFormat(dto.getOutputFormat());
         conversion.setPrompt(dto.getPrompt());
 
-        return aiService.generateResponse(conversion.getPrompt())
+        String userPlan = dto.getPlan() != null ? dto.getPlan().toUpperCase() : "BASIC";
+
+        return aiService.generateResponse(conversion.getPrompt(),userPlan)
                 .flatMap(aiResponse -> {
                     conversion.setAiResponse(aiResponse);
                     Conversion savedConversion = conversionRepository.save(conversion);
                     return Mono.just(mapToConversionResponseDto(savedConversion));
                 }).block(); // Bloque ici pour retourner un objet simple au contrôleur
     }
-
-
-
-
 
     public ConversionResponseDto mapToConversionResponseDto(Conversion conversion){
         ConversionResponseDto dto = new ConversionResponseDto();

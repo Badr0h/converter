@@ -25,6 +25,28 @@
   margin: 0;
 }
 
+.billing-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.billing-toggle button {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid #ddd;
+  background: white;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.billing-toggle button.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: transparent;
+}
+
 /* Current Subscription */
 .current-subscription {
   max-width: 600px;
@@ -52,10 +74,27 @@
   font-weight: 600;
 }
 
+.badge-content h3 strong {
+  display: block;
+  font-size: 22px;
+  margin-top: 5px;
+}
+
 .badge-content p {
   margin: 0;
   font-size: 14px;
   opacity: 0.9;
+}
+
+/* No Subscription */
+.no-subscription {
+  max-width: 600px;
+  margin: 0 auto 40px;
+}
+
+.subscription-badge.info {
+  background: linear-gradient(135deg, #20c997 0%, #17a2b8 100%);
+  box-shadow: 0 5px 15px rgba(32, 201, 151, 0.3);
 }
 
 /* Loading */
@@ -165,6 +204,37 @@
   font-weight: 600;
 }
 
+/* Upgrade/Downgrade Badge */
+.upgrade-badge {
+  position: absolute;
+  top: -15px;
+  right: 120px;
+}
+
+.badge-upgrade {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: inline-block;
+}
+
+.badge-downgrade {
+  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: inline-block;
+}
+
 /* Plan Header */
 .plan-header {
   text-align: center;
@@ -255,6 +325,25 @@
 
 .current-plan-btn {
   background: #28a745;
+}
+
+/* Upgrade/Downgrade Button Styles */
+.plan-button {
+  position: relative;
+}
+
+.plan-button::before {
+  content: attr(data-button-type);
+}
+
+.plan-card.popular .plan-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-weight: 700;
+}
+
+.plan-card:nth-child(3) .plan-button:not(:disabled) {
+  /* Business plan upgrade button */
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
 }
 
 /* FAQ Section */

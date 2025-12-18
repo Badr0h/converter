@@ -37,4 +37,9 @@ public class PaymentCreateDto {
      */
     @NotBlank(message = "Payment token cannot be blank")
     private String paymentToken;
+    /**
+     * Optional billing cycle: 'monthly' or 'annual'. When provided, PaymentService
+     * will use the corresponding plan price (monthlyPrice/annualPrice) if available.
+     */
+    private String billingCycle;
 }

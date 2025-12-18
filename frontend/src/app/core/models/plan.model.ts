@@ -6,6 +6,8 @@ export interface PlanResponseDto {
   price: number;
   currency: string;
   duration: SubscriptionDuration;
+  monthlyPrice?: number;
+  annualPrice?: number;
   // Optional UI fields (may be absent from backend)
   maxConversions?: number;
   features?: string[];

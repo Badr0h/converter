@@ -23,6 +23,7 @@ export class CheckoutComponent implements OnInit {
   loading = false;
   processing = false;
   errorMessage = '';
+  billingCycle: 'monthly' | 'annual' = 'monthly';
 
   constructor(
     private formBuilder: FormBuilder,
@@ -36,11 +37,33 @@ export class CheckoutComponent implements OnInit {
   ngOnInit(): void {
     this.initForm();
     this.loadPlan();
+    const billing = this.route.snapshot.queryParamMap.get('billing');
+    if (billing === 'annual') this.billingCycle = 'annual';
+  }
+
+  private mapPlanDurationToEnum(durationValue: number | string) {
+    // Backend plan.duration may be stored as months OR as days (e.g. 30, 90, 365).
+    const n = Number(durationValue);
+    if (isNaN(n)) return String(durationValue);
+
+    // Direct month values
+    if (n === 1 || n === 30) return 'ONE_MONTH';
+    if (n === 3 || n === 90) return 'THREE_MONTHS';
+    if (n === 12 || n === 365) return 'TWELVE_MONTHS';
+
+    // Heuristic fallbacks (in case plan.duration uses other day counts)
+    if (n >= 360) return 'TWELVE_MONTHS';
+    if (n >= 80) return 'THREE_MONTHS';
+    if (n >= 25) return 'ONE_MONTH';
+
+    // Final fallback
+    return 'ONE_MONTH';
   }
 
   initForm(): void {
     this.checkoutForm = this.formBuilder.group({
-      cardNumber: ['', [Validators.required, Validators.pattern(/^\d{16}$/)]],
+      // Accept either 16 contiguous digits or groups of 4 separated by spaces (e.g. "4552 5670 1500 8958")
+      cardNumber: ['', [Validators.required, Validators.pattern(/^(?:\d{4}\s){3}\d{4}$|^\d{16}$/)]],
       cardName: ['', [Validators.required, Validators.minLength(3)]],
       expiryDate: ['', [Validators.required, Validators.pattern(/^(0[1-9]|1[0-2])\/\d{2}$/)]],
       cvv: ['', [Validators.required, Validators.pattern(/^\d{3,4}$/)]],
@@ -97,6 +120,13 @@ export class CheckoutComponent implements OnInit {
     this.checkoutForm.patchValue({ expiryDate: value }, { emitEvent: false });
   }
 
+  private localDateString(d: Date): string {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
   onSubmit(): void {
     if (this.checkoutForm.invalid || !this.plan) {
       return;
@@ -108,8 +138,10 @@ export class CheckoutComponent implements OnInit {
     // Create subscription first (status will be PENDING)
     const subscriptionRequest: SubscriptionCreateDto = {
       planId: this.plan!.id,
-      startDate: new Date(),
-      duration: this.plan!.duration as SubscriptionDuration
+      // Send ISO LocalDate (yyyy-MM-dd) so backend's LocalDate binds correctly
+      startDate: this.localDateString(new Date()) as any,
+      // Backend expects SubscriptionDuration enum names (ONE_MONTH, THREE_MONTHS, TWELVE_MONTHS)
+      duration: this.mapPlanDurationToEnum(this.plan!.duration as any) as any
     };
 
     this.subscriptionService.createSubscription(subscriptionRequest).subscribe({
@@ -119,15 +151,26 @@ export class CheckoutComponent implements OnInit {
           userId: this.authService.currentUserValue?.id || 0,
           subscriptionId: createdSubscription.id,
           paymentMethod: 'card',
-          paymentToken: 'SIM-' + Date.now()
+          paymentToken: 'SIM-' + Date.now(),
+          billingCycle: this.billingCycle
         };
 
         this.paymentService.createPayment(paymentRequest).subscribe({
           next: (paymentResponse) => {
             console.log('Payment successful', paymentResponse);
-            this.processing = false;
-            alert('✓ Subscription created (pending). Payment processed successfully.');
-            this.router.navigate(['/dashboard']);
+            // After payment is successful, activate the subscription on the backend
+            this.subscriptionService.activateSubscription(createdSubscription.id).subscribe({
+              next: (activated) => {
+                console.log('Subscription activated', activated);
+                this.processing = false;
+                this.router.navigate(['/dashboard']);
+              },
+              error: (actErr) => {
+                console.error('Activation error', actErr);
+                this.errorMessage = 'Payment succeeded but activation failed. Please contact support.';
+                this.processing = false;
+              }
+            });
           },
           error: (error) => {
             console.error('Payment error', error);
@@ -150,7 +193,11 @@ export class CheckoutComponent implements OnInit {
   }
 
   calculateTotal(): number {
-    return this.plan ? this.plan.price : 0;
+    // Default to monthly price for checkout total if available
+    if (!this.plan) return 0;
+    return this.billingCycle === 'annual'
+      ? (this.plan.annualPrice ?? ((this.plan.monthlyPrice ?? this.plan.price) * 10))
+      : (this.plan.monthlyPrice ?? this.plan.price ?? 0);
   }
 
   formatPrice(price: number): string {

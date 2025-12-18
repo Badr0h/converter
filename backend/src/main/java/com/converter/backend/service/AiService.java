@@ -30,10 +30,18 @@ public class AiService {
                 .build();
     }
 
-    public Mono<String> generateResponse(String prompt) {
+    /**
+     * Generate AI response using OpenAI GPT based on user plan
+     *
+     * @param prompt The user prompt
+     * @param plan   User plan: BASIC, PRO, PREMIUM, BUSINESS
+     * @return AI-generated response as Mono<String>
+     */
+    public Mono<String> generateResponse(String prompt, String plan) {
+        String model = getModelForPlan(plan);
 
         OpenAIRequest request = new OpenAIRequest(
-                "gpt-3.5-turbo",
+                model,
                 List.of(Map.of("role", "user", "content", prompt))
         );
 
@@ -51,5 +59,23 @@ public class AiService {
                     }
                     return response.choices().get(0).message().get("content");
                 });
+    }
+
+    /**
+     * Map user plan to GPT model
+     */
+    private String getModelForPlan(String plan) {
+        switch (plan.toUpperCase()) {
+            case "BASIC":
+                return "gpt-5-mini";          // cheapest, fast
+            case "PRO":
+                return "gpt-5.2-instant";     // higher quality
+            case "PREMIUM":
+                return "gpt-5.2-thinking";    // best for complex tasks
+            case "BUSINESS":
+                return "gpt-5.2-pro";         // enterprise, heavy usage
+            default:
+                return "gpt-5-mini";          // fallback
+        }
     }
 }

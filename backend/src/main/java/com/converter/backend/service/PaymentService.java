@@ -65,8 +65,23 @@ public class PaymentService {
         if (plan == null) {
             throw new IllegalStateException("Subscription is not associated with a valid Plan.");
         }
-        BigDecimal amount = plan.getPrice(); 
+
+        // Determine amount based on billingCycle if provided
+        BigDecimal amount = plan.getPrice();
         String currency = plan.getCurrency();
+        if (dto.getBillingCycle() != null) {
+            String cycle = dto.getBillingCycle().toLowerCase();
+            if ("annual".equals(cycle) && plan.getAnnualPrice() != null) {
+                amount = plan.getAnnualPrice();
+            } else if ("monthly".equals(cycle) && plan.getMonthlyPrice() != null) {
+                amount = plan.getMonthlyPrice();
+            }
+        } else {
+            // prefer monthlyPrice if present
+            if (plan.getMonthlyPrice() != null) {
+                amount = plan.getMonthlyPrice();
+            }
+        }
 
     Payment payment = new Payment();
     payment.setUser(user);

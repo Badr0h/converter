@@ -19,7 +19,9 @@ export interface SubscriptionResponseDto {
   endDate: Date;
   createdAt: Date;
   planName: string;
+  planId?: number;
   price: number;
+  monthlyPrice?: number;
   // Optional UI field
   remainingConversions?: number;
 }

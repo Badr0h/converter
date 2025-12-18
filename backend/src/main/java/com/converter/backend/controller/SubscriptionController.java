@@ -7,13 +7,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.converter.backend.dto.subscription.SubscriptionCreateDto;
 import com.converter.backend.dto.subscription.SubscriptionResponseDto;
 import com.converter.backend.service.SubscriptionService;
+import com.converter.backend.dto.subscription.SubscriptionCreateDto;
 
 import jakarta.validation.Valid;
 
@@ -45,6 +48,14 @@ public class SubscriptionController {
         return ResponseEntity
             .created(URI.create("/subscription/" + createdSubscription.getId()))
             .body(createdSubscription);
+    }
+
+    // Allow both PUT and POST for activation to be resilient to different clients
+    @PutMapping("/{id}/activate")
+    @PostMapping("/{id}/activate")
+    public ResponseEntity<SubscriptionResponseDto> activateSubscription(@PathVariable Long id){
+        SubscriptionResponseDto activated = subscriptionService.activateSubscription(id);
+        return ResponseEntity.ok(activated);
     }
 
 }

@@ -38,9 +38,19 @@ public class PlanService {
     public PlanResponseDto createPlan(PlanCreateDto dto) {
         Plan plan = new Plan();
         plan.setName(dto.getName());
-        plan.setPrice(dto.getPrice());
+        // Prefer monthlyPrice if provided, otherwise fallback to legacy price
+        if (dto.getMonthlyPrice() != null) {
+            plan.setMonthlyPrice(dto.getMonthlyPrice());
+            plan.setPrice(dto.getMonthlyPrice());
+        } else {
+            plan.setPrice(dto.getPrice());
+        }
         plan.setCurrency(dto.getCurrency());
         plan.setDuration(dto.getDuration());
+
+        if (dto.getAnnualPrice() != null) {
+            plan.setAnnualPrice(dto.getAnnualPrice());
+        }
 
         Plan savedPlan = planRepository.save(plan);
         return mapToDto(savedPlan);
@@ -61,6 +71,8 @@ public class PlanService {
         dto.setPrice(plan.getPrice());
         dto.setCurrency(plan.getCurrency());
         dto.setDuration(plan.getDuration());
+        dto.setMonthlyPrice(plan.getMonthlyPrice());
+        dto.setAnnualPrice(plan.getAnnualPrice());
         return dto;
     }
 }

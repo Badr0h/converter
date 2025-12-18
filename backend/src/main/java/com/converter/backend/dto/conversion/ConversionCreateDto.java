@@ -24,4 +24,6 @@ public class ConversionCreateDto {
 
     @NotBlank(message = "Prompt cannot be blank")
     private String prompt;
+
+    private String plan ;
 }
