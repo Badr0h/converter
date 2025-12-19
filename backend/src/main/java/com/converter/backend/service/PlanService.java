@@ -47,6 +47,7 @@ public class PlanService {
         }
         plan.setCurrency(dto.getCurrency());
         plan.setDuration(dto.getDuration());
+        plan.setMaxConversions(dto.getMaxConversions());
 
         if (dto.getAnnualPrice() != null) {
             plan.setAnnualPrice(dto.getAnnualPrice());
@@ -73,6 +74,7 @@ public class PlanService {
         dto.setDuration(plan.getDuration());
         dto.setMonthlyPrice(plan.getMonthlyPrice());
         dto.setAnnualPrice(plan.getAnnualPrice());
+        dto.setMaxConversions(plan.getMaxConversions());
         return dto;
     }
 }

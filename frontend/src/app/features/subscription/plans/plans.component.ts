@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { SubscriptionService } from '../../../core/services/subscription.service';
-import { SubscriptionResponseDto } from '../../../core/models/subscription.model';
+import { SubscriptionResponseDto, SubscriptionStatus } from '../../../core/models/subscription.model';
 import { PlanResponseDto } from '../../../core/models/plan.model';
 import { PaymentService } from '../../../core/services/payment.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { filter } from 'rxjs/operators';
+import { PLANS_DESCRIPTION } from './plan.constants';
 
 @Component({
   selector: 'app-plans',
@@ -17,20 +19,42 @@ import { AuthService } from '../../../core/services/auth.service';
 export class PlansComponent implements OnInit {
   plans: PlanResponseDto[] = [];
   currentSubscription: SubscriptionResponseDto | null = null;
+  subscriptionStatus: SubscriptionStatus | null = null;
   loading = true;
   errorMessage = '';
   billingCycle: 'monthly' | 'annual' = 'monthly';
+  readonly SubscriptionStatus = SubscriptionStatus;
+  
+  selectedPlanDetails: any = null;
+  showPlanDetails = false;
 
   constructor(
     private subscriptionService: SubscriptionService,
-    private router: Router
-    , private paymentService: PaymentService
-    , private authService: AuthService
+    private router: Router,
+    private route: ActivatedRoute,
+    private paymentService: PaymentService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
     this.loadPlans();
     this.loadCurrentSubscription();
+    
+    // Reload subscription data when returning to this page
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd && event.urlAfterRedirects.includes('/subscription/plans')))
+      .subscribe(() => {
+        console.log('Navigated back to plans page, reloading subscription data');
+        this.loadCurrentSubscription();
+      });
+
+    // Also check for refresh parameter in route
+    this.route.queryParams.subscribe(params => {
+      if (params['refresh']) {
+        console.log('Refresh parameter detected, reloading subscription data');
+        this.loadCurrentSubscription();
+      }
+    });
   }
 
   loadPlans(): void {
@@ -50,10 +74,11 @@ export class PlansComponent implements OnInit {
   }
 
   loadCurrentSubscription(): void {
-    this.subscriptionService.getCurrentSubscription().subscribe({
+    this.subscriptionService.getCurrentUserSubscription().subscribe({
       next: (subscription) => {
-        this.currentSubscription = subscription[0] || null;
+        this.currentSubscription = subscription;
         if (this.currentSubscription) {
+          this.subscriptionStatus = this.currentSubscription.status;
           console.log('Current subscription:', this.currentSubscription);
         }
       },
@@ -61,13 +86,23 @@ export class PlansComponent implements OnInit {
         console.error('Error loading current subscription', error);
         // User might not have a subscription yet
         this.currentSubscription = null;
+        this.subscriptionStatus = null;
       }
     });
   }
 
-
+  // Reload subscription data - can be called after events
+  reloadCurrentSubscription(): void {
+    this.loadCurrentSubscription();
+  }
 
   selectPlan(plan: PlanResponseDto): void {
+    // Check if subscription is ACTIVE - don't allow plan changes
+    if (this.currentSubscription?.status === SubscriptionStatus.ACTIVE && this.isCurrentPlan(plan)) {
+      console.log('Cannot change active plan');
+      return;
+    }
+
     // Check if user is already on this plan
     if (this.currentSubscription?.planName === plan.name) {
       console.log('Already subscribed to', plan.name);
@@ -82,6 +117,10 @@ export class PlansComponent implements OnInit {
     if (!this.currentSubscription) return false;
     // Check both planName and plan id
     return this.currentSubscription.planName === plan.name || this.currentSubscription.planId === plan.id;
+  }
+
+  isCurrentPlanActive(): boolean {
+    return this.currentSubscription?.status === SubscriptionStatus.ACTIVE;
   }
 
   getCurrentPlanName(): string {
@@ -122,6 +161,28 @@ export class PlansComponent implements OnInit {
       return 'Best Value';
     }
     return null;
+  }
+
+  viewPlanDetails(plan: PlanResponseDto): void {
+    console.log('Viewing details for plan:', plan.name);
+    const planKey = plan.name.charAt(0).toUpperCase() + plan.name.slice(1).toLowerCase();
+    const planDetails = PLANS_DESCRIPTION[planKey];
+    console.log('Plan key:', planKey, 'Details:', planDetails);
+    if (planDetails) {
+      this.selectedPlanDetails = {
+        ...plan,
+        ...planDetails
+      };
+      this.showPlanDetails = true;
+      console.log('Modal opened. showPlanDetails:', this.showPlanDetails);
+    } else {
+      console.warn(`Plan details not found for plan: ${plan.name}`);
+    }
+  }
+
+  closePlanDetails(): void {
+    this.showPlanDetails = false;
+    this.selectedPlanDetails = null;
   }
 
   toggleBilling(cycle: 'monthly' | 'annual'){
@@ -166,5 +227,37 @@ export class PlansComponent implements OnInit {
       return 'Unlimited';
     }
     return maxConversions.toString();
+  }
+
+  getSubscriptionStatusClass(): string {
+    if (!this.subscriptionStatus) return 'inactive';
+    switch (this.subscriptionStatus) {
+      case SubscriptionStatus.ACTIVE:
+        return 'active';
+      case SubscriptionStatus.PENDING:
+        return 'pending';
+      case SubscriptionStatus.EXPIRED:
+        return 'expired';
+      case SubscriptionStatus.CANCELLED:
+        return 'cancelled';
+      default:
+        return 'inactive';
+    }
+  }
+
+  getSubscriptionStatusText(): string {
+    if (!this.subscriptionStatus) return 'Inactive';
+    switch (this.subscriptionStatus) {
+      case SubscriptionStatus.ACTIVE:
+        return 'Active';
+      case SubscriptionStatus.PENDING:
+        return 'Pending';
+      case SubscriptionStatus.EXPIRED:
+        return 'Expired';
+      case SubscriptionStatus.CANCELLED:
+        return 'Cancelled';
+      default:
+        return 'Inactive';
+    }
   }
 }

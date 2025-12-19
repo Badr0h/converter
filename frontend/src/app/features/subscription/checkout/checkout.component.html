@@ -33,13 +33,6 @@
         </div>
       </div>
 
-      <div class="summary-features">
-        <h4>What's included:</h4>
-        <ul>
-          <li *ngFor="let feature of plan.features">{{ feature }}</li>
-        </ul>
-      </div>
-
       <div class="summary-total">
         <span>Total (monthly)</span>
         <span class="total-amount">{{ formatPrice(calculateTotal()) }}</span>

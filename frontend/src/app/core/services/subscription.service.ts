@@ -15,6 +15,10 @@ export class SubscriptionService {
   getCurrentSubscription(): Observable<SubscriptionResponseDto[]>{
     return this.http.get<SubscriptionResponseDto[]>(`${this.apiUrl}`);
   }
+
+  getCurrentUserSubscription(): Observable<SubscriptionResponseDto>{
+    return this.http.get<SubscriptionResponseDto>(`${this.apiUrl}/current`);
+  }
   getCurrentSubscriptionById(id: number): Observable<SubscriptionResponseDto[]>{
     return this.http.get<SubscriptionResponseDto[]>(`${this.apiUrl}/${id}`);
   }

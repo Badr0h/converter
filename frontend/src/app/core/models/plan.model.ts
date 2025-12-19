@@ -8,9 +8,7 @@ export interface PlanResponseDto {
   duration: SubscriptionDuration;
   monthlyPrice?: number;
   annualPrice?: number;
-  // Optional UI fields (may be absent from backend)
-  maxConversions?: number;
-  features?: string[];
+  maxConversions?: number; // Maximum conversions per month
 }
 
 export interface PlanCreateDto {
@@ -18,4 +16,5 @@ export interface PlanCreateDto {
   price: number;
   currency: string;
   duration: SubscriptionDuration;
+  maxConversions: number; // Maximum conversions per month
 }

@@ -37,6 +37,11 @@ public class SubscriptionController {
         return ResponseEntity.ok(subscriptionService.getAllSubscriptions());
     }
 
+    @GetMapping("/current")
+    public ResponseEntity<SubscriptionResponseDto> getCurrentUserSubscription(){
+        return ResponseEntity.ok(subscriptionService.getCurrentUserSubscription());
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<SubscriptionResponseDto> getSubscriptionById(@PathVariable Long id){
         return ResponseEntity.ok(subscriptionService.getSubscriptionById(id));

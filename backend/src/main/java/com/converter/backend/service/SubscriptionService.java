@@ -52,6 +52,34 @@ public class SubscriptionService {
         return mapToSubscriptionResponseDto(subscription);
     }
 
+    @Transactional(readOnly = true)
+    public SubscriptionResponseDto getCurrentUserSubscription(){
+        // Get the current authenticated user from security context
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = authentication.getName();
+        User user = userRepository.findByEmail(currentUsername)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + currentUsername));
+
+        // Try to find ACTIVE subscription first
+        var activeSubscription = subscriptionRepository.findByUserAndStatus(user.getId(), Status.ACTIVE.name());
+        if (activeSubscription.isPresent()) {
+            return mapToSubscriptionResponseDto(activeSubscription.get());
+        }
+
+        // If no active, find PENDING subscription
+        var pendingSubscriptions = subscriptionRepository.findByUser(user)
+            .stream()
+            .filter(s -> s.getStatus() == Status.PENDING)
+            .findFirst();
+        
+        if (pendingSubscriptions.isPresent()) {
+            return mapToSubscriptionResponseDto(pendingSubscriptions.get());
+        }
+
+        // No active or pending subscription found, throw exception
+        throw new ResourceNotFoundException("No active or pending subscription found for user: " + currentUsername);
+    }
+
 
     @Transactional
     public SubscriptionResponseDto createSubscription(SubscriptionCreateDto dto){
@@ -65,21 +93,27 @@ public class SubscriptionService {
         User user = userRepository.findByEmail(currentUsername)
             .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + currentUsername));
 
+        // Cancel any existing ACTIVE subscription
+        var existingActive = subscriptionRepository.findByUserAndStatus(user.getId(), Status.ACTIVE.name());
+        if (existingActive.isPresent()) {
+            existingActive.get().setStatus(Status.CANCELLED);
+            subscriptionRepository.save(existingActive.get());
+        }
+
         Subscription subscription = new Subscription() ; 
         subscription.setUser(user);
         subscription.setStartDate(dto.getStartDate());
         subscription.setDuration(dto.getDuration());
         subscription.setPlan(plan);
         subscription.setStatus(Status.PENDING);
+        subscription.setMaxConversionsPerMonth(plan.getMaxConversions());
 
         LocalDate endDate = subscription.getStartDate().plusMonths(subscription.getDuration().getMonths());
         subscription.setEndDate(endDate);
         
         Subscription savedSubscription = subscriptionRepository.save(subscription);
 
-
         return mapToSubscriptionResponseDto(savedSubscription);
-
     }
 
     @Transactional
@@ -89,14 +123,47 @@ public class SubscriptionService {
         
         if(subscription.getStatus() == Status.ACTIVE){
             throw new IllegalStateException("subscription is still  active until :" + subscription.getEndDate());
-        }else{
+        }
+
+        // Cancel any other ACTIVE subscriptions for this user
+        var otherActive = subscriptionRepository.findByUserAndStatus(subscription.getUser().getId(), Status.ACTIVE.name());
+        if (otherActive.isPresent() && !otherActive.get().getId().equals(id)) {
+            otherActive.get().setStatus(Status.CANCELLED);
+            subscriptionRepository.save(otherActive.get());
+        }
+
         subscription.setStatus(Status.ACTIVE);
+        
+        // Ensure maxConversionsPerMonth is set from plan
+        if (subscription.getPlan() != null && subscription.getMaxConversionsPerMonth() == null) {
+            subscription.setMaxConversionsPerMonth(subscription.getPlan().getMaxConversions());
         }
 
         Subscription updatedSubscription = subscriptionRepository.save(subscription);
 
         return mapToSubscriptionResponseDto(updatedSubscription);
+    }
 
+    @Transactional
+    public SubscriptionResponseDto getOrCreateFreeSubscriptionForUser(User user) {
+        // Check if user already has a subscription
+        List<Subscription> userSubscriptions = subscriptionRepository.findByUser(user);
+        if (!userSubscriptions.isEmpty()) {
+            return mapToSubscriptionResponseDto(userSubscriptions.get(0));
+        }
+
+        // Create a free tier subscription
+        Subscription freeSubscription = new Subscription();
+        freeSubscription.setUser(user);
+        freeSubscription.setStartDate(LocalDate.now());
+        freeSubscription.setEndDate(LocalDate.now().plusMonths(1)); // Set to expire in one month
+        freeSubscription.setDuration(Subscription.SubscriptionDuration.ONE_MONTH);
+        freeSubscription.setPlan(null); // No plan for free tier
+        freeSubscription.setStatus(Status.ACTIVE);
+        freeSubscription.setMaxConversionsPerMonth(1); // 1 free conversion per month
+
+        Subscription savedSubscription = subscriptionRepository.save(freeSubscription);
+        return mapToSubscriptionResponseDto(savedSubscription);
     }
 
     @Transactional
@@ -111,7 +178,6 @@ public class SubscriptionService {
         }else {
             logger.debug("No subscriptions to expire today.");
         }
-
     }
 
     
@@ -124,8 +190,19 @@ public class SubscriptionService {
         dto.setStartDate(subscription.getStartDate());
         dto.setEndDate(subscription.getEndDate());
         dto.setCreatedAt(subscription.getCreatedAt());
-        dto.setPlanName(subscription.getPlan().getName());
-        dto.setPrice(subscription.getPlan().getPrice());
+        
+        // Handle null plan for free tier
+        if (subscription.getPlan() != null) {
+            dto.setPlanName(subscription.getPlan().getName());
+            dto.setPlanId(subscription.getPlan().getId());
+            dto.setPrice(subscription.getPlan().getPrice());
+        } else {
+            dto.setPlanName("Free");
+            dto.setPlanId(null);
+            dto.setPrice(java.math.BigDecimal.ZERO);
+        }
+        
+        dto.setMaxConversionsPerMonth(subscription.getMaxConversionsPerMonth());
 
         return dto ;
     }

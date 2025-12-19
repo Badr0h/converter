@@ -163,7 +163,10 @@ export class CheckoutComponent implements OnInit {
               next: (activated) => {
                 console.log('Subscription activated', activated);
                 this.processing = false;
-                this.router.navigate(['/dashboard']);
+                // Wait a moment for database to fully update, then navigate
+                setTimeout(() => {
+                  this.router.navigate(['/subscription/plans'], { queryParams: { refresh: Date.now() } });
+                }, 500);
               },
               error: (actErr) => {
                 console.error('Activation error', actErr);

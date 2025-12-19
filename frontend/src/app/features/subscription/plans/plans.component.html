@@ -13,22 +13,22 @@
 
   <!-- Current Subscription Info -->
   <div class="current-subscription" *ngIf="currentSubscription">
-    <div class="subscription-badge">
+    <div class="subscription-badge" [class]="getSubscriptionStatusClass()">
       <span class="badge-icon">💎</span>
       <div class="badge-content">
         <h3>Your Current Plan: <strong>{{ getCurrentPlanName() }}</strong></h3>
-        <p>Status: {{ currentSubscription.status }} | {{ currentSubscription.remainingConversions }} conversions remaining</p>
+        <p>Status: <span class="status-badge" [class]="getSubscriptionStatusClass()">{{ getSubscriptionStatusText() }}</span> | {{ currentSubscription.maxConversionsPerMonth }} conversions per month</p>
       </div>
     </div>
   </div>
 
-  <!-- No Subscription Info -->
+  <!-- No Subscription Info (Free Tier) -->
   <div class="no-subscription" *ngIf="!currentSubscription && !loading">
     <div class="subscription-badge info">
       <span class="badge-icon">🚀</span>
       <div class="badge-content">
-        <h3>No Active Plan</h3>
-        <p>Get started by choosing one of our plans below</p>
+        <h3>No Active Plan - Free Tier</h3>
+        <p>You currently have 1 free conversion per month. Upgrade to unlock more conversions!</p>
       </div>
     </div>
   </div>
@@ -86,23 +86,83 @@
         </p>
       </div>
 
-      <!-- Plan Features -->
-      <div class="plan-features">
-        <div class="feature-item" *ngFor="let feature of plan.features">
-          <span class="feature-icon">✓</span>
-          <span class="feature-text">{{ feature }}</span>
-        </div>
-      </div>
-
       <!-- Plan Action Button -->
       <button 
         class="plan-button"
         [class.current-plan-btn]="isCurrentPlan(plan)"
-        [disabled]="isCurrentPlan(plan)"
+        [disabled]="isCurrentPlan(plan) || (isCurrentPlan(plan) && isCurrentPlanActive())"
         (click)="selectPlan(plan)"
       >
         {{ getPlanButtonText(plan) }}
       </button>
+
+      <!-- View Details Button -->
+      <button 
+        class="view-details-btn"
+        (click)="viewPlanDetails(plan)"
+      >
+        View Details →
+      </button>
+    </div>
+  </div>
+
+  <!-- Plan Details Modal -->
+  <div class="plan-details-modal show" *ngIf="showPlanDetails && selectedPlanDetails">
+    <div class="modal-overlay" (click)="closePlanDetails()"></div>
+    <div class="modal-content">
+      <button class="close-btn" (click)="closePlanDetails()">✕</button>
+      
+      <div class="plan-details-header">
+        <h2>{{ selectedPlanDetails.name }} Plan</h2>
+        <div class="plan-details-price">
+          <ng-container *ngIf="billingCycle === 'monthly'">
+            <span class="price-amount">{{ formatPrice(selectedPlanDetails.monthlyPrice ?? selectedPlanDetails.price, selectedPlanDetails.currency) }}</span>
+            <span class="price-period">/month</span>
+          </ng-container>
+          <ng-container *ngIf="billingCycle === 'annual'">
+            <span class="price-amount">{{ formatPrice(selectedPlanDetails.annualPrice ?? ((selectedPlanDetails.monthlyPrice ?? selectedPlanDetails.price) * 10), selectedPlanDetails.currency) }}</span>
+            <span class="price-period">/year</span>
+          </ng-container>
+        </div>
+      </div>
+
+      <div class="plan-details-body">
+        <div class="details-section">
+          <h3>Overview</h3>
+          <p class="plan-description-full">{{ selectedPlanDetails.description }}</p>
+        </div>
+
+        <div class="details-section">
+          <h3>Conversions & Limits</h3>
+          <p><strong>{{ formatConversions(selectedPlanDetails.maxConversions) }}</strong> conversions per month</p>
+        </div>
+
+        <div class="details-section">
+          <h3>Features Included</h3>
+          <ul class="features-list">
+            <li *ngFor="let feature of selectedPlanDetails.features">
+              <span class="feature-checkmark">✓</span>
+              {{ feature }}
+            </li>
+          </ul>
+        </div>
+
+        <div class="details-actions">
+          <button 
+            class="btn-primary"
+            [disabled]="isCurrentPlan(selectedPlanDetails)"
+            (click)="selectPlan(selectedPlanDetails); closePlanDetails()"
+          >
+            {{ getPlanButtonText(selectedPlanDetails) }}
+          </button>
+          <button 
+            class="btn-secondary"
+            (click)="closePlanDetails()"
+          >
+            Close
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 

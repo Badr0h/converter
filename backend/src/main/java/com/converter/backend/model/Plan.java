@@ -36,4 +36,7 @@ public class Plan {
 
     @Column(name = "annual_price")
     private BigDecimal annualPrice;
+
+    @Column(name = "max_conversions")
+    private Integer maxConversions; // Maximum conversions per month for this plan
 }

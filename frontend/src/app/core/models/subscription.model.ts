@@ -22,7 +22,7 @@ export interface SubscriptionResponseDto {
   planId?: number;
   price: number;
   monthlyPrice?: number;
-  // Optional UI field
+  maxConversionsPerMonth?: number; // Conversions allowed per month
   remainingConversions?: number;
 }
 

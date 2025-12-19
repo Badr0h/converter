@@ -12,4 +12,5 @@ public class PlanResponseDto {
     private Integer duration; // in days
     private BigDecimal monthlyPrice;
     private BigDecimal annualPrice;
+    private Integer maxConversions; // Maximum conversions per month for this plan
 }

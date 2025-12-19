@@ -22,7 +22,7 @@ public class SubscriptionResponseDto {
     private LocalDate endDate ; 
     private LocalDateTime createdAt ; 
     private String planName;
+    private Long planId;
     private BigDecimal price;
-
-
+    private Integer maxConversionsPerMonth; // Conversions allowed per month
 }

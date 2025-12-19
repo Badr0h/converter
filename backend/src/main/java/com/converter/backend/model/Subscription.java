@@ -22,9 +22,9 @@ public class Subscription {
     @JoinColumn(name = "user_id", nullable = false)
     private User user ;
 
-    @ManyToOne
-    @JoinColumn(name = "plan_id", nullable = false)
-    private Plan plan; // <--- lien vers le plan
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "plan_id", nullable = true)
+    private Plan plan; // <--- lien vers le plan, nullable for free tier
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status",columnDefinition = "ENUM('ACTIVE', 'CANCELLED', 'EXPIRED','PENDING')DEFAULT 'PENDING'")
@@ -43,7 +43,8 @@ public class Subscription {
     @Column(name = "duration" , nullable = false)
     private SubscriptionDuration duration ; 
 
-    
+    @Column(name = "max_conversions_per_month")
+    private Integer maxConversionsPerMonth; // Number of conversions allowed per month
 
     public enum Status{
         ACTIVE,

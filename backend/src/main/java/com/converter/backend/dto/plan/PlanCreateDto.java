@@ -26,4 +26,8 @@ public class PlanCreateDto {
     @NotNull(message = "Duration cannot be null")
     @Positive(message = "Duration must be a positive integer representing days")
     private Integer duration;
+
+    @NotNull(message = "Max conversions cannot be null")
+    @Positive(message = "Max conversions must be positive")
+    private Integer maxConversions; // Maximum conversions per month
 }
