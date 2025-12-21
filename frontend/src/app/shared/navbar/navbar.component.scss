@@ -1,3 +1,16 @@
+// Variables
+$primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+$primary-color: #667eea;
+$secondary-color: #764ba2;
+$danger-color: #dc3545;
+$text-dark: #333;
+$text-muted: #666;
+$bg-light: #f8f9fa;
+$border-color: #e0e0e0;
+
+$transition-fast: 0.3s;
+
+/* ===== NAVBAR ===== */
 .navbar {
   background: white;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -16,7 +29,7 @@
   height: 70px;
 }
 
-/* Logo */
+/* ===== LOGO ===== */
 .navbar-logo {
   display: flex;
   align-items: center;
@@ -24,12 +37,12 @@
   text-decoration: none;
   font-size: 24px;
   font-weight: 700;
-  color: #333;
-  transition: transform 0.3s;
-}
+  color: $text-dark;
+  transition: transform $transition-fast;
 
-.navbar-logo:hover {
-  transform: scale(1.05);
+  &:hover {
+    transform: scale(1.05);
+  }
 }
 
 .logo-icon {
@@ -37,24 +50,33 @@
 }
 
 .logo-text {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: $primary-gradient;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
-/* Mobile Toggle */
+/* ===== MOBILE TOGGLE ===== */
 .mobile-toggle {
   display: none;
   background: none;
   border: none;
   font-size: 28px;
   cursor: pointer;
-  color: #333;
+  color: $text-dark;
   padding: 5px;
+  transition: transform $transition-fast;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
 }
 
-/* Navigation Menu */
+/* ===== NAVIGATION MENU ===== */
 .navbar-menu {
   display: flex;
   gap: 30px;
@@ -62,109 +84,256 @@
 }
 
 .nav-link {
-  color: #666;
+  color: $text-muted;
   text-decoration: none;
   font-size: 16px;
   font-weight: 500;
   padding: 8px 16px;
   border-radius: 5px;
-  transition: all 0.3s;
+  transition: all $transition-fast;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: $primary-gradient;
+    transition: all $transition-fast;
+    transform: translateX(-50%);
+  }
+
+  &:hover {
+    color: $primary-color;
+    background-color: rgba($primary-color, 0.1);
+
+    &::after {
+      width: 80%;
+    }
+  }
+
+  &.active {
+    color: $primary-color;
+    background-color: rgba($primary-color, 0.1);
+
+    &::after {
+      width: 80%;
+    }
+  }
 }
 
-.nav-link:hover {
-  color: #667eea;
-  background-color: rgba(102, 126, 234, 0.1);
-}
-
-.nav-link.active {
-  color: #667eea;
-  background-color: rgba(102, 126, 234, 0.1);
-}
-
-/* User Menu */
+/* ===== USER MENU ===== */
 .navbar-user {
   display: flex;
   align-items: center;
   gap: 15px;
 }
 
+/* User Profile Link - Enhanced Styling */
 .user-info {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  background-color: #f8f9fa;
-  border-radius: 25px;
+  gap: 10px;
+  padding: 10px 18px;
+  background: linear-gradient(135deg, rgba($primary-color, 0.08) 0%, rgba($secondary-color, 0.08) 100%);
+  border: 2px solid transparent;
+  border-radius: 30px;
+  transition: all $transition-fast ease;
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+
+  /* Subtle shine effect */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
+    transition: left 0.5s;
+  }
+
+  &.clickable {
+    cursor: pointer;
+
+    &:hover {
+      background: linear-gradient(135deg, rgba($primary-color, 0.12) 0%, rgba($secondary-color, 0.12) 100%);
+      border-color: rgba($primary-color, 0.3);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba($primary-color, 0.15);
+
+      &::before {
+        left: 100%;
+      }
+
+      .user-icon {
+        transform: scale(1.1);
+      }
+
+      .user-name {
+        color: $primary-color;
+      }
+    }
+
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 6px rgba($primary-color, 0.1);
+    }
+  }
+
+  /* Active/Current Page State */
+  &.router-link-active {
+    background: linear-gradient(135deg, rgba($primary-color, 0.15) 0%, rgba($secondary-color, 0.15) 100%);
+    border-color: rgba($primary-color, 0.4);
+    
+    .user-name {
+      color: $primary-color;
+    }
+  }
+
+  /* Focus state for accessibility */
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba($primary-color, 0.2);
+  }
 }
 
 .user-icon {
-  font-size: 20px;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: $primary-gradient;
+  border-radius: 50%;
+  transition: all $transition-fast ease;
+  flex-shrink: 0;
+  position: relative;
+  
+  /* Create a white icon effect */
+  &::after {
+    content: '👤';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 16px;
+    filter: brightness(0) invert(1);
+  }
+  
+  /* Hide the original emoji */
+  color: transparent;
 }
 
 .user-name {
-  color: #333;
-  font-size: 14px;
-  font-weight: 500;
+  color: $text-dark;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  transition: all $transition-fast ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
 }
 
+/* Optional: Status Indicator */
+.user-info .status-indicator {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  width: 10px;
+  height: 10px;
+  background: #28a745;
+  border: 2px solid white;
+  border-radius: 50%;
+  box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+}
+
+/* ===== LOGOUT BUTTON ===== */
 .logout-btn {
   padding: 8px 20px;
-  background-color: #dc3545;
+  background-color: $danger-color;
   color: white;
   border: none;
   border-radius: 5px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all $transition-fast;
+
+  &:hover {
+    background-color: darken($danger-color, 8%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba($danger-color, 0.3);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
 }
 
-.logout-btn:hover {
-  background-color: #c82333;
-  transform: translateY(-2px);
-}
-
-/* Guest Links */
+/* ===== GUEST LINKS ===== */
 .navbar-guest {
   display: flex;
   gap: 15px;
   align-items: center;
 }
 
-/* Buttons */
+/* ===== BUTTONS ===== */
 .btn {
   padding: 10px 20px;
   border-radius: 5px;
   font-size: 14px;
   font-weight: 500;
   text-decoration: none;
-  transition: all 0.3s;
+  transition: all $transition-fast;
   display: inline-block;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 }
 
 .btn-outline {
   background: white;
-  border: 2px solid #667eea;
-  color: #667eea;
-}
+  border: 2px solid $primary-color;
+  color: $primary-color;
 
-.btn-outline:hover {
-  background: #667eea;
-  color: white;
+  &:hover:not(:disabled) {
+    background: $primary-color;
+    color: white;
+  }
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: $primary-gradient;
   color: white;
   border: none;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba($primary-color, 0.4);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
 }
 
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-}
-
-/* Responsive Design */
+/* ===== RESPONSIVE DESIGN ===== */
 @media (max-width: 768px) {
   .mobile-toggle {
     display: block;
@@ -182,26 +351,159 @@
     transform: translateY(-100%);
     opacity: 0;
     visibility: hidden;
-    transition: all 0.3s;
+    transition: all $transition-fast;
+
+    &.active {
+      transform: translateY(0);
+      opacity: 1;
+      visibility: visible;
+    }
   }
 
-  .navbar-menu.active {
-    transform: translateY(0);
-    opacity: 1;
-    visibility: visible;
+  .nav-link {
+    width: 100%;
+    text-align: center;
+
+    &::after {
+      display: none;
+    }
   }
 
   .navbar-user {
     flex-direction: column;
     gap: 10px;
+    width: 100%;
   }
 
   .user-info {
     width: 100%;
     justify-content: center;
+    padding: 10px 16px;
+
+    .user-name {
+      max-width: 200px;
+    }
   }
 
   .logout-btn {
     width: 100%;
+  }
+
+  .navbar-guest {
+    flex-direction: column;
+    width: 100%;
+
+    .btn {
+      width: 100%;
+      text-align: center;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .navbar-container {
+    padding: 0 15px;
+    height: 60px;
+  }
+
+  .navbar-logo {
+    font-size: 20px;
+  }
+
+  .logo-icon {
+    font-size: 24px;
+  }
+
+  .user-info {
+    padding: 8px 14px;
+    gap: 8px;
+
+    .user-icon {
+      width: 28px;
+      height: 28px;
+      font-size: 20px;
+
+      &::after {
+        font-size: 14px;
+      }
+    }
+
+    .user-name {
+      font-size: 14px;
+      max-width: 120px;
+    }
+  }
+
+  .navbar-menu {
+    top: 60px;
+  }
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* ===== ALTERNATIVE USER INFO STYLES ===== */
+/* Add these classes for different variants */
+
+/* Minimal Style */
+.user-info.minimal {
+  background: $bg-light;
+  border: 1px solid $border-color;
+  padding: 8px 16px;
+
+  .user-icon {
+    background: $primary-color;
+    font-size: 18px;
+    width: 28px;
+    height: 28px;
+  }
+
+  &:hover {
+    background: $primary-color;
+    border-color: $primary-color;
+
+    .user-name {
+      color: white;
+    }
+
+    .user-icon {
+      background: white;
+      
+      &::after {
+        filter: brightness(0) invert(0);
+      }
+    }
+  }
+}
+
+/* Badge Style */
+.user-info.badge-style {
+  background: $primary-gradient;
+  border: none;
+  box-shadow: 0 2px 8px rgba($primary-color, 0.3);
+
+  .user-icon {
+    background: white;
+    
+    &::after {
+      filter: brightness(0) invert(0);
+      color: $primary-color;
+    }
+  }
+
+  .user-name {
+    color: white;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba($primary-color, 0.4);
   }
 }

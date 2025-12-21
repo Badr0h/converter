@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.converter.backend.dto.dashboard.DashboardStatsDto;
 import com.converter.backend.dto.subscription.SubscriptionResponseDto;
 import com.converter.backend.service.SubscriptionService;
 import com.converter.backend.dto.subscription.SubscriptionCreateDto;
@@ -30,6 +31,11 @@ public class SubscriptionController {
 
     public SubscriptionController(SubscriptionService subscriptionService){
         this.subscriptionService = subscriptionService ;
+    }
+
+    @GetMapping("/dashboard-stats")
+    public ResponseEntity<DashboardStatsDto> getDashboardStats(){
+        return ResponseEntity.ok(subscriptionService.getDashboardStats());
     }
 
     @GetMapping

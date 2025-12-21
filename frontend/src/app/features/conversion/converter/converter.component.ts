@@ -9,7 +9,7 @@ import { ConversionResponseDto, ConversionCreateDto } from '../../../core/models
 
 // Type definitions
 type FormatLevel = 'recommended' | 'optional' | 'advanced';
-type Format = 'TEXT' | 'LATEX' | 'MATHML' | 'UNICODE' | 'SYMPY' | 'PYTHON' | 'NUMPY' | 'SCIPY' | 'MATLAB' | 'R' | 'JAVASCRIPT';
+type FormatType = 'TEXT' | 'LATEX' | 'MATHML' | 'UNICODE' | 'SYMPY' | 'PYTHON' | 'NUMPY' | 'SCIPY' | 'MATLAB' | 'R' | 'JAVASCRIPT';
 
 interface FormatOption {
   format: string;
@@ -45,7 +45,7 @@ export class ConverterComponent implements OnInit, OnDestroy {
   filteredOutputFormats: FormatOption[] = [];
 
   // Available formats with proper typing
-  private readonly availableFormats: Record<Format, FormatOption[]> = {
+  private readonly availableFormats: Record<FormatType, FormatOption[]> = {
     TEXT: [
       { format: 'LATEX', description: 'reports, exams', level: 'recommended' },
       { format: 'UNICODE', description: 'display / chat', level: 'recommended' },
@@ -73,38 +73,19 @@ export class ConverterComponent implements OnInit, OnDestroy {
     MATHML: [
       { format: 'LATEX', description: 'documentation / reports', level: 'recommended' },
       { format: 'TEXT', description: 'readable explanation', level: 'recommended' },
-      { format: 'UNICODE', description: 'display / chat', level: 'optional' },
       { format: 'SYMPY', description: 'symbolic computation', level: 'optional' },
-      { format: 'PYTHON', description: 'numerical / executable', level: 'optional' },
-      { format: 'NUMPY', description: 'numerical computations', level: 'advanced' },
-      { format: 'SCIPY', description: 'scientific computations', level: 'advanced' },
-      { format: 'MATLAB', description: 'engineering code', level: 'advanced' },
-      { format: 'R', description: 'statistics', level: 'advanced' },
-      { format: 'JAVASCRIPT', description: 'web', level: 'advanced' },
     ],
     UNICODE: [
       { format: 'LATEX', description: 'documentation / reports', level: 'recommended' },
       { format: 'TEXT', description: 'readable explanation', level: 'recommended' },
-      { format: 'MATHML', description: 'web markup', level: 'optional' },
       { format: 'SYMPY', description: 'symbolic computation', level: 'optional' },
-      { format: 'PYTHON', description: 'numerical / executable', level: 'optional' },
-      { format: 'NUMPY', description: 'numerical computations', level: 'advanced' },
-      { format: 'SCIPY', description: 'scientific computations', level: 'advanced' },
-      { format: 'MATLAB', description: 'engineering code', level: 'advanced' },
-      { format: 'R', description: 'statistics', level: 'advanced' },
-      { format: 'JAVASCRIPT', description: 'web', level: 'advanced' },
     ],
     SYMPY: [
       { format: 'LATEX', description: 'documentation / reports', level: 'recommended' },
       { format: 'TEXT', description: 'readable explanation', level: 'recommended' },
-      { format: 'UNICODE', description: 'display / chat', level: 'optional' },
       { format: 'PYTHON', description: 'numerical / executable', level: 'recommended' },
       { format: 'NUMPY', description: 'numerical computations', level: 'optional' },
       { format: 'SCIPY', description: 'scientific computations', level: 'optional' },
-      { format: 'MATLAB', description: 'engineering code', level: 'advanced' },
-      { format: 'R', description: 'statistics', level: 'advanced' },
-      { format: 'JAVASCRIPT', description: 'web', level: 'advanced' },
-      { format: 'MATHML', description: 'web markup', level: 'advanced' },
     ],
     PYTHON: [
       { format: 'NUMPY', description: 'numerical computations', level: 'recommended' },
@@ -112,11 +93,6 @@ export class ConverterComponent implements OnInit, OnDestroy {
       { format: 'SCIPY', description: 'scientific computations', level: 'optional' },
       { format: 'LATEX', description: 'documentation / reports', level: 'optional' },
       { format: 'TEXT', description: 'readable explanation', level: 'optional' },
-      { format: 'UNICODE', description: 'display / chat', level: 'optional' },
-      { format: 'MATLAB', description: 'engineering code', level: 'advanced' },
-      { format: 'R', description: 'statistics', level: 'advanced' },
-      { format: 'JAVASCRIPT', description: 'web', level: 'advanced' },
-      { format: 'MATHML', description: 'web markup', level: 'advanced' },
     ],
     NUMPY: [
       { format: 'PYTHON', description: 'clean executable code', level: 'recommended' },
@@ -124,59 +100,27 @@ export class ConverterComponent implements OnInit, OnDestroy {
       { format: 'SCIPY', description: 'scientific computation', level: 'optional' },
       { format: 'TEXT', description: 'readable explanation', level: 'optional' },
       { format: 'LATEX', description: 'documentation / reports', level: 'optional' },
-      { format: 'UNICODE', description: 'display / chat', level: 'optional' },
-      { format: 'MATLAB', description: 'engineering code', level: 'advanced' },
-      { format: 'R', description: 'statistics', level: 'advanced' },
-      { format: 'JAVASCRIPT', description: 'web', level: 'advanced' },
-      { format: 'MATHML', description: 'web markup', level: 'advanced' },
     ],
     SCIPY: [
       { format: 'PYTHON', description: 'clean executable code', level: 'recommended' },
       { format: 'NUMPY', description: 'numerical computations', level: 'recommended' },
-      { format: 'SYMPY', description: 'symbolic computation', level: 'optional' },
       { format: 'TEXT', description: 'readable explanation', level: 'optional' },
-      { format: 'LATEX', description: 'documentation / reports', level: 'optional' },
-      { format: 'UNICODE', description: 'display / chat', level: 'optional' },
-      { format: 'MATLAB', description: 'engineering code', level: 'advanced' },
-      { format: 'R', description: 'statistics', level: 'advanced' },
-      { format: 'JAVASCRIPT', description: 'web', level: 'advanced' },
-      { format: 'MATHML', description: 'web markup', level: 'advanced' },
     ],
     MATLAB: [
       { format: 'PYTHON', description: 'numerical / executable', level: 'recommended' },
       { format: 'NUMPY', description: 'numerical computations', level: 'recommended' },
       { format: 'SCIPY', description: 'scientific computation', level: 'optional' },
-      { format: 'SYMPY', description: 'symbolic computation', level: 'optional' },
       { format: 'TEXT', description: 'readable explanation', level: 'optional' },
-      { format: 'LATEX', description: 'documentation / reports', level: 'optional' },
-      { format: 'UNICODE', description: 'display / chat', level: 'optional' },
-      { format: 'R', description: 'statistics', level: 'advanced' },
-      { format: 'JAVASCRIPT', description: 'web', level: 'advanced' },
-      { format: 'MATHML', description: 'web markup', level: 'advanced' },
     ],
     R: [
       { format: 'PYTHON', description: 'numerical / executable', level: 'recommended' },
       { format: 'NUMPY', description: 'numerical computations', level: 'recommended' },
-      { format: 'SCIPY', description: 'scientific computation', level: 'optional' },
-      { format: 'SYMPY', description: 'symbolic computation', level: 'optional' },
       { format: 'TEXT', description: 'readable explanation', level: 'optional' },
-      { format: 'LATEX', description: 'documentation / reports', level: 'optional' },
-      { format: 'UNICODE', description: 'display / chat', level: 'optional' },
-      { format: 'MATLAB', description: 'engineering code', level: 'advanced' },
-      { format: 'JAVASCRIPT', description: 'web', level: 'advanced' },
-      { format: 'MATHML', description: 'web markup', level: 'advanced' },
     ],
     JAVASCRIPT: [
       { format: 'PYTHON', description: 'numerical / executable', level: 'recommended' },
       { format: 'NUMPY', description: 'numerical computations', level: 'optional' },
-      { format: 'SYMPY', description: 'symbolic computation', level: 'optional' },
-      { format: 'SCIPY', description: 'scientific computation', level: 'optional' },
       { format: 'TEXT', description: 'readable explanation', level: 'optional' },
-      { format: 'LATEX', description: 'documentation / reports', level: 'optional' },
-      { format: 'UNICODE', description: 'display / chat', level: 'optional' },
-      { format: 'MATLAB', description: 'engineering code', level: 'advanced' },
-      { format: 'R', description: 'statistics', level: 'advanced' },
-      { format: 'MATHML', description: 'web markup', level: 'advanced' },
     ],
   };
 
@@ -236,7 +180,7 @@ export class ConverterComponent implements OnInit, OnDestroy {
 
   private updateOutputFormats(inputFormat: string): void {
     // Type-safe format lookup
-    const formats = this.availableFormats[inputFormat as Format];
+    const formats = this.availableFormats[inputFormat as FormatType];
     
     if (!formats) {
       console.warn(`No formats available for ${inputFormat}`);
@@ -347,10 +291,17 @@ export class ConverterComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
     this.conversionResult = null;
 
+    const inputFormat = this.f['inputFormat'].value;
+    const outputFormat = this.f['outputFormat'].value;
+    const userPrompt = this.f['prompt'].value;
+
+    // Structure the prompt for better AI response
+    const structuredPrompt = this.buildStructuredPrompt(inputFormat, outputFormat, userPrompt);
+
     const request: ConversionCreateDto = {
-      inputFormat: this.f['inputFormat'].value,
-      outputFormat: this.f['outputFormat'].value,
-      prompt: this.f['prompt'].value
+      inputFormat: inputFormat,
+      outputFormat: outputFormat,
+      prompt: structuredPrompt
     };
 
     this.conversionService.createConversion(request)
@@ -368,6 +319,23 @@ export class ConverterComponent implements OnInit, OnDestroy {
           this.showToast(this.errorMessage, 'error');
         }
       });
+  }
+
+  /**
+   * Builds a structured prompt for better AI conversion results
+   */
+  private buildStructuredPrompt(inputFormat: string, outputFormat: string, userPrompt: string): string {
+    return `You are a professional code conversion assistant.
+- Convert the following input from ${inputFormat} to ${outputFormat}.
+- Keep all operations, logic, and expressions intact.
+- Only return valid ${outputFormat} code or expression.
+- Do NOT add explanations or comments unless explicitly asked.
+- Use best practices and optimized syntax.
+- Output must be ready to execute or copy-paste.
+- If input is ambiguous, provide a clear conversion based on the most standard convention.
+
+Input:
+${userPrompt.trim()}`;
   }
 
   swapFormats(): void {
@@ -491,8 +459,8 @@ export class ConverterComponent implements OnInit, OnDestroy {
   }
 
   // Get all available input formats
-  get availableInputFormats(): Format[] {
-    return Object.keys(this.availableFormats) as Format[];
+  get availableInputFormats(): FormatType[] {
+    return Object.keys(this.availableFormats) as FormatType[];
   }
 
   // TrackBy function for performance optimization in *ngFor

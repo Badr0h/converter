@@ -7,6 +7,7 @@ import { SubscriptionService } from '../../../core/services/subscription.service
 import { UserResponseDto } from '../../../core/models/user.model';
 import { ConversionResponseDto } from '../../../core/models/conversion.model';
 import { SubscriptionResponseDto } from '../../../core/models/subscription.model';
+import { DashboardStatsDto } from '../../../core/models/dashboard-stats.model';
 
 @Component({
   selector: 'app-user-dashboard',
@@ -21,11 +22,7 @@ export class UserDashboardComponent implements OnInit {
   subscription: SubscriptionResponseDto | null = null;
   loading = true;
   statsLoading = true;
-
-  // Stats
-  totalConversions = 0;
-  remainingConversions = 0;
-  subscriptionStatus = 'FREE';
+  dashboardStats: DashboardStatsDto | null = null;
 
   constructor(
     private authService: AuthService,
@@ -37,11 +34,32 @@ export class UserDashboardComponent implements OnInit {
   ngOnInit(): void {
     this.loadUserData();
     this.loadRecentConversions();
+    this.loadDashboardStats();
     this.loadSubscriptionInfo();
   }
 
   loadUserData(): void {
     this.currentUser = this.authService.currentUserValue;
+  }
+
+  loadDashboardStats(): void {
+    this.subscriptionService.getDashboardStats().subscribe({
+      next: (stats) => {
+        this.dashboardStats = stats;
+        this.statsLoading = false;
+      },
+      error: (error) => {
+        console.error('Error loading dashboard stats', error);
+        // Set defaults if stats not found
+        this.dashboardStats = {
+          totalConversions: 0,
+          remainingConversions: 1,
+          subscriptionStatus: 'FREE',
+          maxConversionsPerMonth: 1
+        };
+        this.statsLoading = false;
+      }
+    });
   }
 
   loadRecentConversions(): void {
@@ -51,7 +69,6 @@ export class UserDashboardComponent implements OnInit {
         this.recentConversions = conversions
           .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
           .slice(0, 5);
-        this.totalConversions = conversions.length;
         this.loading = false;
       },
       error: (error) => {
@@ -65,14 +82,10 @@ export class UserDashboardComponent implements OnInit {
     this.subscriptionService.getCurrentSubscription().subscribe({
       next: (subscription) => {
         this.subscription = subscription[0];
-        this.subscriptionStatus = subscription[0]?.status || 'FREE';
         this.statsLoading = false;
       },
       error: (error) => {
         console.error('Error loading subscription', error);
-        // Set defaults if subscription not found
-        this.subscriptionStatus = 'FREE';
-        this.remainingConversions = 0;
         this.statsLoading = false;
       }
     });
@@ -112,7 +125,8 @@ export class UserDashboardComponent implements OnInit {
       this.conversionService.deleteConversion(id).subscribe({
         next: () => {
           this.recentConversions = this.recentConversions.filter(c => c.id !== id);
-          this.totalConversions--;
+          // Refresh dashboard stats to update conversion count
+          this.loadDashboardStats();
           alert('Conversion deleted successfully!');
         },
         error: (error) => {

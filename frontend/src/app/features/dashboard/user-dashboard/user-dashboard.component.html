@@ -13,7 +13,7 @@
     <div class="stat-card">
       <div class="stat-icon">📊</div>
       <div class="stat-content">
-        <h3>{{ totalConversions }}</h3>
+        <h3>{{ dashboardStats?.totalConversions || 0 }}</h3>
         <p>Total Conversions</p>
       </div>
     </div>
@@ -21,7 +21,7 @@
     <div class="stat-card">
       <div class="stat-icon">⚡</div>
       <div class="stat-content">
-        <h3>{{ remainingConversions }}</h3>
+        <h3>{{ dashboardStats?.remainingConversions || 0 }}</h3>
         <p>Remaining Conversions</p>
       </div>
     </div>
@@ -29,7 +29,7 @@
     <div class="stat-card">
       <div class="stat-icon">💎</div>
       <div class="stat-content">
-        <h3>{{ subscriptionStatus }}</h3>
+        <h3>{{ dashboardStats?.subscriptionStatus || 'FREE' }}</h3>
         <p>Subscription Status</p>
       </div>
     </div>

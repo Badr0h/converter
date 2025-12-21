@@ -10,6 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.converter.backend.dto.dashboard.DashboardStatsDto;
 import com.converter.backend.dto.subscription.SubscriptionCreateDto;
 import com.converter.backend.dto.subscription.SubscriptionResponseDto;
 import com.converter.backend.exception.IllegalStateException;
@@ -31,11 +32,13 @@ public class SubscriptionService {
     private final SubscriptionRepository subscriptionRepository ; 
     private final PlanRepository planRepository ; 
     private final UserRepository userRepository;
+    private final ConversionService conversionService;
 
-    public SubscriptionService(SubscriptionRepository subscriptionRepository, PlanRepository planRepository, UserRepository userRepository){
+    public SubscriptionService(SubscriptionRepository subscriptionRepository, PlanRepository planRepository, UserRepository userRepository, ConversionService conversionService){
         this.subscriptionRepository = subscriptionRepository ;
         this.planRepository = planRepository ;
         this.userRepository = userRepository;
+        this.conversionService = conversionService;
     }
 
     public List<SubscriptionResponseDto> getAllSubscriptions(){
@@ -164,6 +167,38 @@ public class SubscriptionService {
 
         Subscription savedSubscription = subscriptionRepository.save(freeSubscription);
         return mapToSubscriptionResponseDto(savedSubscription);
+    }
+
+    @Transactional(readOnly = true)
+    public DashboardStatsDto getDashboardStats() {
+        try {
+            // Get current user's subscription
+            SubscriptionResponseDto subscription = getCurrentUserSubscription();
+            
+            // Get current month's conversion count
+            long currentMonthConversions = conversionService.getCurrentUserMonthlyConversionCount();
+            
+            // Calculate remaining conversions
+            Integer maxConversions = subscription.getMaxConversionsPerMonth();
+            long remainingConversions = maxConversions != null ? 
+                Math.max(0, maxConversions - currentMonthConversions) : 0;
+            
+            DashboardStatsDto stats = new DashboardStatsDto();
+            stats.setTotalConversions(currentMonthConversions);
+            stats.setRemainingConversions(remainingConversions);
+            stats.setSubscriptionStatus(subscription.getStatus().toString());
+            stats.setMaxConversionsPerMonth(maxConversions);
+            
+            return stats;
+        } catch (ResourceNotFoundException e) {
+            // User has no subscription, return free tier defaults
+            DashboardStatsDto stats = new DashboardStatsDto();
+            stats.setTotalConversions(0L);
+            stats.setRemainingConversions(1L); // 1 free conversion
+            stats.setSubscriptionStatus("FREE");
+            stats.setMaxConversionsPerMonth(1);
+            return stats;
+        }
     }
 
     @Transactional

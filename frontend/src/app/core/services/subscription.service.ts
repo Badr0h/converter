@@ -4,6 +4,7 @@ import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 import { SubscriptionResponseDto, SubscriptionCreateDto } from '../models/subscription.model';
 import { PlanResponseDto } from '../models/plan.model';
+import { DashboardStatsDto } from '../models/dashboard-stats.model';
 @Injectable({
   providedIn: 'root'
 })
@@ -28,6 +29,10 @@ export class SubscriptionService {
 
   getPlans(): Observable<PlanResponseDto[]> {
     return this.http.get<PlanResponseDto[]>(`${environment.apiUrl}/plans`);
+  }
+
+  getDashboardStats(): Observable<DashboardStatsDto> {
+    return this.http.get<DashboardStatsDto>(`${this.apiUrl}/dashboard-stats`);
   }
 
   activateSubscription(id: number): Observable<SubscriptionResponseDto> {
