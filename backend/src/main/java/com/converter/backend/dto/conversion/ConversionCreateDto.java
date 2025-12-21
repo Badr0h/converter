@@ -1,7 +1,6 @@
 package com.converter.backend.dto.conversion;
 
-import com.converter.backend.model.Conversion.InputFormat;
-import com.converter.backend.model.Conversion.OutputFormat;
+import com.converter.backend.model.Conversion.Format;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -17,10 +16,10 @@ import lombok.NoArgsConstructor;
 public class ConversionCreateDto {
 
     @NotNull(message = "Output format cannot be null")
-    private OutputFormat outputFormat;
+    private Format outputFormat;
 
     @NotNull(message = "Input format cannot be null")
-    private InputFormat inputFormat;
+    private Format inputFormat;
 
     @NotBlank(message = "Prompt cannot be blank")
     private String prompt;

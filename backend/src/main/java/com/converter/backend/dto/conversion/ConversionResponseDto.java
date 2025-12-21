@@ -2,8 +2,7 @@ package com.converter.backend.dto.conversion;
 
 import java.time.LocalDateTime;
 
-import com.converter.backend.model.Conversion.InputFormat;
-import com.converter.backend.model.Conversion.OutputFormat;
+import com.converter.backend.model.Conversion.Format;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -11,8 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ConversionResponseDto {
     private Long id ; 
-    private OutputFormat outputFormat ; 
-    private InputFormat inputFormat ; 
+    private Format outputFormat ; 
+    private Format inputFormat ; 
     private String aiResponse ; 
     private String prompt ; 
     private LocalDateTime createdAt ;

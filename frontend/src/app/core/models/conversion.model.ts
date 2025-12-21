@@ -1,11 +1,8 @@
-export enum InputFormat {
+export enum Format {
   TEXT = 'TEXT',
   LATEX = 'LATEX',
   MATHML = 'MATHML',
-  UNICODE = 'UNICODE'
-}
-
-export enum OutputFormat {
+  UNICODE = 'UNICODE',
   PYTHON = 'PYTHON',
   NUMPY = 'NUMPY',
   SYMPY = 'SYMPY',
@@ -17,15 +14,15 @@ export enum OutputFormat {
 
 export interface ConversionResponseDto {
   id: number;
-  outputFormat: OutputFormat;
-  inputFormat: InputFormat;
+  outputFormat: Format;
+  inputFormat: Format;
   aiResponse: string;
   prompt: string;
   createdAt: Date;
 }
 
 export interface ConversionCreateDto {
-  outputFormat: OutputFormat;
-  inputFormat: InputFormat;
+  outputFormat: Format;
+  inputFormat: Format;
   prompt: string;
 }

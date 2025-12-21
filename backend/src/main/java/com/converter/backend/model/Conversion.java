@@ -22,12 +22,12 @@ public class Conversion {
     private User user ;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "input_format",columnDefinition = "ENUM('TEXT', 'LATEX','MATHML','UNICODE') DEFAULT 'TEXT'", nullable = false)
-    private InputFormat inputFormat = InputFormat.TEXT; 
+    @Column(name = "input_format",columnDefinition = "ENUM('TEXT', 'LATEX', 'MATHML', 'UNICODE', 'PYTHON', 'NUMPY', 'SYMPY', 'SCIPY', 'JAVASCRIPT', 'MATLAB', 'R') DEFAULT 'TEXT'", nullable = false)
+    private Format inputFormat = Format.TEXT; 
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "output_format",columnDefinition = "ENUM('PYTHON', 'NUMPY','SYMPY','SCIPY','JAVASCRIPT','MATLAB') DEFAULT 'PYTHON'", nullable = false)
-    private OutputFormat outputFormat = OutputFormat.PYTHON; 
+    @Column(name = "output_format",columnDefinition = "ENUM('TEXT', 'LATEX', 'MATHML', 'UNICODE', 'PYTHON', 'NUMPY', 'SYMPY', 'SCIPY', 'JAVASCRIPT', 'MATLAB', 'R') DEFAULT 'PYTHON'", nullable = false)
+    private Format outputFormat = Format.PYTHON; 
 
     @Column(name = "created_at",columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", insertable = false, updatable = false)
     private LocalDateTime createdAt; 
@@ -41,13 +41,11 @@ public class Conversion {
     private String aiResponse ; 
 
 
-    public enum InputFormat{
+    public enum Format{
         TEXT,
         LATEX,
         MATHML,
-        UNICODE
-    }
-    public enum OutputFormat{
+        UNICODE,
         PYTHON,
         NUMPY,
         SYMPY,

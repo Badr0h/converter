@@ -4,7 +4,12 @@
   <section class="hero-section">
     <div class="hero-background">
       <div class="floating-symbols">
-        <span class="symbol" *ngFor="let symbol of mathSymbols">{{ symbol }}</span>
+        <span 
+          class="symbol" 
+          *ngFor="let symbol of mathSymbols; trackBy: trackBySymbol"
+        >
+          {{ symbol }}
+        </span>
       </div>
     </div>
     
@@ -25,27 +30,30 @@
       </p>
       
       <div class="hero-buttons">
-        <button class="btn btn-primary btn-large" (click)="navigateToRegister()">
-          Get Started Free
+        <button 
+          class="btn btn-primary btn-large" 
+          (click)="handleGetStarted()"
+          aria-label="Get started with AI Converter"
+        >
+          {{ isAuthenticated() ? 'Go to Converter' : 'Get Started Free' }}
           <span class="btn-arrow">→</span>
         </button>
-        <button class="btn btn-outline btn-large" (click)="scrollToFeatures()">
+        <button 
+          class="btn btn-outline btn-large" 
+          (click)="scrollToFeatures()"
+          aria-label="Learn more about features"
+        >
           Learn More
         </button>
       </div>
       
       <div class="hero-stats">
-        <div class="stat-item">
-          <span class="stat-number">50K+</span>
-          <span class="stat-label">Conversions</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-number">12+</span>
-          <span class="stat-label">Formats</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-number">99.9%</span>
-          <span class="stat-label">Accuracy</span>
+        <div 
+          class="stat-item" 
+          *ngFor="let stat of stats; trackBy: trackByStatLabel"
+        >
+          <span class="stat-number">{{ stat.number }}</span>
+          <span class="stat-label">{{ stat.label }}</span>
         </div>
       </div>
     </div>
@@ -58,7 +66,11 @@
       <p class="section-subtitle">Convert between any of these formats and more</p>
       
       <div class="formats-grid">
-        <div class="format-card" *ngFor="let format of supportedFormats">
+        <div 
+          class="format-card" 
+          *ngFor="let format of supportedFormats; trackBy: trackByFormatName"
+          [attr.data-format]="format.name"
+        >
           <div class="format-icon" [style.background-color]="format.color">
             {{ format.symbol }}
           </div>
@@ -75,7 +87,10 @@
       <p class="section-subtitle">Everything you need for seamless code and data conversion</p>
       
       <div class="features-grid">
-        <div class="feature-card" *ngFor="let feature of features">
+        <div 
+          class="feature-card" 
+          *ngFor="let feature of features; trackBy: trackByFeatureTitle"
+        >
           <div class="feature-icon">{{ feature.icon }}</div>
           <h3 class="feature-title">{{ feature.title }}</h3>
           <p class="feature-description">{{ feature.description }}</p>
@@ -85,38 +100,76 @@
   </section>
 
   <!-- How It Works Section -->
-  <section class="how-it-works-section">
+  <section class="how-it-works-section" id="how-it-works">
     <div class="section-container">
       <h2 class="section-title">How It Works</h2>
       <p class="section-subtitle">Three simple steps to convert your code</p>
       
       <div class="steps-container">
-        <div class="step-item">
-          <div class="step-number">1</div>
-          <div class="step-content">
-            <h3>Paste Your Code</h3>
-            <p>Simply paste your code or data in the input area</p>
+        <ng-container *ngFor="let step of howItWorksSteps; let isLast = last; trackBy: trackByStepNumber">
+          <div class="step-item">
+            <div class="step-number">{{ step.number }}</div>
+            <div class="step-content">
+              <h3>{{ step.title }}</h3>
+              <p>{{ step.description }}</p>
+            </div>
           </div>
-        </div>
-        
-        <div class="step-arrow">→</div>
-        
-        <div class="step-item">
-          <div class="step-number">2</div>
-          <div class="step-content">
-            <h3>Select Format</h3>
-            <p>Choose the target format you want to convert to</p>
+          
+          <div class="step-arrow" *ngIf="!isLast">→</div>
+        </ng-container>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section class="pricing-section" id="pricing" >
+    <div class="section-container">
+      <h2 class="section-title">Choose Your Plan</h2>
+      <p class="section-subtitle">Select the perfect plan for your conversion needs</p>
+      
+      <!-- Loading State -->
+      <div class="pricing-loading" *ngIf="isLoadingPricing">
+        <div class="spinner-large"></div>
+        <p>Loading pricing plans...</p>
+      </div>
+
+
+      <!-- Pricing Plans Grid -->
+      <div class="pricing-grid" >
+        <div 
+          class="pricing-card" 
+          *ngFor="let plan of pricingPlans; trackBy: trackByPlanId"
+          [class.popular]="isPlanPopular(plan)"
+        >
+          <div class="popular-badge" *ngIf="isPlanPopular(plan)">
+            ⭐ Most Popular
           </div>
-        </div>
-        
-        <div class="step-arrow">→</div>
-        
-        <div class="step-item">
-          <div class="step-number">3</div>
-          <div class="step-content">
-            <h3>Get Results</h3>
-            <p>Receive your converted code instantly, powered by AI</p>
+          
+          <div class="plan-header">
+            <h3 class="plan-name">{{ plan.name }}</h3>
+            <div class="plan-price">
+              <span class="price-amount">{{ formatPrice(plan.price) }}</span>
+              <span class="price-period" *ngIf="plan.price > 0">
+                /{{ formatDuration(plan.duration) }}
+              </span>
+            </div>
           </div>
+
+          <div class="plan-features">
+            <div class="feature-item" *ngFor="let feature of getPlanFeatures(plan)">
+              <span class="feature-icon">✓</span>
+              <span class="feature-text">{{ feature }}</span>
+            </div>
+          </div>
+
+          <button 
+            class="btn btn-plan" 
+            [class.btn-primary]="isPlanPopular(plan)"
+            [class.btn-outline]="!isPlanPopular(plan)"
+            (click)="selectPlan(plan)"
+          >
+            {{ plan.price === 0 ? 'Get Started' : 'Choose Plan' }}
+          </button>
         </div>
       </div>
     </div>
@@ -130,11 +183,25 @@
         Join thousands of developers who trust AI Converter for their code transformation needs
       </p>
       <div class="cta-buttons">
-        <button class="btn btn-white btn-large" (click)="navigateToRegister()">
+        <button 
+          class="btn btn-white btn-large" 
+          (click)="navigateToRegister()"
+          *ngIf="!isAuthenticated()"
+        >
           Create Free Account
         </button>
-        <button class="btn btn-outline-white btn-large" (click)="navigateToLogin()">
-          Sign In
+        <button 
+          class="btn btn-white btn-large" 
+          (click)="navigateToConverter()"
+          *ngIf="isAuthenticated()"
+        >
+          Go to Converter
+        </button>
+        <button 
+          class="btn btn-outline-white btn-large" 
+          (click)="isAuthenticated() ? navigateToDashboard() : navigateToLogin()"
+        >
+          {{ isAuthenticated() ? 'Dashboard' : 'Sign In' }}
         </button>
       </div>
     </div>
@@ -147,8 +214,16 @@
         <span class="logo-icon">🔄</span>
         <span class="logo-text">AI Converter</span>
       </div>
+      
+      <div class="footer-links">
+        <a routerLink="/about" class="footer-link">About</a>
+        <a routerLink="/privacy" class="footer-link">Privacy Policy</a>
+        <a routerLink="/terms" class="footer-link">Terms of Service</a>
+        <a routerLink="/contact" class="footer-link">Contact</a>
+      </div>
+
       <p class="footer-text">
-        © 2024 AI Converter. All rights reserved.
+        © {{ currentYear }} AI Converter. All rights reserved.
       </p>
     </div>
   </footer>

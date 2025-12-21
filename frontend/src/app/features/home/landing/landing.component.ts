@@ -1,7 +1,29 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { AuthService } from '../../../core/services/auth.service';
+import { SubscriptionService } from '../../../core/services/subscription.service';
+import { PlanResponseDto } from '../../../core/models/plan.model';
+
+interface Feature {
+  icon: string;
+  title: string;
+  description: string;
+}
+
+interface SupportedFormat {
+  name: string;
+  symbol: string;
+  color: string;
+}
+
+interface HowItWorksStep {
+  number: number;
+  title: string;
+  description: string;
+}
 
 @Component({
   selector: 'app-landing',
@@ -10,9 +32,15 @@ import { AuthService } from '../../../core/services/auth.service';
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.scss'
 })
-export class LandingComponent {
+export class LandingComponent implements OnInit, OnDestroy {
   
-  features = [
+  // Pricing
+  pricingPlans: PlanResponseDto[] = [];
+  isLoadingPricing = false;
+  pricingError = false;
+  
+  // Features
+  readonly features: Feature[] = [
     {
       icon: '🔄',
       title: 'AI-Powered Conversion',
@@ -45,7 +73,8 @@ export class LandingComponent {
     }
   ];
 
-  supportedFormats = [
+  // Supported Formats
+  readonly supportedFormats: SupportedFormat[] = [
     { name: 'JSON', symbol: '{ }', color: '#f7df1e' },
     { name: 'XML', symbol: '< >', color: '#e44d26' },
     { name: 'Python', symbol: 'py', color: '#3776ab' },
@@ -60,29 +89,273 @@ export class LandingComponent {
     { name: 'C++', symbol: 'C++', color: '#00599c' }
   ];
 
-  mathSymbols = ['∫', '∑', '∏', '√', '∞', 'π', 'Δ', 'Ω', 'λ', '∂', '∇', 'α', 'β', 'γ'];
+  // Math Symbols for Background Animation
+  readonly mathSymbols: string[] = [
+    '∫', '∑', '∏', '√', '∞', 'π', 'Δ', 'Ω', 'λ', '∂', '∇', 'α', 'β', 'γ'
+  ];
+
+  // How It Works Steps
+  readonly howItWorksSteps: HowItWorksStep[] = [
+    {
+      number: 1,
+      title: 'Paste Your Code',
+      description: 'Simply paste your code or data in the input area'
+    },
+    {
+      number: 2,
+      title: 'Select Format',
+      description: 'Choose the target format you want to convert to'
+    },
+    {
+      number: 3,
+      title: 'Get Results',
+      description: 'Receive your converted code instantly, powered by AI'
+    }
+  ];
+
+  // Stats for Hero Section
+  readonly stats = [
+    { number: '50K+', label: 'Conversions' },
+    { number: '12+', label: 'Formats' },
+    { number: '99.9%', label: 'Accuracy' }
+  ];
+
+  // Destroy subject for cleanup
+  private readonly destroy$ = new Subject<void>();
 
   constructor(
-    private router: Router,
-    private authService: AuthService
+    private readonly router: Router,
+    private readonly authService: AuthService,
+    private readonly subscriptionService: SubscriptionService
   ) {}
 
+  ngOnInit(): void {
+    this.loadPricingPlans();
+    this.preloadCriticalData();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private loadPricingPlans(): void {
+    this.isLoadingPricing = true;
+    this.pricingError = false;
+
+    this.subscriptionService.getPlans()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (plans) => {
+          this.pricingPlans = this.sortPlans(plans);
+          this.isLoadingPricing = false;
+        },
+        error: (error) => {
+          console.error('Error loading pricing plans:', error);
+          this.pricingError = true;
+          this.isLoadingPricing = false;
+          // Fallback to default plans if API fails
+          this.pricingPlans = this.getDefaultPlans();
+        }
+      });
+  }
+
+  private sortPlans(plans: PlanResponseDto[]): PlanResponseDto[] {
+    // Sort plans by price: free first, then ascending price
+    return plans.sort((a, b) => {
+      if (a.price === 0) return -1;
+      if (b.price === 0) return 1;
+      return a.price - b.price;
+    });
+  }
+
+  private getDefaultPlans(): PlanResponseDto[] {
+    return [
+      {
+        id: 1,
+        name: 'FREE',
+        price: 0,
+        currency: 'USD',
+        duration: 'ONE_MONTH' as any,
+        maxConversions: 10
+      },
+      {
+        id: 2,
+        name: 'BASIC',
+        price: 9.99,
+        currency: 'USD',
+        duration: 'ONE_MONTH' as any,
+        maxConversions: 100
+      },
+      {
+        id: 3,
+        name: 'PRO',
+        price: 29.99,
+        currency: 'USD',
+        duration: 'ONE_MONTH' as any,
+        maxConversions: 1000
+      },
+      {
+        id: 4,
+        name: 'PREMIUM',
+        price: 99.99,
+        currency: 'USD',
+        duration: 'TWELVE_MONTHS' as any,
+        maxConversions: -1 // Unlimited
+      }
+    ];
+  }
+
+  private preloadCriticalData(): void {
+    // Preload any critical data or assets
+    // This could include checking authentication status, loading user preferences, etc.
+  }
+
+  // Navigation Methods
   navigateToRegister(): void {
-    this.router.navigate(['/auth/register']);
+    this.router.navigate(['/auth/register']).catch(error => {
+      console.error('Navigation error:', error);
+    });
   }
 
   navigateToLogin(): void {
-    this.router.navigate(['/auth/login']);
+    this.router.navigate(['/auth/login']).catch(error => {
+      console.error('Navigation error:', error);
+    });
   }
 
+  navigateToDashboard(): void {
+    this.router.navigate(['/dashboard']).catch(error => {
+      console.error('Navigation error:', error);
+    });
+  }
+
+  navigateToConverter(): void {
+    this.router.navigate(['/converter']).catch(error => {
+      console.error('Navigation error:', error);
+    });
+  }
+
+  // Authentication Check
   isAuthenticated(): boolean {
     return this.authService.isAuthenticated();
   }
 
+  // Smooth Scroll Methods
   scrollToFeatures(): void {
-    const element = document.getElementById('features');
+    this.smoothScrollTo('features');
+  }
+
+  scrollToPricing(): void {
+    this.smoothScrollTo('pricing');
+  }
+
+  scrollToHowItWorks(): void {
+    this.smoothScrollTo('how-it-works');
+  }
+
+  private smoothScrollTo(elementId: string): void {
+    const element = document.getElementById(elementId);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      console.warn(`Element with ID '${elementId}' not found`);
     }
+  }
+
+  // Plan Helpers
+  getPlanFeatures(plan: PlanResponseDto): string[] {
+    const baseFeatures = [
+      `${plan.maxConversions === -1 ? 'Unlimited' : plan.maxConversions} conversions/${this.formatDuration(plan.duration)}`,
+      'AI-powered conversion',
+      'Multiple format support'
+    ];
+
+    if (plan.name === 'PRO' || plan.name === 'PREMIUM') {
+      baseFeatures.push('Priority support', 'Advanced AI models');
+    }
+
+    if (plan.name === 'PREMIUM') {
+      baseFeatures.push('API access', 'Custom integrations');
+    }
+
+    return baseFeatures;
+  }
+
+  formatPrice(price: number): string {
+    return price === 0 ? 'Free' : `$${price.toFixed(2)}`;
+  }
+
+  formatDuration(duration: string): string {
+    const durationMap: Record<string, string> = {
+      'ONE_MONTH': 'month',
+      'THREE_MONTHS': '3 months',
+      'SIX_MONTHS': '6 months',
+      'TWELVE_MONTHS': 'year'
+    };
+    return durationMap[duration] || 'month';
+  }
+
+  isPlanPopular(plan: PlanResponseDto): boolean {
+    return plan.name === 'PRO';
+  }
+
+  // TrackBy Functions for Performance
+  trackByFormatName(index: number, format: SupportedFormat): string {
+    return format.name;
+  }
+
+  trackByFeatureTitle(index: number, feature: Feature): string {
+    return feature.title;
+  }
+
+  trackByStepNumber(index: number, step: HowItWorksStep): number {
+    return step.number;
+  }
+
+  trackByPlanId(index: number, plan: PlanResponseDto): number {
+    return plan.id;
+  }
+
+  trackBySymbol(index: number, symbol: string): string {
+    return symbol;
+  }
+
+  trackByStatLabel(index: number, stat: { number: string; label: string }): string {
+    return stat.label;
+  }
+
+  // Call to Action
+  handleGetStarted(): void {
+    if (this.isAuthenticated()) {
+      this.navigateToConverter();
+    } else {
+      this.navigateToRegister();
+    }
+  }
+
+  // Plan Selection
+  selectPlan(plan: PlanResponseDto): void {
+    if (!this.isAuthenticated()) {
+      // Store selected plan in session and redirect to register
+      sessionStorage.setItem('selectedPlan', JSON.stringify(plan));
+      this.navigateToRegister();
+    } else {
+      // Navigate to subscription/checkout page
+      this.router.navigate(['/subscription/checkout'], { 
+        queryParams: { planId: plan.id } 
+      }).catch(error => {
+        console.error('Navigation error:', error);
+      });
+    }
+  }
+
+  retryLoadingPlans(): void {
+    this.loadPricingPlans();
+  }
+
+  // Get current year for footer
+  get currentYear(): number {
+    return new Date().getFullYear();
   }
 }
