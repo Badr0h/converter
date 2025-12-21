@@ -41,10 +41,14 @@
 
     <!-- User Menu (When authenticated) -->
     <div class="navbar-user" *ngIf="isAuthenticated()">
-      <div class="user-info">
+      <a 
+        routerLink="/profile"
+        class="user-info clickable"
+        (click)="closeMenu()"
+      >
         <span class="user-icon">👤</span>
         <span class="user-name">{{ currentUser?.fullName }}</span>
-      </div>
+      </a>
       <button class="logout-btn" (click)="logout()">
         Logout
       </button>

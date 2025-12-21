@@ -1,4 +1,14 @@
 <div class="converter-container">
+  <!-- Toast Notification -->
+  <div class="toast-container" *ngIf="toast">
+    <div class="toast" [ngClass]="'toast-' + toast.type">
+      <span class="toast-icon">
+        {{ toast.type === 'success' ? '✓' : toast.type === 'error' ? '✕' : 'ℹ' }}
+      </span>
+      <span class="toast-message">{{ toast.message }}</span>
+    </div>
+  </div>
+
   <!-- Header -->
   <div class="converter-header">
     <div class="header-content">
@@ -20,7 +30,7 @@
           <div class="format-group">
             <label for="inputFormat">Input Format</label>
             <select id="inputFormat" formControlName="inputFormat" class="form-select">
-              <option *ngFor="let format of availableFormats" [value]="format">
+              <option *ngFor="let format of availableInputFormats" [value]="format">
                 {{ format }}
               </option>
             </select>
@@ -33,28 +43,50 @@
           <div class="format-group">
             <label for="outputFormat">Output Format</label>
             <select id="outputFormat" formControlName="outputFormat" class="form-select">
-              <option *ngFor="let format of availableFormats" [value]="format">
-                {{ format }}
+              <option *ngFor="let format of filteredOutputFormats" [value]="format.format">
+                {{ format.format }}
+                <span *ngIf="format.level === 'recommended'">★</span>
+                - {{ format.description }}
               </option>
             </select>
           </div>
+        </div>
+
+        <!-- Advanced Mode Toggle -->
+        <div class="advanced-toggle">
+          <label class="toggle-label">
+            <input 
+              type="checkbox" 
+              [checked]="showAdvanced" 
+              (change)="toggleAdvancedMode()"
+              class="toggle-input"
+            >
+            <span class="toggle-slider"></span>
+            <span class="toggle-text">Expert Mode (Show Advanced Formats)</span>
+          </label>
         </div>
 
         <!-- Input Area -->
         <div class="input-section">
           <div class="section-header">
             <label for="prompt">Input Text</label>
-            <button type="button" class="btn-text" (click)="copyInput()">📋 Copy</button>
+            <button type="button" class="btn-text" (click)="copyInput()" [disabled]="!f['prompt'].value">
+              📋 Copy
+            </button>
           </div>
           <textarea
             id="prompt"
             formControlName="prompt"
             class="form-textarea"
+            [class.invalid]="f['prompt'].invalid && f['prompt'].touched"
             placeholder="Enter your text here to convert..."
             rows="12"
           ></textarea>
           <div *ngIf="f['prompt'].invalid && f['prompt'].touched" class="error-message">
             Text must be at least 10 characters long
+          </div>
+          <div class="character-count">
+            {{ f['prompt'].value?.length || 0 }} characters
           </div>
         </div>
 
@@ -72,12 +104,12 @@
 
         <!-- Error Message -->
         <div *ngIf="errorMessage" class="alert alert-danger">
-          {{ errorMessage }}
+          <strong>Error:</strong> {{ errorMessage }}
         </div>
       </form>
 
       <!-- Output Area -->
-      <div class="output-section" *ngIf="conversionResult">
+      <div class="output-section" *ngIf="conversionResult && !loading">
         <div class="output-header">
           <h3>Conversion Result</h3>
           <div class="output-actions">
@@ -119,14 +151,15 @@
     <div class="history-sidebar" *ngIf="showHistory">
       <div class="history-header">
         <h3>Conversion History</h3>
-        <button class="btn-close" (click)="toggleHistory()">✕</button>
+        <button class="btn-close" (click)="toggleHistory()" title="Close history">✕</button>
       </div>
 
       <div class="history-list" *ngIf="conversionHistory.length > 0">
         <div 
           class="history-item" 
-          *ngFor="let conversion of conversionHistory"
+          *ngFor="let conversion of conversionHistory; trackBy: trackByConversionId"
           (click)="loadFromHistory(conversion)"
+          [class.active]="conversionResult?.id === conversion.id"
         >
           <div class="history-item-header">
             <div class="history-formats">
@@ -137,18 +170,22 @@
             <button 
               class="btn-delete" 
               (click)="deleteFromHistory(conversion.id, $event)"
-              title="Delete"
+              title="Delete conversion"
             >
               🗑️
             </button>
           </div>
-          <p class="history-preview">{{ conversion.prompt.substring(0, 60) }}...</p>
+          <p class="history-preview">
+            {{ conversion.prompt.length > 60 ? (conversion.prompt.substring(0, 60) + '...') : conversion.prompt }}
+          </p>
           <span class="history-date">{{ formatDate(conversion.createdAt) }}</span>
         </div>
       </div>
 
       <div class="history-empty" *ngIf="conversionHistory.length === 0">
+        <div class="empty-icon">📝</div>
         <p>No conversion history yet</p>
+        <p class="empty-subtitle">Your conversions will appear here</p>
       </div>
     </div>
   </div>

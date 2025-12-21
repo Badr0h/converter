@@ -1,0 +1,173 @@
+<div class="profile-container">
+  <div class="profile-header">
+    <h1>My Profile</h1>
+    <p>Manage your personal information and account settings</p>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-overlay" *ngIf="isLoading">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Success/Error Messages -->
+  <div class="alert alert-success" *ngIf="successMessage">
+    {{ successMessage }}
+  </div>
+  <div class="alert alert-error" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Profile Information Section -->
+  <div class="profile-section" *ngIf="currentUser && !isEditing">
+    <div class="section-header">
+      <h2>Personal Information</h2>
+      <button class="btn btn-primary" (click)="enableEditing()">Edit Profile</button>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-item">
+        <label>Full Name</label>
+        <p>{{ currentUser.fullName }}</p>
+      </div>
+      <div class="info-item">
+        <label>Email Address</label>
+        <p>{{ currentUser.email }}</p>
+      </div>
+      <div class="info-item">
+        <label>Role</label>
+        <p>{{ currentUser.role }}</p>
+      </div>
+      <div class="info-item">
+        <label>Member Since</label>
+        <p>{{ currentUser.createdAt | date:'longDate' }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Profile Form -->
+  <div class="profile-section" *ngIf="currentUser && isEditing">
+    <div class="section-header">
+      <h2>Edit Personal Information</h2>
+    </div>
+
+    <form [formGroup]="profileForm" (ngSubmit)="updateProfile()" class="profile-form">
+      <div class="form-group">
+        <label for="fullName">Full Name</label>
+        <input 
+          id="fullName"
+          type="text" 
+          formControlName="fullName"
+          class="form-control"
+          [class.invalid]="fullName?.invalid && fullName?.touched"
+        />
+        <div class="error-message" *ngIf="fullName?.invalid && fullName?.touched">
+          <span *ngIf="fullName?.errors?.['required']">Full name is required</span>
+          <span *ngIf="fullName?.errors?.['minlength']">Full name must be at least 2 characters</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input 
+          id="email"
+          type="email" 
+          formControlName="email"
+          class="form-control"
+          [class.invalid]="email?.invalid && email?.touched"
+        />
+        <div class="error-message" *ngIf="email?.invalid && email?.touched">
+          <span *ngIf="email?.errors?.['required']">Email is required</span>
+          <span *ngIf="email?.errors?.['email']">Please enter a valid email</span>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" [disabled]="profileForm.invalid || isLoading">
+          {{ isLoading ? 'Saving...' : 'Save Changes' }}
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="cancelEditing()">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Password Change Section -->
+  <div class="profile-section">
+    <div class="section-header">
+      <h2>Security</h2>
+      <button class="btn btn-outline" *ngIf="!isChangingPassword" (click)="enablePasswordChange()">
+        Change Password
+      </button>
+    </div>
+
+    <!-- Password Change Success/Error Messages -->
+    <div class="alert alert-success" *ngIf="passwordSuccessMessage">
+      {{ passwordSuccessMessage }}
+    </div>
+    <div class="alert alert-error" *ngIf="passwordErrorMessage">
+      {{ passwordErrorMessage }}
+    </div>
+
+    <!-- Password Change Form -->
+    <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="password-form" *ngIf="isChangingPassword">
+      <div class="form-group">
+        <label for="oldPassword">Current Password</label>
+        <input 
+          id="oldPassword"
+          type="password" 
+          formControlName="oldPassword"
+          class="form-control"
+          [class.invalid]="oldPassword?.invalid && oldPassword?.touched"
+        />
+        <div class="error-message" *ngIf="oldPassword?.invalid && oldPassword?.touched">
+          Current password is required
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="newPassword">New Password</label>
+        <input 
+          id="newPassword"
+          type="password" 
+          formControlName="newPassword"
+          class="form-control"
+          [class.invalid]="newPassword?.invalid && newPassword?.touched"
+        />
+        <div class="error-message" *ngIf="newPassword?.invalid && newPassword?.touched">
+          <span *ngIf="newPassword?.errors?.['required']">New password is required</span>
+          <span *ngIf="newPassword?.errors?.['minlength']">Password must be at least 6 characters</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">Confirm New Password</label>
+        <input 
+          id="confirmPassword"
+          type="password" 
+          formControlName="confirmPassword"
+          class="form-control"
+          [class.invalid]="confirmPassword?.invalid && confirmPassword?.touched"
+        />
+        <div class="error-message" *ngIf="confirmPassword?.invalid && confirmPassword?.touched">
+          <span *ngIf="confirmPassword?.errors?.['required']">Please confirm your password</span>
+          <span *ngIf="passwordForm.errors?.['passwordMismatch']">Passwords do not match</span>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary" [disabled]="passwordForm.invalid || isLoading">
+          {{ isLoading ? 'Changing...' : 'Change Password' }}
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="cancelPasswordChange()">Cancel</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Account Management Section -->
+  <div class="profile-section danger-zone">
+    <div class="section-header">
+      <h2>Danger Zone</h2>
+      <p class="warning-text">Once you delete your account, there is no going back. Please be certain.</p>
+    </div>
+    <button class="btn btn-danger" (click)="deleteAccount()">Delete Account</button>
+  </div>
+</div>

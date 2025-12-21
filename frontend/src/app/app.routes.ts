@@ -27,6 +27,11 @@ export const routes: Routes = [
     canActivate: [authGuard]  // Protected - requires login
   },
   {
+    path: 'profile',
+    loadChildren: () => import('./features/profile/profile.routes').then(m => m.CONVERSION_ROUTES),
+    canActivate: [authGuard]  // Protected - requires login
+  },
+  {
     path: '**',
     redirectTo: ''  // Redirect unknown routes to home
   }
