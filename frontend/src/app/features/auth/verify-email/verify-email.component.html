@@ -1,0 +1,71 @@
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+      <div class="card shadow">
+        <div class="card-body">
+          <h2 class="card-title text-center mb-4">Vérification Email</h2>
+          
+          <p class="text-center text-muted mb-4">
+            Un code de vérification a été envoyé à :<br>
+            <strong>{{ email }}</strong>
+          </p>
+
+          <form [formGroup]="verifyForm" (ngSubmit)="onSubmit()">
+            <div class="mb-3">
+              <label for="code" class="form-label">Code de vérification</label>
+              <input
+                type="text"
+                class="form-control text-center"
+                id="code"
+                formControlName="code"
+                placeholder="123456"
+                maxlength="6"
+                [ngClass]="{ 'is-invalid': submitted && f['code'].errors }"
+              >
+              <div *ngIf="submitted && f['code'].errors" class="invalid-feedback">
+                <div *ngIf="f['code'].errors['required']">Le code est requis</div>
+                <div *ngIf="f['code'].errors['pattern']">Le code doit contenir 6 chiffres</div>
+              </div>
+            </div>
+
+            <div class="d-grid mb-3">
+              <button
+                type="submit"
+                class="btn btn-primary"
+                [disabled]="loading"
+              >
+                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+                Vérifier
+              </button>
+            </div>
+          </form>
+
+          <div class="text-center">
+            <button
+              type="button"
+              class="btn btn-link"
+              (click)="resendCode()"
+              [disabled]="loading"
+            >
+              Renvoyer le code
+            </button>
+          </div>
+
+          <div *ngIf="errorMessage" class="alert alert-danger mt-3">
+            {{ errorMessage }}
+          </div>
+
+          <div *ngIf="successMessage" class="alert alert-success mt-3">
+            {{ successMessage }}
+          </div>
+
+          <div class="text-center mt-3">
+            <small class="text-muted">
+              Le code expirera dans 15 minutes.
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

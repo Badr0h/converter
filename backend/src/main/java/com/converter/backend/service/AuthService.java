@@ -13,6 +13,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -21,6 +23,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final EmailService emailService;
 
     public AuthResponse register(UserCreateDto request) {
         var user = new User();
@@ -28,13 +31,21 @@ public class AuthService {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setRole(User.Role.USER);
+        
+        String verificationCode = emailService.generateVerificationCode();
+        user.setVerificationCode(verificationCode);
+        user.setVerificationCodeExpiry(LocalDateTime.now().plusMinutes(15));
+        user.setEnabled(false);
+        
         userRepository.save(user);
-        var jwtToken = jwtService.generateToken(user);
+        
+        emailService.sendVerificationEmail(user.getEmail(), verificationCode);
+        
         UserResponseDto userDto = mapUserToDto(user);
         return AuthResponse.builder()
-                .token(jwtToken)
+                .token(null)
                 .user(userDto)
-                .refreshToken(jwtService.generateRefreshToken(user))
+                .refreshToken(null)
                 .build();
     }
 
@@ -82,5 +93,41 @@ public class AuthService {
                 .refreshToken(newRefreshToken)
                 .user(userDto)
                 .build();
+    }
+
+    public boolean verifyEmail(String email, String code) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+
+        if (user.getVerificationCode() == null || user.getVerificationCodeExpiry() == null) {
+            return false;
+        }
+
+        if (user.getVerificationCodeExpiry().isBefore(LocalDateTime.now())) {
+            return false;
+        }
+
+        if (!user.getVerificationCode().equals(code)) {
+            return false;
+        }
+
+        user.setEnabled(true);
+        user.setVerificationCode(null);
+        user.setVerificationCodeExpiry(null);
+        userRepository.save(user);
+
+        return true;
+    }
+
+    public void resendVerificationCode(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+
+        String verificationCode = emailService.generateVerificationCode();
+        user.setVerificationCode(verificationCode);
+        user.setVerificationCodeExpiry(LocalDateTime.now().plusMinutes(15));
+        
+        userRepository.save(user);
+        emailService.sendVerificationEmail(user.getEmail(), verificationCode);
     }
 }
