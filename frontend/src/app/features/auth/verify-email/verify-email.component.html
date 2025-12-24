@@ -1,70 +1,83 @@
-<div class="container mt-5">
-  <div class="row justify-content-center">
-    <div class="col-md-6 col-lg-4">
-      <div class="card shadow">
-        <div class="card-body">
-          <h2 class="card-title text-center mb-4">Vérification Email</h2>
-          
-          <p class="text-center text-muted mb-4">
-            Un code de vérification a été envoyé à :<br>
-            <strong>{{ email }}</strong>
-          </p>
+<div class="verification-container">
+  <div class="verification-card">
+    <div class="card-header">
+      <div class="icon-wrapper">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+      </div>
+      <h1 class="title">Vérifiez votre email</h1>
+      <p class="subtitle">
+        Nous avons envoyé un code de vérification à
+      </p>
+      <p class="email">{{ email }}</p>
+    </div>
 
-          <form [formGroup]="verifyForm" (ngSubmit)="onSubmit()">
-            <div class="mb-3">
-              <label for="code" class="form-label">Code de vérification</label>
-              <input
-                type="text"
-                class="form-control text-center"
-                id="code"
-                formControlName="code"
-                placeholder="123456"
-                maxlength="6"
-                [ngClass]="{ 'is-invalid': submitted && f['code'].errors }"
-              >
-              <div *ngIf="submitted && f['code'].errors" class="invalid-feedback">
-                <div *ngIf="f['code'].errors['required']">Le code est requis</div>
-                <div *ngIf="f['code'].errors['pattern']">Le code doit contenir 6 chiffres</div>
-              </div>
-            </div>
-
-            <div class="d-grid mb-3">
-              <button
-                type="submit"
-                class="btn btn-primary"
-                [disabled]="loading"
-              >
-                <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
-                Vérifier
-              </button>
-            </div>
-          </form>
-
-          <div class="text-center">
-            <button
-              type="button"
-              class="btn btn-link"
-              (click)="resendCode()"
-              [disabled]="loading"
-            >
-              Renvoyer le code
-            </button>
-          </div>
-
-          <div *ngIf="errorMessage" class="alert alert-danger mt-3">
-            {{ errorMessage }}
-          </div>
-
-          <div *ngIf="successMessage" class="alert alert-success mt-3">
-            {{ successMessage }}
-          </div>
-
-          <div class="text-center mt-3">
-            <small class="text-muted">
-              Le code expirera dans 15 minutes.
-            </small>
-          </div>
+    <form [formGroup]="verifyForm" (ngSubmit)="onSubmit()" class="verification-form">
+      <div class="form-group">
+        <label for="code" class="form-label">Code de vérification</label>
+        <input
+          type="text"
+          class="form-input"
+          id="code"
+          formControlName="code"
+          placeholder="000000"
+          maxlength="6"
+          autocomplete="one-time-code"
+          [class.error]="submitted && f['code'].errors"
+          [class.success]="submitted && !f['code'].errors && f['code'].value"
+        >
+        <div *ngIf="submitted && f['code'].errors" class="error-message">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span *ngIf="f['code'].errors['required']">Le code est requis</span>
+          <span *ngIf="f['code'].errors['pattern']">Le code doit contenir 6 chiffres</span>
         </div>
+      </div>
+
+      <button
+        type="submit"
+        class="btn-primary"
+        [disabled]="loading"
+        [class.loading]="loading"
+      >
+        <span *ngIf="!loading">Vérifier mon compte</span>
+        <span *ngIf="loading" class="spinner"></span>
+      </button>
+    </form>
+
+    <div *ngIf="errorMessage" class="alert alert-error">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <span>{{ errorMessage }}</span>
+    </div>
+
+    <div *ngIf="successMessage" class="alert alert-success">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <span>{{ successMessage }}</span>
+    </div>
+
+    <div class="card-footer">
+      <p class="footer-text">Vous n'avez pas reçu le code?</p>
+      <button
+        type="button"
+        class="btn-link"
+        (click)="resendCode()"
+        [disabled]="loading || resendDisabled"
+      >
+        <span *ngIf="!resendDisabled">Renvoyer le code</span>
+        <span *ngIf="resendDisabled">Renvoyer dans {{ countdown }}s</span>
+      </button>
+      
+      <div class="expiry-info">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <span>Le code expire dans 15 minutes</span>
       </div>
     </div>
   </div>

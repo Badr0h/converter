@@ -1,0 +1,29 @@
+<div class="payment-failed-container">
+  <div class="failed-container">
+    <div class="failed-icon">❌</div>
+    <h1>Payment Failed</h1>
+    <p class="failed-message">
+      We were unable to process your payment. This could be due to insufficient funds, 
+      an expired card, or a temporary issue with the payment processor.
+    </p>
+    
+    <div class="help-options">
+      <h3>What you can do:</h3>
+      <ul>
+        <li>Check your payment details and try again</li>
+        <li>Use a different payment method</li>
+        <li>Contact your bank if the issue persists</li>
+        <li>Reach out to our support team for assistance</li>
+      </ul>
+    </div>
+
+    <div class="action-buttons">
+      <button class="btn btn-primary btn-large" (click)="retryPayment()">
+        Try Again
+      </button>
+      <button class="btn btn-outline" (click)="goToSupport()">
+        Contact Support
+      </button>
+    </div>
+  </div>
+</div>

@@ -49,120 +49,167 @@
     <div class="payment-form-container">
       <h2>Payment Information</h2>
 
+      <!-- Payment Method Selection -->
+      <div class="payment-method-selection">
+        <h3>Choose Payment Method</h3>
+        <div class="payment-method-options">
+          <div 
+            class="payment-method-option" 
+            [class.active]="selectedPaymentMethod === 'card'"
+            (click)="selectPaymentMethod('card')"
+          >
+            <div class="payment-icon">💳</div>
+            <div class="payment-details">
+              <h4>Credit/Debit Card</h4>
+              <p>Pay securely with your card</p>
+            </div>
+          </div>
+          
+          <div 
+            class="payment-method-option" 
+            [class.active]="selectedPaymentMethod === 'paypal'"
+            (click)="selectPaymentMethod('paypal')"
+          >
+            <div class="payment-icon">🅿️</div>
+            <div class="payment-details">
+              <h4>PayPal</h4>
+              <p>Fast and secure payment</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <form [formGroup]="checkoutForm" (ngSubmit)="onSubmit()">
-        <!-- Card Number -->
-        <div class="form-group">
-          <label for="cardNumber">Card Number</label>
-          <input
-            type="text"
-            id="cardNumber"
-            formControlName="cardNumber"
-            class="form-control"
-            placeholder="1234 5678 9012 3456"
-            maxlength="19"
-            (input)="formatCardNumber($event)"
-          />
-          <div *ngIf="f['cardNumber'].invalid && f['cardNumber'].touched" class="error-message">
-            Please enter a valid 16-digit card number
-          </div>
-        </div>
-
-        <!-- Card Holder Name -->
-        <div class="form-group">
-          <label for="cardName">Cardholder Name</label>
-          <input
-            type="text"
-            id="cardName"
-            formControlName="cardName"
-            class="form-control"
-            placeholder="John Doe"
-          />
-          <div *ngIf="f['cardName'].invalid && f['cardName'].touched" class="error-message">
-            Cardholder name is required
-          </div>
-        </div>
-
-        <!-- Expiry and CVV -->
-        <div class="form-row">
+        <!-- Card Payment Fields -->
+        <div *ngIf="isCardPaymentRequired()" class="card-payment-fields">
+          <!-- Card Number -->
           <div class="form-group">
-            <label for="expiryDate">Expiry Date</label>
+            <label for="cardNumber">Card Number</label>
             <input
               type="text"
-              id="expiryDate"
-              formControlName="expiryDate"
+              id="cardNumber"
+              formControlName="cardNumber"
               class="form-control"
-              placeholder="MM/YY"
-              maxlength="5"
-              (input)="formatExpiryDate($event)"
+              placeholder="1234 5678 9012 3456"
+              maxlength="19"
+              (input)="formatCardNumber($event)"
             />
-            <div *ngIf="f['expiryDate'].invalid && f['expiryDate'].touched" class="error-message">
-              Format: MM/YY
+            <div *ngIf="f['cardNumber'].invalid && f['cardNumber'].touched" class="error-message">
+              Please enter a valid 16-digit card number
             </div>
           </div>
 
+          <!-- Card Holder Name -->
           <div class="form-group">
-            <label for="cvv">CVV</label>
+            <label for="cardName">Cardholder Name</label>
             <input
               type="text"
-              id="cvv"
-              formControlName="cvv"
+              id="cardName"
+              formControlName="cardName"
               class="form-control"
-              placeholder="123"
-              maxlength="4"
+              placeholder="John Doe"
             />
-            <div *ngIf="f['cvv'].invalid && f['cvv'].touched" class="error-message">
-              3-4 digits
+            <div *ngIf="f['cardName'].invalid && f['cardName'].touched" class="error-message">
+              Cardholder name is required
             </div>
           </div>
-        </div>
 
-        <!-- Billing Address -->
-        <div class="form-group">
-          <label for="billingAddress">Billing Address</label>
-          <input
-            type="text"
-            id="billingAddress"
-            formControlName="billingAddress"
-            class="form-control"
-            placeholder="123 Main St"
-          />
-        </div>
+          <!-- Expiry and CVV -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="expiryDate">Expiry Date</label>
+              <input
+                type="text"
+                id="expiryDate"
+                formControlName="expiryDate"
+                class="form-control"
+                placeholder="MM/YY"
+                maxlength="5"
+                (input)="formatExpiryDate($event)"
+              />
+              <div *ngIf="f['expiryDate'].invalid && f['expiryDate'].touched" class="error-message">
+                Format: MM/YY
+              </div>
+            </div>
 
-        <!-- City and Zip -->
-        <div class="form-row">
+            <div class="form-group">
+              <label for="cvv">CVV</label>
+              <input
+                type="text"
+                id="cvv"
+                formControlName="cvv"
+                class="form-control"
+                placeholder="123"
+                maxlength="4"
+              />
+              <div *ngIf="f['cvv'].invalid && f['cvv'].touched" class="error-message">
+                3-4 digits
+              </div>
+            </div>
+          </div>
+
+          <!-- Billing Address -->
           <div class="form-group">
-            <label for="city">City</label>
+            <label for="billingAddress">Billing Address</label>
             <input
               type="text"
-              id="city"
-              formControlName="city"
+              id="billingAddress"
+              formControlName="billingAddress"
               class="form-control"
-              placeholder="New York"
+              placeholder="123 Main St"
             />
           </div>
 
+          <!-- City and Zip -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="city">City</label>
+              <input
+                type="text"
+                id="city"
+                formControlName="city"
+                class="form-control"
+                placeholder="New York"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="zipCode">ZIP Code</label>
+              <input
+                type="text"
+                id="zipCode"
+                formControlName="zipCode"
+                class="form-control"
+                placeholder="12345"
+                maxlength="5"
+              />
+            </div>
+          </div>
+
+          <!-- Country -->
           <div class="form-group">
-            <label for="zipCode">ZIP Code</label>
-            <input
-              type="text"
-              id="zipCode"
-              formControlName="zipCode"
-              class="form-control"
-              placeholder="12345"
-              maxlength="5"
-            />
+            <label for="country">Country</label>
+            <select id="country" formControlName="country" class="form-control">
+              <option value="USA">United States</option>
+              <option value="CAN">Canada</option>
+              <option value="GBR">United Kingdom</option>
+              <option value="AUS">Australia</option>
+            </select>
           </div>
         </div>
+        <!-- End Card Payment Fields -->
 
-        <!-- Country -->
-        <div class="form-group">
-          <label for="country">Country</label>
-          <select id="country" formControlName="country" class="form-control">
-            <option value="USA">United States</option>
-            <option value="CAN">Canada</option>
-            <option value="GBR">United Kingdom</option>
-            <option value="AUS">Australia</option>
-          </select>
+        <!-- PayPal Payment Info -->
+        <div *ngIf="!isCardPaymentRequired()" class="paypal-payment-info">
+          <div class="paypal-info-box">
+            <h4>🔒 PayPal Payment</h4>
+            <p>You will be redirected to PayPal to complete your payment securely.</p>
+            <ul>
+              <li>Pay with your PayPal balance or linked bank account</li>
+              <li>Buyer protection included</li>
+              <li>No card details shared with us</li>
+            </ul>
+          </div>
         </div>
 
         <!-- Error Message -->
@@ -175,10 +222,12 @@
           <button 
             type="submit" 
             class="btn btn-primary btn-large"
-            [disabled]="processing || checkoutForm.invalid"
+            [disabled]="processing || (checkoutForm.invalid && isCardPaymentRequired())"
           >
             <span *ngIf="processing" class="spinner"></span>
-            <span *ngIf="!processing">Complete Purchase {{ formatPrice(calculateTotal()) }}</span>
+            <span *ngIf="!processing">
+              {{ selectedPaymentMethod === 'paypal' ? 'Continue to PayPal' : 'Complete Purchase' }} {{ formatPrice(calculateTotal()) }}
+            </span>
             <span *ngIf="processing">Processing...</span>
           </button>
           

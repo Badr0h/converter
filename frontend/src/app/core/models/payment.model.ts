@@ -1,7 +1,9 @@
 export enum PaymentStatus {
   PENDING = 'PENDING',
   COMPLETED = 'COMPLETED',
-  FAILED = 'FAILED'
+  FAILED = 'FAILED',
+  CANCELLED = 'CANCELLED',
+  REFUNDED = 'REFUNDED'
 }
 
 export interface PaymentResponseDto {
@@ -14,12 +16,17 @@ export interface PaymentResponseDto {
   paymentMethod: string;
   transactionId: string;
   createdAt: Date;
+  updatedAt?: Date;
 }
 
 export interface PaymentCreateDto {
   userId: number;
   subscriptionId: number;
   paymentMethod: string;
-  paymentToken: string;
+  paymentToken?: string;
   billingCycle?: 'monthly' | 'annual' | string;
+}
+
+export interface PayPalOrderResponse {
+  approvalUrl: string;
 }

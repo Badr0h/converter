@@ -1,0 +1,61 @@
+<div class="payment-success-container">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner-large"></div>
+    <h2>Processing Your Payment...</h2>
+    <p>Please wait while we confirm your subscription.</p>
+  </div>
+
+  <!-- Success State -->
+  <div *ngIf="!loading && success" class="success-container">
+    <div class="success-icon">✅</div>
+    <h1>Payment Successful!</h1>
+    <p class="success-message">
+      Thank you for your subscription. Your account has been upgraded successfully.
+    </p>
+    
+    <div class="payment-details" *ngIf="paymentDetails">
+      <h3>Payment Details</h3>
+      <div class="detail-row">
+        <span>Transaction ID:</span>
+        <span>{{ paymentDetails.transactionId }}</span>
+      </div>
+      <div class="detail-row">
+        <span>Amount:</span>
+        <span>${{ paymentDetails.amount }} {{ paymentDetails.currency }}</span>
+      </div>
+      <div class="detail-row">
+        <span>Payment Method:</span>
+        <span>{{ paymentDetails.paymentMethod }}</span>
+      </div>
+      <div class="detail-row">
+        <span>Status:</span>
+        <span class="status-completed">{{ paymentDetails.status }}</span>
+      </div>
+    </div>
+
+    <div class="action-buttons">
+      <button class="btn btn-primary btn-large" (click)="goToDashboard()">
+        Go to Dashboard
+      </button>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="!loading && !success" class="error-container">
+    <div class="error-icon">❌</div>
+    <h1>Payment Issue</h1>
+    <p class="error-message">
+      {{ errorMessage }}
+    </p>
+    
+    <div class="action-buttons">
+      <button class="btn btn-primary" (click)="goToDashboard()">
+        Back to Plans
+      </button>
+      <button class="btn btn-outline" (click)="goToSupport()">
+        Contact Support
+      </button>
+    </div>
+  </div>
+</div>

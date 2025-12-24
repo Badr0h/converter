@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { PaymentResponseDto, PaymentCreateDto } from '../models/payment.model';
+import { PaymentResponseDto, PaymentCreateDto, PayPalOrderResponse } from '../models/payment.model';
 
 @Injectable({
   providedIn: 'root'
@@ -27,10 +27,31 @@ export class PaymentService {
   }
 
   /**
-   * Create a new payment
+   * Create a simulated payment (for testing)
    */
-  createPayment(request: PaymentCreateDto): Observable<PaymentResponseDto> {
-    return this.http.post<PaymentResponseDto>(`${this.apiUrl}`, request);
+  createSimulatedPayment(request: PaymentCreateDto): Observable<PaymentResponseDto> {
+    return this.http.post<PaymentResponseDto>(`${this.apiUrl}/simulate`, request);
+  }
+
+  /**
+   * Create PayPal order and get approval URL
+   */
+  createPayPalOrder(request: PaymentCreateDto): Observable<PayPalOrderResponse> {
+    return this.http.post<PayPalOrderResponse>(`${this.apiUrl}/paypal/create`, request);
+  }
+
+  /**
+   * Capture PayPal payment after user approval
+   */
+  capturePayPalPayment(orderId: string): Observable<PaymentResponseDto> {
+    return this.http.post<PaymentResponseDto>(`${this.apiUrl}/paypal/capture/${orderId}`, {});
+  }
+
+  /**
+   * Cancel a payment
+   */
+  cancelPayment(paymentId: number): Observable<PaymentResponseDto> {
+    return this.http.put<PaymentResponseDto>(`${this.apiUrl}/${paymentId}/cancel`, {});
   }
 
   /**

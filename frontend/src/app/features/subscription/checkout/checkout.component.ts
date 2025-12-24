@@ -24,6 +24,7 @@ export class CheckoutComponent implements OnInit {
   processing = false;
   errorMessage = '';
   billingCycle: 'monthly' | 'annual' = 'monthly';
+  selectedPaymentMethod: 'card' | 'paypal' = 'card';
 
   constructor(
     private formBuilder: FormBuilder,
@@ -70,7 +71,8 @@ export class CheckoutComponent implements OnInit {
       billingAddress: ['', Validators.required],
       city: ['', Validators.required],
       zipCode: ['', [Validators.required, Validators.pattern(/^\d{5}$/)]],
-      country: ['USA', Validators.required]
+      country: ['USA', Validators.required],
+      paymentMethod: ['card', Validators.required]
     });
   }
 
@@ -146,41 +148,11 @@ export class CheckoutComponent implements OnInit {
 
     this.subscriptionService.createSubscription(subscriptionRequest).subscribe({
       next: (createdSubscription) => {
-        // Then create payment linked to the subscription
-        const paymentRequest: PaymentCreateDto = {
-          userId: this.authService.currentUserValue?.id || 0,
-          subscriptionId: createdSubscription.id,
-          paymentMethod: 'card',
-          paymentToken: 'SIM-' + Date.now(),
-          billingCycle: this.billingCycle
-        };
-
-        this.paymentService.createPayment(paymentRequest).subscribe({
-          next: (paymentResponse) => {
-            console.log('Payment successful', paymentResponse);
-            // After payment is successful, activate the subscription on the backend
-            this.subscriptionService.activateSubscription(createdSubscription.id).subscribe({
-              next: (activated) => {
-                console.log('Subscription activated', activated);
-                this.processing = false;
-                // Wait a moment for database to fully update, then navigate
-                setTimeout(() => {
-                  this.router.navigate(['/subscription/plans'], { queryParams: { refresh: Date.now() } });
-                }, 500);
-              },
-              error: (actErr) => {
-                console.error('Activation error', actErr);
-                this.errorMessage = 'Payment succeeded but activation failed. Please contact support.';
-                this.processing = false;
-              }
-            });
-          },
-          error: (error) => {
-            console.error('Payment error', error);
-            this.errorMessage = error.error?.message || 'Payment failed. Please check your card details.';
-            this.processing = false;
-          }
-        });
+        if (this.selectedPaymentMethod === 'paypal') {
+          this.processPayPalPayment(createdSubscription);
+        } else {
+          this.processCardPayment(createdSubscription);
+        }
       },
       error: (error) => {
         console.error('Subscription creation error', error);
@@ -188,6 +160,75 @@ export class CheckoutComponent implements OnInit {
         this.processing = false;
       }
     });
+  }
+
+  private processCardPayment(createdSubscription: any): void {
+    // Then create payment linked to the subscription
+    const paymentRequest: PaymentCreateDto = {
+      userId: this.authService.currentUserValue?.id || 0,
+      subscriptionId: createdSubscription.id,
+      paymentMethod: 'card',
+      paymentToken: 'SIM-' + Date.now(),
+      billingCycle: this.billingCycle
+    };
+
+    this.paymentService.createSimulatedPayment(paymentRequest).subscribe({
+      next: (paymentResponse) => {
+        console.log('Payment successful', paymentResponse);
+        // After payment is successful, activate the subscription on the backend
+        this.subscriptionService.activateSubscription(createdSubscription.id).subscribe({
+          next: (activated) => {
+            console.log('Subscription activated', activated);
+            this.processing = false;
+            // Wait a moment for database to fully update, then navigate
+            setTimeout(() => {
+              this.router.navigate(['/subscription/plans'], { queryParams: { refresh: Date.now() } });
+            }, 500);
+          },
+          error: (actErr) => {
+            console.error('Activation error', actErr);
+            this.errorMessage = 'Payment succeeded but activation failed. Please contact support.';
+            this.processing = false;
+          }
+        });
+      },
+      error: (error) => {
+        console.error('Payment error', error);
+        this.errorMessage = error.error?.message || 'Payment failed. Please check your card details.';
+        this.processing = false;
+      }
+    });
+  }
+
+  private processPayPalPayment(createdSubscription: any): void {
+    const paymentRequest: PaymentCreateDto = {
+      userId: this.authService.currentUserValue?.id || 0,
+      subscriptionId: createdSubscription.id,
+      paymentMethod: 'paypal',
+      billingCycle: this.billingCycle
+    };
+
+    this.paymentService.createPayPalOrder(paymentRequest).subscribe({
+      next: (response) => {
+        console.log('PayPal order created', response);
+        // Redirect to PayPal for approval
+        window.location.href = response.approvalUrl;
+      },
+      error: (error) => {
+        console.error('PayPal order creation error', error);
+        this.errorMessage = error.error?.message || 'Failed to create PayPal order. Please try again.';
+        this.processing = false;
+      }
+    });
+  }
+
+  selectPaymentMethod(method: 'card' | 'paypal'): void {
+    this.selectedPaymentMethod = method;
+    this.checkoutForm.patchValue({ paymentMethod: method });
+  }
+
+  isCardPaymentRequired(): boolean {
+    return this.selectedPaymentMethod === 'card';
   }
   cancel(): void {
     if (confirm('Are you sure you want to cancel?')) {
