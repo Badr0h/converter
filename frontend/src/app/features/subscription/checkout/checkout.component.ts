@@ -40,6 +40,9 @@ export class CheckoutComponent implements OnInit {
     this.loadPlan();
     const billing = this.route.snapshot.queryParamMap.get('billing');
     if (billing === 'annual') this.billingCycle = 'annual';
+    
+    // Initialize validators for default payment method
+    this.selectPaymentMethod(this.selectedPaymentMethod);
   }
 
   private mapPlanDurationToEnum(durationValue: number | string) {
@@ -64,14 +67,14 @@ export class CheckoutComponent implements OnInit {
   initForm(): void {
     this.checkoutForm = this.formBuilder.group({
       // Accept either 16 contiguous digits or groups of 4 separated by spaces (e.g. "4552 5670 1500 8958")
-      cardNumber: ['', [Validators.required, Validators.pattern(/^(?:\d{4}\s){3}\d{4}$|^\d{16}$/)]],
-      cardName: ['', [Validators.required, Validators.minLength(3)]],
-      expiryDate: ['', [Validators.required, Validators.pattern(/^(0[1-9]|1[0-2])\/\d{2}$/)]],
-      cvv: ['', [Validators.required, Validators.pattern(/^\d{3,4}$/)]],
-      billingAddress: ['', Validators.required],
-      city: ['', Validators.required],
-      zipCode: ['', [Validators.required, Validators.pattern(/^\d{5}$/)]],
-      country: ['USA', Validators.required],
+      cardNumber: [''],
+      cardName: [''],
+      expiryDate: [''],
+      cvv: [''],
+      billingAddress: [''],
+      city: [''],
+      zipCode: [''],
+      country: ['USA'],
       paymentMethod: ['card', Validators.required]
     });
   }
@@ -130,7 +133,14 @@ export class CheckoutComponent implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.checkoutForm.invalid || !this.plan) {
+    if (!this.plan) {
+      console.error('No plan selected');
+      return;
+    }
+
+    // Only validate card fields if card payment is selected
+    if (this.selectedPaymentMethod === 'card' && this.checkoutForm.invalid) {
+      console.log('Form validation failed for card payment');
       return;
     }
 
@@ -225,6 +235,39 @@ export class CheckoutComponent implements OnInit {
   selectPaymentMethod(method: 'card' | 'paypal'): void {
     this.selectedPaymentMethod = method;
     this.checkoutForm.patchValue({ paymentMethod: method });
+    
+    // Update validators based on payment method
+    if (method === 'card') {
+      // Add validators for card fields
+      this.checkoutForm.get('cardNumber')?.setValidators([Validators.required, Validators.pattern(/^(?:\d{4}\s){3}\d{4}$|^\d{16}$/)]);
+      this.checkoutForm.get('cardName')?.setValidators([Validators.required, Validators.minLength(3)]);
+      this.checkoutForm.get('expiryDate')?.setValidators([Validators.required, Validators.pattern(/^(0[1-9]|1[0-2])\/\d{2}$/)]);
+      this.checkoutForm.get('cvv')?.setValidators([Validators.required, Validators.pattern(/^\d{3,4}$/)]);
+      this.checkoutForm.get('billingAddress')?.setValidators(Validators.required);
+      this.checkoutForm.get('city')?.setValidators(Validators.required);
+      this.checkoutForm.get('zipCode')?.setValidators([Validators.required, Validators.pattern(/^\d{5}$/)]);
+      this.checkoutForm.get('country')?.setValidators(Validators.required);
+    } else {
+      // Remove validators for card fields when using PayPal
+      this.checkoutForm.get('cardNumber')?.clearValidators();
+      this.checkoutForm.get('cardName')?.clearValidators();
+      this.checkoutForm.get('expiryDate')?.clearValidators();
+      this.checkoutForm.get('cvv')?.clearValidators();
+      this.checkoutForm.get('billingAddress')?.clearValidators();
+      this.checkoutForm.get('city')?.clearValidators();
+      this.checkoutForm.get('zipCode')?.clearValidators();
+      this.checkoutForm.get('country')?.clearValidators();
+    }
+    
+    // Update form status
+    this.checkoutForm.get('cardNumber')?.updateValueAndValidity();
+    this.checkoutForm.get('cardName')?.updateValueAndValidity();
+    this.checkoutForm.get('expiryDate')?.updateValueAndValidity();
+    this.checkoutForm.get('cvv')?.updateValueAndValidity();
+    this.checkoutForm.get('billingAddress')?.updateValueAndValidity();
+    this.checkoutForm.get('city')?.updateValueAndValidity();
+    this.checkoutForm.get('zipCode')?.updateValueAndValidity();
+    this.checkoutForm.get('country')?.updateValueAndValidity();
   }
 
   isCardPaymentRequired(): boolean {
