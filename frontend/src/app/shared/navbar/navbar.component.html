@@ -1,9 +1,8 @@
-<nav class="navbar">
-  <div class="navbar-container">
+<nav class="nav-header">
+  <div class="nav-container">
     <!-- Logo -->
-    <a [routerLink]=" '/'" class="navbar-logo" (click)="closeMenu()">
-      <span class="logo-icon">🔄</span>
-      <span class="logo-text">AI Converter</span>
+    <a routerLink="/" class="nav-logo" (click)="closeMenu()">
+      <span class="logo-text">Converter</span>
     </a>
 
     <!-- Mobile Menu Toggle -->
@@ -12,7 +11,7 @@
     </button>
 
     <!-- Navigation Links (Only show when authenticated) -->
-    <div class="navbar-menu" [class.active]="isMenuOpen" *ngIf="isAuthenticated()">
+    <div class="nav-menu" [class.active]="isMenuOpen" *ngIf="isAuthenticated()">
       <a 
         routerLink="/dashboard" 
         routerLinkActive="active"
@@ -43,21 +42,23 @@
     <div class="navbar-user" *ngIf="isAuthenticated()">
       <a 
         routerLink="/profile"
-        class="user-info clickable"
+        class="user-info"
         (click)="closeMenu()"
       >
-        <span class="user-icon">👤</span>
+        <div class="user-avatar">
+          <span class="user-initials">{{ currentUser?.fullName?.charAt(0) || 'U' }}</span>
+        </div>
         <span class="user-name">{{ currentUser?.fullName }}</span>
       </a>
-      <button class="logout-btn" (click)="logout()">
+      <button class="btn btn-ghost btn-sm" (click)="logout()">
         Logout
       </button>
     </div>
 
     <!-- Guest Links (When NOT authenticated) -->
     <div class="navbar-guest" *ngIf="!isAuthenticated()">
-      <a routerLink="/auth/login" class="btn btn-outline">Login</a>
-      <a routerLink="/auth/register" class="btn btn-primary">Sign Up</a>
+      <a routerLink="/auth/login" class="btn btn-secondary btn-sm">Login</a>
+      <a routerLink="/auth/register" class="btn btn-primary btn-sm">Get Started</a>
     </div>
   </div>
 </nav>

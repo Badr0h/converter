@@ -10,17 +10,14 @@ import org.springframework.web.bind.annotation.*;
 import com.converter.backend.dto.user.UserUpdateDto;
 import com.converter.backend.dto.user.UserResponseDto;
 import com.converter.backend.service.UserService;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/users")
+@RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
-
-    //  Injection par constructeur (meilleure pratique)
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     @GetMapping
     public ResponseEntity<List<UserResponseDto>> getAllUsers() {

@@ -33,6 +33,11 @@ build/
 .vscode/
 
 
+### Environment Variables & Configuration ###
+.env
+.env.local
+.env.production
+
 ### application.properties ###
-src/main/resources/application.properties
+## src/main/resources/application.properties
 

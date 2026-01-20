@@ -4,6 +4,7 @@ import com.converter.backend.dto.plan.PlanCreateDto;
 import com.converter.backend.dto.plan.PlanResponseDto;
 import com.converter.backend.service.PlanService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,13 +13,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/plans")
+@RequiredArgsConstructor
 public class PlanController {
 
     private final PlanService planService;
-
-    public PlanController(PlanService planService) {
-        this.planService = planService;
-    }
 
     @GetMapping
     public ResponseEntity<List<PlanResponseDto>> getAllPlans() {

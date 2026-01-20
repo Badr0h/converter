@@ -36,7 +36,8 @@ public class JwtService {
         return buildToken(userDetails, jwtExpiration);
     }
     public String generateRefreshToken(User user) {
-        return generateToken(user);
+        // Refresh tokens should have longer expiration
+        return buildToken(user, jwtExpiration * 7); // 7 days instead of 1 day
     }
 
     private String buildToken(UserDetails userDetails, long expiration) {

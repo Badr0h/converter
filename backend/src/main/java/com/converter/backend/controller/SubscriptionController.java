@@ -7,9 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,20 +15,19 @@ import com.converter.backend.dto.dashboard.DashboardStatsDto;
 import com.converter.backend.dto.subscription.SubscriptionResponseDto;
 import com.converter.backend.service.SubscriptionService;
 import com.converter.backend.dto.subscription.SubscriptionCreateDto;
+import lombok.RequiredArgsConstructor;
 
 import jakarta.validation.Valid;
 
-
+/**
+ * Subscription controller
+ */
 @RestController
 @RequestMapping("/api/subscriptions")
+@RequiredArgsConstructor
 public class SubscriptionController {
 
-
-    private final SubscriptionService subscriptionService ; 
-
-    public SubscriptionController(SubscriptionService subscriptionService){
-        this.subscriptionService = subscriptionService ;
-    }
+    private final SubscriptionService subscriptionService;
 
     @GetMapping("/dashboard-stats")
     public ResponseEntity<DashboardStatsDto> getDashboardStats(){

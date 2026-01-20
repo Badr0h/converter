@@ -5,8 +5,9 @@ import java.util.List;
 
 import com.converter.backend.dto.conversion.ConversionCreateDto;
 import com.converter.backend.dto.conversion.ConversionResponseDto;
-import com.converter.backend.model.Conversion;
+import lombok.RequiredArgsConstructor;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,13 +20,10 @@ import com.converter.backend.service.ConversionService;
 
 @RestController
 @RequestMapping("/api/conversions")
+@RequiredArgsConstructor
 public class ConversionController {
 
-    private final ConversionService conversionService ; 
-
-    public ConversionController(ConversionService conversionService){
-        this.conversionService = conversionService ; 
-    }
+    private final ConversionService conversionService;
 
 
     @GetMapping
@@ -38,7 +36,7 @@ public class ConversionController {
     }
 
     @PostMapping
-    public ResponseEntity<ConversionResponseDto> createConversion(@RequestBody ConversionCreateDto conversion){
+    public ResponseEntity<ConversionResponseDto> createConversion(@Valid @RequestBody ConversionCreateDto conversion) {
 
         ConversionResponseDto createdConversion = conversionService.createConversion(conversion);
 

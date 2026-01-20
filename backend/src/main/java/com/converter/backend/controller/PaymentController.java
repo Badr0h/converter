@@ -11,18 +11,16 @@ import com.converter.backend.dto.payment.PaymentCreateDto;
 import com.converter.backend.dto.payment.PaymentResponseDto;
 import com.converter.backend.service.PaymentService;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
 @RequestMapping("/api/payments")
+@RequiredArgsConstructor
 public class PaymentController {
 
     private final PaymentService paymentService;
-
-    public PaymentController(PaymentService paymentService) {
-        this.paymentService = paymentService;
-    }
 
     @GetMapping
     public ResponseEntity<List<PaymentResponseDto>> getAllPayments() {

@@ -1,81 +1,58 @@
 package com.converter.backend.service;
 
-import com.converter.backend.dto.openAI.OpenAIRequest;
-import com.converter.backend.dto.openAI.OpenAIResponse;
-
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-
-import java.util.List;
-import java.util.Map;
-
+/**
+ * Facade service for AI operations
+ * Uses the configured AI provider (OpenAI by default)
+ */
+@Slf4j
 @Service
+@Primary
+@RequiredArgsConstructor
 public class AiService {
 
-    private final WebClient webClient;
-
-    public AiService(@Value("${openai.api.url}") String apiUrl,
-                     @Value("${openai.api.key}") String apiKey) {
-
-        this.webClient = WebClient.builder()
-                .baseUrl(apiUrl)
-                .defaultHeader(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .build();
-    }
+    private final AiProvider aiProvider;
 
     /**
-     * Generate AI response using OpenAI GPT based on user plan
+     * Generate AI response using the configured provider
      *
      * @param prompt The user prompt
-     * @param plan   User plan: BASIC, PRO, PREMIUM, BUSINESS
+     * @param plan User plan: BASIC, PRO, PREMIUM, BUSINESS
      * @return AI-generated response as Mono<String>
      */
     public Mono<String> generateResponse(String prompt, String plan) {
-        String model = getModelForPlan(plan);
-
-        OpenAIRequest request = new OpenAIRequest(
-                model,
-                List.of(Map.of("role", "user", "content", prompt))
-        );
-
-        return webClient.post()
-                .bodyValue(request)
-                .retrieve()
-                .onStatus(HttpStatusCode::isError, clientResponse ->
-                        clientResponse.bodyToMono(String.class)
-                                .flatMap(errorBody -> Mono.error(new RuntimeException("Erreur API OpenAI: " + errorBody)))
-                )
-                .bodyToMono(OpenAIResponse.class)
-                .map(response -> {
-                    if (response == null || response.choices() == null || response.choices().isEmpty()) {
-                        throw new RuntimeException("Réponse vide ou malformée retournée par l'API");
-                    }
-                    return response.choices().get(0).message().get("content");
-                });
+        log.info("Generating AI response for plan: {} using provider: {}", plan, aiProvider.getProviderName());
+        
+        if (!aiProvider.isHealthy()) {
+            log.error("AI provider {} is not healthy", aiProvider.getProviderName());
+            return Mono.error(new RuntimeException("AI service is currently unavailable"));
+        }
+        
+        return aiProvider.generateResponse(prompt, plan)
+                .doOnSuccess(response -> log.info("Successfully generated AI response of length: {}", response.length()))
+                .doOnError(error -> log.error("Failed to generate AI response", error));
     }
 
     /**
-     * Map user plan to GPT model
+     * Get the current provider name
+     *
+     * @return provider name
      */
-    private String getModelForPlan(String plan) {
-        switch (plan.toUpperCase()) {
-            case "BASIC":
-                return "gpt-5-mini";          // cheapest, fast
-            case "PRO":
-                return "gpt-5.2-instant";     // higher quality
-            case "PREMIUM":
-                return "gpt-5.2-thinking";    // best for complex tasks
-            case "BUSINESS":
-                return "gpt-5.2-pro";         // enterprise, heavy usage
-            default:
-                return "gpt-5-mini";          // fallback
-        }
+    public String getCurrentProvider() {
+        return aiProvider.getProviderName();
+    }
+
+    /**
+     * Check if the AI service is healthy
+     *
+     * @return true if healthy
+     */
+    public boolean isHealthy() {
+        return aiProvider.isHealthy();
     }
 }
