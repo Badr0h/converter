@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { AuthRequest } from '../../../core/models/auth.model';
 import {UserCreateDto} from "../../../core/models/user.model";
@@ -9,7 +9,7 @@ import {UserCreateDto} from "../../../core/models/user.model";
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss'
 })
@@ -18,6 +18,15 @@ export class RegisterComponent implements OnInit {
   loading = false;
   submitted = false;
   errorMessage = '';
+  passwordRequirements = {
+    minLength: false,
+    hasUppercase: false,
+    hasLowercase: false,
+    hasNumber: false,
+    hasSpecialChar: false
+  };
+
+  passwordVisible = false;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -28,12 +37,17 @@ export class RegisterComponent implements OnInit {
   ngOnInit(): void {
     // Initialize the form with validation
     this.registerForm = this.formBuilder.group({
-      username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
+      username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20), Validators.pattern(/^[a-zA-Z\s]+$/)]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
+      password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128), Validators.pattern(/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z0-9@$!%*?&]{8,}$/)]],
       confirmPassword: ['', [Validators.required]]
     }, {
       validators: this.passwordMatchValidator
+    });
+
+    // Update password requirements on input
+    this.registerForm.get('password')?.valueChanges.subscribe(value => {
+      this.updatePasswordRequirements(value);
     });
 
     // Redirect if already logged in
@@ -59,12 +73,47 @@ export class RegisterComponent implements OnInit {
     return this.registerForm.controls;
   }
 
+  updatePasswordRequirements(password: string): void {
+    if (!password) {
+      Object.keys(this.passwordRequirements).forEach(key => {
+        this.passwordRequirements[key as keyof typeof this.passwordRequirements] = false;
+      });
+      return;
+    }
+
+    this.passwordRequirements = {
+      minLength: password.length >= 8,
+      hasUppercase: /[A-Z]/.test(password),
+      hasLowercase: /[a-z]/.test(password),
+      hasNumber: /[0-9]/.test(password),
+      hasSpecialChar: /[@$!%*?&]/.test(password)
+    };
+  }
+
+  get allPasswordRequirementsMet(): boolean {
+    return Object.values(this.passwordRequirements).every(requirement => requirement);
+  }
+
+  togglePasswordVisibility(): void {
+    this.passwordVisible = !this.passwordVisible;
+  }
+
   onSubmit(): void {
     this.submitted = true;
     this.errorMessage = '';
 
     // Stop if form is invalid
     if (this.registerForm.invalid) {
+      // Show specific validation errors
+      if (this.f['password'].errors?.['pattern']) {
+        this.errorMessage = 'Password does not meet security requirements. Please check all requirements below.';
+      }
+      return;
+    }
+
+    // Additional password validation check
+    if (!this.allPasswordRequirementsMet) {
+      this.errorMessage = 'Password does not meet security requirements. Please check all requirements below.';
       return;
     }
 
@@ -85,7 +134,20 @@ export class RegisterComponent implements OnInit {
       },
       error: (error) => {
         console.error('Registration error', error);
-        this.errorMessage = error.error?.message || 'Registration failed. Please try again.';
+        
+        // Handle specific validation errors
+        if (error.status === 429) {
+          this.errorMessage = 'Too many registration attempts. Please wait a few minutes before trying again.';
+        } else if (error.error?.message?.includes('Password must contain')) {
+          this.errorMessage = 'Password does not meet security requirements. Please check the requirements below.';
+        } else if (error.error?.message?.includes('Email already exists')) {
+          this.errorMessage = 'This email is already registered. Please use a different email or try signing in.';
+        } else if (error.error?.message?.includes('Username already exists') || error.error?.message?.includes('Full name')) {
+          this.errorMessage = 'This username is already taken. Please choose a different one.';
+        } else {
+          this.errorMessage = error.error?.message || 'Registration failed. Please try again.';
+        }
+        
         this.loading = false;
       },
       complete: () => {

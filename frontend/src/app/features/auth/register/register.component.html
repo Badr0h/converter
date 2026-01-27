@@ -8,19 +8,20 @@
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
       <!-- Username Field -->
       <div class="form-group">
-        <label for="username">Username</label>
+        <label for="username">Full Name</label>
         <input
           type="text"
           id="username"
           formControlName="username"
           class="form-control"
           [class.is-invalid]="submitted && f['username'].errors"
-          placeholder="Choose a username"
+          placeholder="Enter your full name"
         />
         <div *ngIf="submitted && f['username'].errors" class="invalid-feedback">
-          <div *ngIf="f['username'].errors['required']">Username is required</div>
-          <div *ngIf="f['username'].errors['minlength']">Username must be at least 3 characters</div>
-          <div *ngIf="f['username'].errors['maxlength']">Username must not exceed 20 characters</div>
+          <div *ngIf="f['username'].errors['required']">Full name is required</div>
+          <div *ngIf="f['username'].errors['minlength']">Full name must be at least 3 characters</div>
+          <div *ngIf="f['username'].errors['maxlength']">Full name must not exceed 20 characters</div>
+          <div *ngIf="f['username'].errors['pattern']">Full name can only contain letters and spaces</div>
         </div>
       </div>
 
@@ -45,16 +46,50 @@
       <div class="form-group">
         <label for="password">Password</label>
         <input
-          type="password"
+          [type]="passwordVisible ? 'text' : 'password'"
           id="password"
           formControlName="password"
           class="form-control"
           [class.is-invalid]="submitted && f['password'].errors"
-          placeholder="Create a password"
+          [class.is-valid]="f['password'].value && allPasswordRequirementsMet"
+          placeholder="Create a strong password"
         />
         <div *ngIf="submitted && f['password'].errors" class="invalid-feedback">
           <div *ngIf="f['password'].errors['required']">Password is required</div>
-          <div *ngIf="f['password'].errors['minlength']">Password must be at least 6 characters</div>
+          <div *ngIf="f['password'].errors['minlength']">Password must be at least 8 characters</div>
+          <div *ngIf="f['password'].errors['maxlength']">Password must not exceed 128 characters</div>
+          <div *ngIf="f['password'].errors['pattern']">Password does not meet security requirements</div>
+        </div>
+        
+        <!-- Password Requirements Indicator -->
+        <div *ngIf="f['password'].value" class="password-requirements mt-2">
+          <div class="requirements-title">Password must contain:</div>
+          <div class="requirement-item" [class.valid]="passwordRequirements.minLength">
+            <i class="fas" [class.fa-check]="passwordRequirements.minLength" [class.fa-times]="!passwordRequirements.minLength"></i>
+            At least 8 characters
+          </div>
+          <div class="requirement-item" [class.valid]="passwordRequirements.hasUppercase">
+            <i class="fas" [class.fa-check]="passwordRequirements.hasUppercase" [class.fa-times]="!passwordRequirements.hasUppercase"></i>
+            One uppercase letter (A-Z)
+          </div>
+          <div class="requirement-item" [class.valid]="passwordRequirements.hasLowercase">
+            <i class="fas" [class.fa-check]="passwordRequirements.hasLowercase" [class.fa-times]="!passwordRequirements.hasLowercase"></i>
+            One lowercase letter (a-z)
+          </div>
+          <div class="requirement-item" [class.valid]="passwordRequirements.hasNumber">
+            <i class="fas" [class.fa-check]="passwordRequirements.hasNumber" [class.fa-times]="!passwordRequirements.hasNumber"></i>
+            One number (0-9)
+          </div>
+          <div class="requirement-item" [class.valid]="passwordRequirements.hasSpecialChar">
+            <i class="fas" [class.fa-check]="passwordRequirements.hasSpecialChar" [class.fa-times]="!passwordRequirements.hasSpecialChar"></i>
+            One special character (&#64;$!%*?&)
+          </div>
+          <div class="password-toggle mt-2">
+            <label class="form-check">
+              <input type="checkbox" class="form-check-input" (change)="togglePasswordVisibility()">
+              <span class="form-check-label">Show password</span>
+            </label>
+          </div>
         </div>
       </div>
 
@@ -78,8 +113,11 @@
       </div>
 
       <!-- Error Message -->
-      <div *ngIf="errorMessage" class="alert alert-danger">
-        {{ errorMessage }}
+      <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+        <div class="alert-content">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <span>{{ errorMessage }}</span>
+        </div>
       </div>
 
       <!-- Submit Button -->
