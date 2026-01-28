@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import jakarta.annotation.PostConstruct;
 import java.util.Base64;
 
-// @Component
+@Component
 public class JwtValidator {
     
     @Value("${jwt.secret}")

@@ -7,9 +7,12 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
+import com.vladmihalcea.hibernate.type.json.JsonType;
+import org.hibernate.annotations.Type;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Map;
+
 
 @Data
 @NoArgsConstructor
@@ -71,8 +74,9 @@ public class Payment {
     @Column(name = "refund_date")
     private LocalDateTime refundDate;
 
-    @Column(name = "metadata", columnDefinition = "TEXT")
-    private String metadata; // JSON string for additional data
+    @Column(name = "metadata", columnDefinition = "jsonb")
+    @Type(JsonType.class)
+    private Map<String, Object> metadata;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
