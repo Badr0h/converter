@@ -4,7 +4,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Mono;
+import java.util.concurrent.CompletableFuture;
 
 import com.converter.backend.dto.conversion.ConversionCreateDto;
 import com.converter.backend.dto.conversion.ConversionResponseDto;
@@ -34,6 +39,21 @@ public class ConversionService {
         this.userRepository = userRepository;
     }
 
+    public Page<ConversionResponseDto> findByUserIdPaginated(Long userId, int page, int size){
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return conversionRepository.findByUserId(userId, pageable)
+                .map(this::mapToConversionResponseDto);
+    }
+
+    public List<ConversionResponseDto> findByUserId(Long userId){
+        // Limite à 100 résultats les plus récents pour éviter les surcharges
+        Pageable pageable = PageRequest.of(0, 100, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return conversionRepository.findByUserId(userId, pageable)
+                .stream()
+                .map(this::mapToConversionResponseDto)
+                .toList();  
+    }
+
     public List<ConversionResponseDto> getAllConversions(){
         return conversionRepository.findAll()
                 .stream()
@@ -50,21 +70,25 @@ public class ConversionService {
 
 
     @Transactional
-    public ConversionResponseDto createConversion(ConversionCreateDto dto){
+    public ConversionResponseDto createConversion(ConversionCreateDto dto, Long userId){
 
         Conversion conversion = new Conversion();
         conversion.setInputFormat(dto.getInputFormat());
         conversion.setOutputFormat(dto.getOutputFormat());
         conversion.setPrompt(dto.getPrompt());
+        conversion.setUser(userRepository.findById(userId).orElseThrow());
 
         String userPlan = dto.getPlan() != null ? dto.getPlan().toUpperCase() : "BASIC";
 
-        return aiService.generateResponse(conversion.getPrompt(),userPlan)
-                .flatMap(aiResponse -> {
-                    conversion.setAiResponse(aiResponse);
-                    Conversion savedConversion = conversionRepository.save(conversion);
-                    return Mono.just(mapToConversionResponseDto(savedConversion));
-                }).block(); // Bloque ici pour retourner un objet simple au contrôleur
+        try {
+            // Approche synchrone plus simple et sécurisée
+            String aiResponse = aiService.generateResponseSync(conversion.getPrompt(), userPlan);
+            conversion.setAiResponse(aiResponse);
+            Conversion savedConversion = conversionRepository.save(conversion);
+            return mapToConversionResponseDto(savedConversion);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to generate AI response", e);
+        }
     }
 
     @Transactional(readOnly = true)
@@ -84,6 +108,7 @@ public class ConversionService {
     public ConversionResponseDto mapToConversionResponseDto(Conversion conversion){
         ConversionResponseDto dto = new ConversionResponseDto();
         dto.setId(conversion.getId());
+        dto.setUserId(conversion.getUser() != null ? conversion.getUser().getId() : null);
         dto.setInputFormat(conversion.getInputFormat());
         dto.setOutputFormat(conversion.getOutputFormat());
         dto.setAiResponse(conversion.getAiResponse());

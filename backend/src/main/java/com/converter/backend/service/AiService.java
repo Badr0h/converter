@@ -39,6 +39,33 @@ public class AiService {
     }
 
     /**
+     * Generate AI response synchronously (blocking but with timeout)
+     * Use this method when you need to work with traditional Spring MVC controllers
+     *
+     * @param prompt The user prompt
+     * @param plan User plan: BASIC, PRO, PREMIUM, BUSINESS
+     * @return AI-generated response as String
+     * @throws RuntimeException if generation fails or times out
+     */
+    public String generateResponseSync(String prompt, String plan) {
+        log.info("Generating AI response synchronously for plan: {} using provider: {}", plan, aiProvider.getProviderName());
+        
+        if (!aiProvider.isHealthy()) {
+            log.error("AI provider {} is not healthy", aiProvider.getProviderName());
+            throw new RuntimeException("AI service is currently unavailable");
+        }
+        
+        try {
+            return generateResponse(prompt, plan)
+                    .timeout(java.time.Duration.ofSeconds(30)) // Timeout de 30 secondes
+                    .block(); // Block uniquement dans cette méthode isolée
+        } catch (Exception e) {
+            log.error("Failed to generate AI response synchronously", e);
+            throw new RuntimeException("Failed to generate AI response: " + e.getMessage(), e);
+        }
+    }
+
+    /**
      * Get the current provider name
      *
      * @return provider name

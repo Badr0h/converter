@@ -27,6 +27,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
         RATE_LIMITS.put("/api/auth/login", new int[]{5, 15}); // 5 attempts per 15 minutes
         RATE_LIMITS.put("/api/auth/register", new int[]{3, 60}); // 3 registrations per hour
         RATE_LIMITS.put("/api/conversions", new int[]{20, 10}); // 20 conversions per 10 minutes
+        RATE_LIMITS.put("/api/auth/resend-verification", new int[]{2, 5}); // 2 emails per 5 minutes (anti-spam)
     }
     
     @Override

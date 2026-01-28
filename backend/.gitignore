@@ -35,13 +35,14 @@ build/
 
 ### Environment Variables & Configuration ###
 .env
+.env.example
 .env.local
 .env.production
 .env.development
 
 # Production specific
 application-production.properties
-
+application.properties
 ### application.properties ###
 src/main/resources/application.properties
 
