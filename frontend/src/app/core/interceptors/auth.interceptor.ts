@@ -12,9 +12,15 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const token = authService.getToken();
 
   // Debug logging
-  console.log('Interceptor - Request URL:', req.url);
-  console.log('Interceptor - Token exists:', !!token);
-  console.log('Interceptor - Token:', token ? token.substring(0, 20) + '...' : 'null');
+  console.log('=== AUTH INTERCEPTOR DEBUG ===');
+  console.log('Request URL:', req.url);
+  console.log('Request Method:', req.method);
+  console.log('Token exists:', !!token);
+  console.log('Token length:', token ? token.length : 0);
+  console.log('Token preview:', token ? token.substring(0, 50) + '...' : 'null');
+  console.log('Is user authenticated:', authService.isAuthenticated());
+  console.log('Current user:', authService.currentUserValue);
+  console.log('==============================');
 
   // Clone the request and add authorization header if token exists
   if (token) {
@@ -23,18 +29,23 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         Authorization: `Bearer ${token}`
       }
     });
-    console.log('Interceptor - Added Authorization header');
+    console.log('✅ Added Authorization header');
   } else {
-    console.warn('Interceptor - No token found, request will be unauthenticated');
+    console.warn('❌ No token found, request will be unauthenticated');
   }
 
   // Handle the request and catch errors
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-      console.error('Interceptor - HTTP Error:', error.status, error.statusText);
+      console.error('=== HTTP ERROR ===');
+      console.error('Status:', error.status);
+      console.error('Status Text:', error.statusText);
+      console.error('URL:', error.url);
+      console.error('Error message:', error.message);
+      
       if (error.status === 401 || error.status === 403) {
-        // Unauthorized - logout and redirect to login
-        console.log('Interceptor - Auth error, logging out');
+        console.log('🚫 Auth error detected - logging out');
+        console.log('User was logged out due to:', error.status === 401 ? 'Unauthorized' : 'Forbidden');
         authService.logout();
       }
       return throwError(() => error);

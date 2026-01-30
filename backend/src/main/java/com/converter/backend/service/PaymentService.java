@@ -126,7 +126,7 @@ public class PaymentService {
         BigDecimal amount = calculateAmount(plan, dto.getBillingCycle());
         
         Payment payment = buildPayment(user, subscription, dto, amount, plan.getCurrency());
-        payment.setStatus(Status.COMPLETED);
+        payment.setStatus(Status.SUCCESS);
         payment.setTransactionId(generateSimulatedTransactionId());
         
         Payment savedPayment = paymentRepository.save(payment);
@@ -190,7 +190,7 @@ public class PaymentService {
         try {
             // 1. Vérifier l'idempotence - déjà capturé ?
             Optional<Payment> existingPayment = paymentRepository.findByTransactionId(orderId);
-            if (existingPayment.isPresent() && existingPayment.get().getStatus() == Status.COMPLETED) {
+            if (existingPayment.isPresent() && existingPayment.get().getStatus() == Status.SUCCESS) {
                 log.info("Payment already captured for order: {} - returning existing", orderId);
                 return mapToResponseDto(existingPayment.get());
             }
@@ -213,7 +213,7 @@ public class PaymentService {
                     .orElseThrow(() -> new ResourceNotFoundException("Payment not found for order: " + orderId));
 
             // 5. Mettre à jour le statut du paiement
-            payment.setStatus(Status.COMPLETED);
+            payment.setStatus(Status.SUCCESS);
             payment.setUpdatedAt(LocalDateTime.now());
             paymentRepository.save(payment);
 
@@ -304,7 +304,7 @@ public class PaymentService {
         
         Payment payment = findPaymentById(paymentId);
         
-        if (payment.getStatus() == Status.COMPLETED) {
+        if (payment.getStatus() == Status.SUCCESS) {
             payment.setStatus(Status.REFUNDED);
         } else {
             payment.setStatus(Status.CANCELLED);

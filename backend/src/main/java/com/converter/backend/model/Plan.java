@@ -22,6 +22,9 @@ public class Plan {
     @Column(nullable = false)
     private String name; // EX: "Basic", "Pro", "Premium"
 
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
     @Column(nullable = false)
     private BigDecimal price;
 

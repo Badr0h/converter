@@ -46,6 +46,18 @@ public class Subscription {
     @Column(name = "max_conversions_per_month")
     private Integer maxConversionsPerMonth; // Number of conversions allowed per month
 
+    @Column(name = "is_trial")
+    private Boolean isTrial = false;
+
+    @Column(name = "trial_end_date")
+    private LocalDate trialEndDate;
+
+    @Column(name = "auto_renew")
+    private Boolean autoRenew = true;
+
+    @Column(name = "cancelled_at")
+    private LocalDateTime cancelledAt;
+
     public enum Status{
         ACTIVE,
         CANCELLED,

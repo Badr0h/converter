@@ -35,7 +35,7 @@ public class PaymentCleanupConfiguration {
         
         if (!expiredPayments.isEmpty()) {
             expiredPayments.forEach(payment -> {
-                payment.setStatus(Status.EXPIRED);
+                payment.setStatus(Status.CANCELLED);
                 payment.setFailureReason("Payment expired - not completed within 30 minutes");
             });
             
@@ -54,7 +54,7 @@ public class PaymentCleanupConfiguration {
     public void dailyPaymentReport() {
         log.info("Generating daily payment report");
         
-        long completedCount = paymentRepository.countByStatus(Status.COMPLETED);
+        long completedCount = paymentRepository.countByStatus(Status.SUCCESS);
         long pendingCount = paymentRepository.countByStatus(Status.PENDING);
         long failedCount = paymentRepository.countByStatus(Status.FAILED);
         

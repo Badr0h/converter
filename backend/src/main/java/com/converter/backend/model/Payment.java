@@ -105,8 +105,8 @@ public class Payment {
     }
 
     // Business logic methods
-    public boolean isCompleted() {
-        return Status.COMPLETED.equals(status);
+    public boolean isSuccess() {
+        return Status.SUCCESS.equals(status);
     }
 
     public boolean isPending() {
@@ -126,7 +126,7 @@ public class Payment {
     }
 
     public void markAsCompleted(String transactionId) {
-        this.status = Status.COMPLETED;
+        this.status = Status.SUCCESS;
         this.transactionId = transactionId;
         this.updatedAt = LocalDateTime.now();
     }
@@ -144,19 +144,25 @@ public class Payment {
         this.updatedAt = LocalDateTime.now();
     }
 
+    public void markAsPartiallyRefunded(BigDecimal refundAmount) {
+        this.status = Status.PARTIALLY_REFUNDED;
+        this.refundAmount = refundAmount;
+        this.refundDate = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
     public void markAsCancelled() {
         this.status = Status.CANCELLED;
         this.updatedAt = LocalDateTime.now();
     }
 
     public enum Status {
-        PENDING,        // Payment initiated but not completed
-        COMPLETED,      // Payment successful
-        FAILED,         // Payment failed
-        REFUNDED,       // Payment refunded
-        CANCELLED,      // Payment cancelled by user
-        PROCESSING,     // Payment being processed
-        EXPIRED         // Payment link/session expired
+        PENDING,                // Payment initiated but not completed
+        SUCCESS,                // Payment successful (matches SQL V1)
+        FAILED,                 // Payment failed
+        REFUNDED,               // Payment refunded
+        PARTIALLY_REFUNDED,     // Payment partially refunded (matches SQL V1)
+        CANCELLED               // Payment cancelled by user
     }
 
     public enum PaymentGateway {

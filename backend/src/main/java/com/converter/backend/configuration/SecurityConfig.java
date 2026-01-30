@@ -32,7 +32,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/auth/**", "/api/plans", "/api/subscriptions/**", "/api/payments/**", "/v3/api-docs/**", "/swagger-ui/**")
+                        .ignoringRequestMatchers("/api/auth/**", "/api/plans", "/api/subscriptions/**", "/api/payments/**", "/api/conversions/**", "/v3/api-docs/**", "/swagger-ui/**")
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth

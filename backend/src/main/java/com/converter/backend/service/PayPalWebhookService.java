@@ -16,6 +16,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -121,7 +122,15 @@ public class PayPalWebhookService {
                     .orderId(event.getOrderId())
                     .eventType(event.getEventType())
                     .status(ProcessedWebhook.ProcessingStatus.PROCESSED)
-                    .payload(event.toString())
+                    .payload(Map.of(
+                        "id", event.getId(),
+                        "orderId", event.getOrderId(),
+                        "eventType", event.getEventType(),
+                        "summary", event.getSummary(),
+                        "resource", event.getResource(),
+                        "status", event.getStatus(),
+                        "createTime", event.getCreateTime()
+                    ))
                     .build();
             
             processedWebhookRepository.save(processedWebhook);

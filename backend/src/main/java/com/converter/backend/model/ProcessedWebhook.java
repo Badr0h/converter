@@ -7,7 +7,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.vladmihalcea.hibernate.type.json.JsonType;
+import org.hibernate.annotations.Type;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
@@ -43,8 +46,9 @@ public class ProcessedWebhook {
     @Column(name = "error_message", length = 500)
     private String errorMessage;
 
-    @Column(name = "payload", columnDefinition = "TEXT")
-    private String payload;
+    @Column(name = "payload", columnDefinition = "jsonb")
+    @Type(JsonType.class)
+    private Map<String, Object> payload;
 
     @CreationTimestamp
     @Column(name = "processed_at", nullable = false, updatable = false)
