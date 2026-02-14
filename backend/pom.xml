@@ -126,6 +126,13 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-mail</artifactId>
 		</dependency>
+
+		<!-- dotenv for loading .env files -->
+		<dependency>
+			<groupId>io.github.cdimascio</groupId>
+			<artifactId>dotenv-java</artifactId>
+			<version>3.0.0</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -154,6 +161,13 @@
 					</excludes>
 				</configuration>
 			</plugin>
+
+
+
+
+
+
+
 		</plugins>
 	</build>
 

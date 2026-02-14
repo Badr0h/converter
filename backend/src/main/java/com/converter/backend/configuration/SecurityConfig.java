@@ -1,6 +1,7 @@
 package com.converter.backend.configuration;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -27,6 +28,9 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final AuthenticationProvider authenticationProvider;
     private final RateLimitingFilter rateLimitingFilter;
+    
+    @Value("${frontend.cors.allowed-origins}")
+    private String allowedOriginsString;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -38,6 +42,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/", "/api/plans").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
+                        .requestMatchers("/actuator/health").permitAll()
+                        .requestMatchers("/actuator/info").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -60,19 +66,8 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
-        // Only allow specific origins in production
-        List<String> allowedOrigins = Arrays.asList(
-            "http://localhost:4200",
-            "http://localhost:8081"
-        );
-        
-        // In production, these should be your actual domains
-        if (System.getProperty("spring.profiles.active", "dev").equals("prod")) {
-            allowedOrigins = Arrays.asList(
-                "https://yourdomain.com",
-                "https://www.yourdomain.com"
-            );
-        }
+        // Parse allowed origins from configuration
+        List<String> allowedOrigins = Arrays.asList(allowedOriginsString.split(","));
         
         configuration.setAllowedOrigins(allowedOrigins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));

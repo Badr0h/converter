@@ -10,8 +10,7 @@ import lombok.RequiredArgsConstructor;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,8 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.converter.backend.service.ConversionService;
-import com.converter.backend.repository.UserRepository;
 import com.converter.backend.model.User;
+import com.converter.backend.service.AuthService ; 
 
 @RestController
 @RequestMapping("/api/conversions")
@@ -29,25 +28,20 @@ import com.converter.backend.model.User;
 public class ConversionController {
 
     private final ConversionService conversionService;
-    private final UserRepository userRepository;
+    private final AuthService authService;
 
     @GetMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<ConversionResponseDto>> getUserConversions(){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = userRepository.findByEmail(auth.getName())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        
+        User currentUser = authService.getCurrentUser();
         return ResponseEntity.ok(conversionService.findByUserId(currentUser.getId()));
     }
     
     @GetMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ConversionResponseDto> getConversionById(@PathVariable Long id){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = userRepository.findByEmail(auth.getName())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        
+        User currentUser = authService.getCurrentUser();
+
         ConversionResponseDto conversion = conversionService.getConversionById(id);
         
         // Vérifier que l'utilisateur est le propriétaire de la conversion
@@ -61,9 +55,7 @@ public class ConversionController {
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ConversionResponseDto> createConversion(@Valid @RequestBody ConversionCreateDto conversion) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = userRepository.findByEmail(auth.getName())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User currentUser = authService.getCurrentUser();
 
         ConversionResponseDto createdConversion = conversionService.createConversion(conversion, currentUser.getId());
 

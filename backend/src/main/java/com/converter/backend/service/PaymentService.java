@@ -47,13 +47,13 @@ public class PaymentService {
     @Value("${paypal.client.secret}")
     private String paypalClientSecret;
     
-    @Value("${paypal.return.url:http://localhost:4200/payment-success}")
+    @Value("${paypal.return.url}")
     private String returnUrl;
     
-    @Value("${paypal.cancel.url:http://localhost:4200/payment-failed}")
+    @Value("${paypal.cancel.url}")
     private String cancelUrl;
     
-    @Value("${paypal.mode:sandbox}")
+    @Value("${paypal.mode}")
     private String paypalMode;
 
     private PayPalHttpClient payPalClient;
