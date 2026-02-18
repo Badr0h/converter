@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+
+  backend:
+    build: ./backend
+    container_name: converter-backend
+    ports:
+      - "8081:8081"
+    env_file:
+      - .env
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15
+    container_name: converter-db
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  frontend:
+    build: ./frontend
+    container_name: converter-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

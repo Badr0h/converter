@@ -30,7 +30,7 @@ export class LoginComponent implements OnInit {
     // Initialize the form
     this.loginForm = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      password: ['', [Validators.required, Validators.minLength(8)]]
     });
 
     // Get return url from route parameters or default to '/'

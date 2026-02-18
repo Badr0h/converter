@@ -1,0 +1,87 @@
+# ==============================
+# 1️⃣ BUILD / CONSTRUCTION DES IMAGES
+# ==============================
+
+# Construire l'image backend (Spring Boot)
+docker build -t converter-backend ./backend
+
+# Construire l'image frontend (Angular)
+docker build -t converter-frontend ./frontend
+
+# ==============================
+# 2️⃣ LANCEMENT DES CONTAINERS
+# ==============================
+
+# Lancer tous les containers définis dans docker-compose.yml
+docker-compose up
+
+# Lancer en arrière-plan (détaché)
+docker-compose up -d
+
+# Recompiler les images avant lancement
+docker-compose up --build
+
+# ==============================
+# 3️⃣ GESTION DES CONTAINERS
+# ==============================
+
+# Lister les containers actifs
+docker ps
+
+# Lister tous les containers (même arrêtés)
+docker ps -a
+
+# Arrêter un container
+docker stop <nom_du_container>
+
+# Supprimer un container
+docker rm <nom_du_container>
+
+# Supprimer une image
+docker rmi <nom_image>
+
+# ==============================
+# 4️⃣ ACCÈS À LA BASE DE DONNÉES
+# ==============================
+
+# Se connecter à PostgreSQL dans le container
+docker exec -it <nom_container_db> psql -U <utilisateur> -d <nom_base>
+
+# Exemple pour ton projet :
+docker exec -it converter-db psql -U wdd-d -d unit_conversion
+
+# ==============================
+# 5️⃣ LOGS ET DEBUG
+# ==============================
+
+# Voir les logs d’un container
+docker logs <nom_du_container>
+
+# Suivre les logs en temps réel
+docker logs -f <nom_du_container>
+
+# ==============================
+# 6️⃣ CLEAN / RESET
+# ==============================
+
+# Arrêter et supprimer tous les containers + volumes (réinitialise DB)
+docker-compose down -v
+
+# ==============================
+# 7️⃣ FLYWAY / MIGRATIONS
+# ==============================
+
+# Flyway se déclenche automatiquement depuis le backend au démarrage
+# Pas besoin de scripts init.sql si Flyway est bien configuré
+# Vérifier que les migrations sont appliquées dans les logs du backend
+docker logs -f converter-backend | grep "Successfully applied migration"
+
+# ==============================
+# 8️⃣ UTILITAIRES UTILES
+# ==============================
+
+# Supprimer tous les containers et images inutilisés
+docker system prune -a
+
+# Lister toutes les images
+docker images

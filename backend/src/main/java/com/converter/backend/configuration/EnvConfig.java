@@ -7,18 +7,19 @@ import jakarta.annotation.PostConstruct;
 
 @Configuration
 public class EnvConfig {
-    
+
     @PostConstruct
     public void configureEnv() {
-        // Load .env file from project root
+        // Charger le .env depuis le working directory courant (./)
         Dotenv dotenv = Dotenv.configure()
-                .directory("../")  // Go up from backend/ to project root
-                .filename(".env")
+                .ignoreIfMissing() // ne plante pas si fichier manquant
                 .load();
-        
+
         // Set environment variables for Spring Boot
         dotenv.entries().forEach(entry -> {
             System.setProperty(entry.getKey(), entry.getValue());
         });
+
+        System.out.println("ENV variables loaded: " + dotenv.entries().size());
     }
 }
