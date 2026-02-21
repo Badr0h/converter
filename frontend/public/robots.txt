@@ -1,0 +1,16 @@
+User-agent: *
+# Autorise la page d'accueil et les pages publiques
+Allow: /
+Allow: /auth/login
+Allow: /auth/register
+
+# Interdis l'accès aux zones privées (inutiles pour le SEO)
+Disallow: /dashboard/
+Disallow: /conversion/
+Disallow: /subscription/
+Disallow: /profile/
+
+# Empêche l'indexation des fichiers de configuration ou logs potentiels
+Disallow: /*?* # Interdis les URLs avec des paramètres de recherche si tu n'en as pas besoin
+
+Sitemap: https://aiconverter.com/sitemap.xml

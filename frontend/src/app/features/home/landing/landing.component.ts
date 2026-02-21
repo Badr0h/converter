@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
+import { Meta, Title } from '@angular/platform-browser';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AuthService } from '../../../core/services/auth.service';
@@ -30,15 +31,15 @@ interface HowItWorksStep {
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './landing.component.html',
-  styleUrl: './landing.component.scss'
+  styleUrls: ['./landing.component.scss']
 })
 export class LandingComponent implements OnInit, OnDestroy {
-  
+
   // Pricing
   pricingPlans: PlanResponseDto[] = [];
   isLoadingPricing = false;
   pricingError = false;
-  
+
   // Features
   readonly features: Feature[] = [
     {
@@ -126,12 +127,41 @@ export class LandingComponent implements OnInit, OnDestroy {
   constructor(
     private readonly router: Router,
     private readonly authService: AuthService,
-    private readonly subscriptionService: SubscriptionService
-  ) {}
+    private readonly subscriptionService: SubscriptionService,
+    private readonly title: Title,
+    private readonly meta: Meta
+  ) { }
 
   ngOnInit(): void {
+    this.applySeo();
     this.loadPricingPlans();
     this.preloadCriticalData();
+  }
+
+  private applySeo(): void {
+    const title = 'AI Converter - Convert Code & Data Formats Instantly';
+    const description = 'AI Converter: Instant code and data format conversion via AI. Transform JSON, XML, SQL, Python & more with fast, accurate results.';
+    const url = 'https://aiconverter.com/';
+    const image = 'https://aiconverter.com/assets/og-image.png';
+
+    this.title.setTitle(title);
+
+    this.meta.updateTag({ name: 'description', content: description });
+    this.meta.updateTag({ name: 'robots', content: 'index,follow' });
+
+    // Open Graph
+    this.meta.updateTag({ property: 'og:type', content: 'website' });
+    this.meta.updateTag({ property: 'og:url', content: url });
+    this.meta.updateTag({ property: 'og:title', content: title });
+    this.meta.updateTag({ property: 'og:description', content: description });
+    this.meta.updateTag({ property: 'og:image', content: image });
+
+    // Twitter
+    this.meta.updateTag({ property: 'twitter:card', content: 'summary_large_image' });
+    this.meta.updateTag({ property: 'twitter:url', content: url });
+    this.meta.updateTag({ property: 'twitter:title', content: title });
+    this.meta.updateTag({ property: 'twitter:description', content: description });
+    this.meta.updateTag({ property: 'twitter:image', content: image });
   }
 
   ngOnDestroy(): void {
@@ -342,8 +372,8 @@ export class LandingComponent implements OnInit, OnDestroy {
       this.navigateToRegister();
     } else {
       // Navigate to subscription/checkout page
-      this.router.navigate(['/subscription/checkout'], { 
-        queryParams: { planId: plan.id } 
+      this.router.navigate(['/subscription/checkout'], {
+        queryParams: { planId: plan.id }
       }).catch(error => {
         console.error('Navigation error:', error);
       });
