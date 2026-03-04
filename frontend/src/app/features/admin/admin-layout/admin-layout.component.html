@@ -1,0 +1,64 @@
+<div class="admin-shell">
+    <!-- Admin Sidebar -->
+    <aside class="admin-sidebar" [class.collapsed]="sidebarCollapsed">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <div class="logo-icon">⚡</div>
+                <span class="logo-text" *ngIf="!sidebarCollapsed">Admin Panel</span>
+            </div>
+            <button class="collapse-btn" (click)="toggleSidebar()" [title]="sidebarCollapsed ? 'Expand' : 'Collapse'">
+                {{ sidebarCollapsed ? '›' : '‹' }}
+            </button>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item"
+                (click)="closeOnMobile()">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label" *ngIf="!sidebarCollapsed">Overview</span>
+            </a>
+            <a routerLink="/admin/users" routerLinkActive="active" class="nav-item" (click)="closeOnMobile()">
+                <span class="nav-icon">👥</span>
+                <span class="nav-label" *ngIf="!sidebarCollapsed">Users</span>
+            </a>
+            <a routerLink="/admin/conversions" routerLinkActive="active" class="nav-item" (click)="closeOnMobile()">
+                <span class="nav-icon">🔄</span>
+                <span class="nav-label" *ngIf="!sidebarCollapsed">Conversions</span>
+            </a>
+            <a routerLink="/admin/system" routerLinkActive="active" class="nav-item" (click)="closeOnMobile()">
+                <span class="nav-icon">🖥️</span>
+                <span class="nav-label" *ngIf="!sidebarCollapsed">System Health</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer" *ngIf="!sidebarCollapsed">
+            <a routerLink="/dashboard" class="back-link">
+                <span>← Back to App</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="admin-main">
+        <!-- Top Bar -->
+        <header class="admin-topbar">
+            <button class="mobile-menu-btn" (click)="toggleMobileSidebar()">☰</button>
+            <div class="topbar-content">
+                <h1 class="topbar-title gradient-text">{{ getPageTitle() }}</h1>
+                <div class="topbar-user">
+                    <div class="user-badge admin-badge">ADMIN</div>
+                    <div class="user-avatar-sm">{{ currentUser?.fullName?.charAt(0) || 'A' }}</div>
+                    <span class="user-name-sm">{{ currentUser?.fullName }}</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Router Outlet -->
+        <div class="admin-content">
+            <router-outlet></router-outlet>
+        </div>
+    </main>
+
+    <!-- Mobile overlay -->
+    <div class="mobile-overlay" *ngIf="mobileMenuOpen" (click)="closeMobileSidebar()"></div>
+</div>

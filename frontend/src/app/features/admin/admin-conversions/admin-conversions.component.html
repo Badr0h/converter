@@ -1,0 +1,133 @@
+<div class="admin-page animate-fade-in">
+
+    <!-- Toolbar -->
+    <div class="page-toolbar">
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" placeholder="Search by email, format, prompt..." [(ngModel)]="searchQuery"
+                (input)="applyFilters()" class="search-input" />
+        </div>
+        <div class="toolbar-filters">
+            <select class="filter-select" [(ngModel)]="inputFormatFilter" (change)="applyFilters()">
+                <option value="">Input Format</option>
+                <option *ngFor="let f of formats" [value]="f">{{ f }}</option>
+            </select>
+            <select class="filter-select" [(ngModel)]="outputFormatFilter" (change)="applyFilters()">
+                <option value="">Output Format</option>
+                <option *ngFor="let f of formats" [value]="f">{{ f }}</option>
+            </select>
+        </div>
+        <button class="btn btn-outline btn-sm" (click)="exportCsv()">⬇ Export CSV</button>
+        <span class="user-count">{{ filteredConversions.length }} conversions</span>
+    </div>
+
+    <div class="admin-table-card">
+        <div class="table-loading" *ngIf="loading">
+            <div class="spinner-large"></div>
+            <p>Loading conversions...</p>
+        </div>
+
+        <div class="table-scroll" *ngIf="!loading">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th (click)="sortBy('id')" class="sortable">ID {{ getSortIcon('id') }}</th>
+                        <th>User Email</th>
+                        <th (click)="sortBy('inputFormat')" class="sortable">Input {{ getSortIcon('inputFormat') }}</th>
+                        <th (click)="sortBy('outputFormat')" class="sortable">Output {{ getSortIcon('outputFormat') }}
+                        </th>
+                        <th>Prompt</th>
+                        <th (click)="sortBy('createdAt')" class="sortable">Date {{ getSortIcon('createdAt') }}</th>
+                        <th class="actions-col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let c of paginatedConversions" class="table-row" (click)="viewConversion(c)"
+                        style="cursor:pointer">
+                        <td class="id-cell">#{{ c.id }}</td>
+                        <td class="email-cell">{{ c.userEmail || '—' }}</td>
+                        <td><span class="fmt-badge inp">{{ c.inputFormat }}</span></td>
+                        <td><span class="fmt-badge out">{{ c.outputFormat }}</span></td>
+                        <td class="prompt-cell">{{ c.prompt | slice:0:60 }}{{ c.prompt.length > 60 ? '...' : '' }}</td>
+                        <td class="date-cell">{{ formatDate(c.createdAt) }}</td>
+                        <td class="actions-cell" (click)="$event.stopPropagation()">
+                            <button class="action-btn view-btn" title="View details"
+                                (click)="viewConversion(c)">👁️</button>
+                            <button class="action-btn delete-btn" title="Delete"
+                                (click)="deleteConversion(c)">🗑️</button>
+                        </td>
+                    </tr>
+                    <tr *ngIf="paginatedConversions.length === 0">
+                        <td colspan="7" class="empty-row">No conversions found.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="table-pagination" *ngIf="!loading && filteredConversions.length > pageSize">
+            <button class="page-btn" [disabled]="currentPage === 0" (click)="prevPage()">← Prev</button>
+            <span class="page-info">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+            <button class="page-btn" [disabled]="currentPage >= totalPages - 1" (click)="nextPage()">Next →</button>
+            <select class="page-size-select" [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+                <option [value]="10">10 / page</option>
+                <option [value]="25">25 / page</option>
+                <option [value]="50">50 / page</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Conversion Detail Modal -->
+    <div class="admin-modal-backdrop" *ngIf="showDetailModal" (click)="closeModal()">
+        <div class="admin-modal" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Conversion #{{ selectedConversion?.id }}</h2>
+                <button class="modal-close-btn" (click)="closeModal()">✕</button>
+            </div>
+            <div class="modal-body" *ngIf="selectedConversion">
+                <div class="detail-row">
+                    <span class="detail-label">User</span>
+                    <span class="detail-value">{{ selectedConversion.userEmail || '—' }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Formats</span>
+                    <div class="detail-value">
+                        <span class="fmt-badge inp">{{ selectedConversion.inputFormat }}</span>
+                        <span> → </span>
+                        <span class="fmt-badge out">{{ selectedConversion.outputFormat }}</span>
+                    </div>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Date</span>
+                    <span class="detail-value">{{ formatDate(selectedConversion.createdAt) }}</span>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-label">Input Prompt</div>
+                    <pre class="code-block">{{ selectedConversion.prompt }}</pre>
+                </div>
+                <div class="detail-section">
+                    <div class="detail-label">AI Response</div>
+                    <pre class="code-block response-block">{{ selectedConversion.aiResponse }}</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirm Modal -->
+    <div class="admin-modal-backdrop" *ngIf="showDeleteModal" (click)="cancelDelete()">
+        <div class="admin-modal confirm-modal" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2>⚠️ Delete Conversion</h2>
+                <button class="modal-close-btn" (click)="cancelDelete()">✕</button>
+            </div>
+            <div class="modal-body">
+                <p>Delete conversion <strong>#{{ conversionToDelete?.id }}</strong>?</p>
+                <p class="warning-text">This action cannot be undone.</p>
+                <div class="modal-actions">
+                    <button class="btn btn-outline" (click)="cancelDelete()">Cancel</button>
+                    <button class="btn btn-danger" (click)="confirmDelete()">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -2,138 +2,78 @@
   <div class="register-card">
     <div class="register-header">
       <h2>Create Account</h2>
-      <p>Sign up to get started</p>
+      <p>Join AI Converter and start transforming your code</p>
     </div>
 
     <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
-      <!-- Username Field -->
+      <!-- Full Name Field -->
       <div class="form-group">
-        <label for="username">Full Name</label>
-        <input
-          type="text"
-          id="username"
-          formControlName="username"
-          class="form-control"
-          [class.is-invalid]="submitted && f['username'].errors"
-          placeholder="Enter your full name"
-        />
-        <div *ngIf="submitted && f['username'].errors" class="invalid-feedback">
-          <div *ngIf="f['username'].errors['required']">Full name is required</div>
-          <div *ngIf="f['username'].errors['minlength']">Full name must be at least 3 characters</div>
-          <div *ngIf="f['username'].errors['maxlength']">Full name must not exceed 20 characters</div>
-          <div *ngIf="f['username'].errors['pattern']">Full name can only contain letters and spaces</div>
+        <label for="fullName" class="form-label">Full Name</label>
+        <input type="text" id="fullName" formControlName="fullName" class="form-input"
+          [class.invalid]="submitted && f['fullName'].errors" placeholder="John Doe" />
+        <div *ngIf="submitted && f['fullName'].errors" class="invalid-feedback">
+          <div *ngIf="f['fullName'].errors['required']">Full Name is required</div>
         </div>
       </div>
 
       <!-- Email Field -->
       <div class="form-group">
-        <label for="email">Email Address</label>
-        <input
-          type="email"
-          id="email"
-          formControlName="email"
-          class="form-control"
-          [class.is-invalid]="submitted && f['email'].errors"
-          placeholder="Enter your email"
-        />
+        <label for="email" class="form-label">Email Address</label>
+        <input type="email" id="email" formControlName="email" class="form-input"
+          [class.invalid]="submitted && f['email'].errors" placeholder="name@company.com" />
         <div *ngIf="submitted && f['email'].errors" class="invalid-feedback">
           <div *ngIf="f['email'].errors['required']">Email is required</div>
-          <div *ngIf="f['email'].errors['email']">Email must be a valid email address</div>
+          <div *ngIf="f['email'].errors['email']">Please enter a valid email</div>
         </div>
       </div>
 
       <!-- Password Field -->
       <div class="form-group">
-        <label for="password">Password</label>
-        <input
-          [type]="passwordVisible ? 'text' : 'password'"
-          id="password"
-          formControlName="password"
-          class="form-control"
-          [class.is-invalid]="submitted && f['password'].errors"
-          [class.is-valid]="f['password'].value && allPasswordRequirementsMet"
-          placeholder="Create a strong password"
-        />
+        <label for="password" class="form-label">Password</label>
+        <input [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password" class="form-input"
+          [class.invalid]="submitted && f['password'].errors" placeholder="••••••••" />
         <div *ngIf="submitted && f['password'].errors" class="invalid-feedback">
           <div *ngIf="f['password'].errors['required']">Password is required</div>
-          <div *ngIf="f['password'].errors['minlength']">Password must be at least 8 characters</div>
-          <div *ngIf="f['password'].errors['maxlength']">Password must not exceed 128 characters</div>
-          <div *ngIf="f['password'].errors['pattern']">Password does not meet security requirements</div>
         </div>
-        
-        <!-- Password Requirements Indicator -->
-        <div *ngIf="f['password'].value" class="password-requirements mt-2">
-          <div class="requirements-title">Password must contain:</div>
-          <div class="requirement-item" [class.valid]="passwordRequirements.minLength">
-            <i class="fas" [class.fa-check]="passwordRequirements.minLength" [class.fa-times]="!passwordRequirements.minLength"></i>
-            At least 8 characters
-          </div>
-          <div class="requirement-item" [class.valid]="passwordRequirements.hasUppercase">
-            <i class="fas" [class.fa-check]="passwordRequirements.hasUppercase" [class.fa-times]="!passwordRequirements.hasUppercase"></i>
-            One uppercase letter (A-Z)
-          </div>
-          <div class="requirement-item" [class.valid]="passwordRequirements.hasLowercase">
-            <i class="fas" [class.fa-check]="passwordRequirements.hasLowercase" [class.fa-times]="!passwordRequirements.hasLowercase"></i>
-            One lowercase letter (a-z)
-          </div>
-          <div class="requirement-item" [class.valid]="passwordRequirements.hasNumber">
-            <i class="fas" [class.fa-check]="passwordRequirements.hasNumber" [class.fa-times]="!passwordRequirements.hasNumber"></i>
-            One number (0-9)
-          </div>
-          <div class="requirement-item" [class.valid]="passwordRequirements.hasSpecialChar">
-            <i class="fas" [class.fa-check]="passwordRequirements.hasSpecialChar" [class.fa-times]="!passwordRequirements.hasSpecialChar"></i>
-            One special character (&#64;$!%*?&)
-          </div>
-          <div class="password-toggle mt-2">
-            <label class="form-check">
-              <input type="checkbox" class="form-check-input" (change)="togglePasswordVisibility()">
-              <span class="form-check-label">Show password</span>
-            </label>
-          </div>
+
+        <div class="mt-2">
+          <label class="flex items-center gap-xs cursor-pointer">
+            <input type="checkbox" (change)="togglePasswordVisibility()">
+            <span class="text-xs text-muted">Show Password</span>
+          </label>
         </div>
       </div>
 
       <!-- Confirm Password Field -->
       <div class="form-group">
-        <label for="confirmPassword">Confirm Password</label>
-        <input
-          type="password"
-          id="confirmPassword"
-          formControlName="confirmPassword"
-          class="form-control"
-          [class.is-invalid]="submitted && (f['confirmPassword'].errors || registerForm.errors?.['passwordMismatch'])"
-          placeholder="Confirm your password"
-        />
+        <label for="confirmPassword" class="form-label">Confirm Password</label>
+        <input type="password" id="confirmPassword" formControlName="confirmPassword" class="form-input"
+          [class.invalid]="submitted && (f['confirmPassword'].errors || registerForm.errors?.['passwordMismatch'])"
+          placeholder="••••••••" />
         <div *ngIf="submitted && f['confirmPassword'].errors" class="invalid-feedback">
           <div *ngIf="f['confirmPassword'].errors['required']">Please confirm your password</div>
         </div>
-        <div *ngIf="submitted && registerForm.errors?.['passwordMismatch'] && !f['confirmPassword'].errors" class="invalid-feedback">
+        <div *ngIf="submitted && registerForm.errors?.['passwordMismatch'] && !f['confirmPassword'].errors"
+          class="invalid-feedback">
           <div>Passwords do not match</div>
         </div>
       </div>
 
       <!-- Error Message -->
-      <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
-        <div class="alert-content">
-          <i class="fas fa-exclamation-triangle me-2"></i>
-          <span>{{ errorMessage }}</span>
-        </div>
+      <div *ngIf="errorMessage" class="alert alert-danger">
+        {{ errorMessage }}
       </div>
 
       <!-- Submit Button -->
-      <button
-        type="submit"
-        class="btn btn-primary btn-block"
-        [disabled]="loading"
-      >
+      <button type="submit" class="btn btn-primary" [disabled]="loading">
         <span *ngIf="loading" class="spinner"></span>
         <span *ngIf="!loading">Create Account</span>
         <span *ngIf="loading">Creating Account...</span>
       </button>
 
       <!-- Login Link -->
-      <div class="text-center mt-3">
-        <p>Already have an account? <a routerLink="/auth/login">Sign In</a></p>
+      <div class="text-footer">
+        <p>Already have an account? <a routerLink="/auth/login">Sign in</a></p>
       </div>
     </form>
   </div>

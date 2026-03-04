@@ -22,7 +22,7 @@ public class AiService {
      * Generate AI response using the configured provider
      *
      * @param prompt The user prompt
-     * @param plan User plan: BASIC, PRO, PREMIUM, BUSINESS
+     * @param plan User plan: STARTER, PROFESSIONAL, ENTERPRISE
      * @return AI-generated response as Mono<String>
      */
     public Mono<String> generateResponse(String prompt, String plan) {
@@ -43,7 +43,7 @@ public class AiService {
      * Use this method when you need to work with traditional Spring MVC controllers
      *
      * @param prompt The user prompt
-     * @param plan User plan: BASIC, PRO, PREMIUM, BUSINESS
+     * @param plan User plan: STARTER, PROFESSIONAL, ENTERPRISE
      * @return AI-generated response as String
      * @throws RuntimeException if generation fails or times out
      */

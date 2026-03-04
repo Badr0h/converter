@@ -1,8 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
-import { UserResponseDto } from '../../core/models/user.model';
+import { UserResponseDto, UserRole } from '../../core/models/user.model';
 
 @Component({
   selector: 'app-navbar',
@@ -14,11 +14,17 @@ import { UserResponseDto } from '../../core/models/user.model';
 export class NavbarComponent implements OnInit {
   currentUser: UserResponseDto | null = null;
   isMenuOpen = false;
+  isScrolled = false;
 
   constructor(
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) { }
+
+  @HostListener('window:scroll', [])
+  onWindowScroll() {
+    this.isScrolled = window.pageYOffset > 20;
+  }
 
   ngOnInit(): void {
     this.authService.currentUser.subscribe(user => {
@@ -37,9 +43,14 @@ export class NavbarComponent implements OnInit {
   logout(): void {
     this.authService.logout();
     this.closeMenu();
+    this.router.navigate(['/auth/login']);
   }
 
   isAuthenticated(): boolean {
     return this.authService.isAuthenticated();
+  }
+
+  isAdmin(): boolean {
+    return this.currentUser?.role === UserRole.ADMIN;
   }
 }

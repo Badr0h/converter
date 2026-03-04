@@ -1,0 +1,96 @@
+<div class="admin-page animate-fade-in">
+
+    <div class="system-grid">
+
+        <!-- Status card -->
+        <div class="system-card">
+            <div class="system-card-header">
+                <div class="system-icon">🖥️</div>
+                <h2>System Status</h2>
+                <span class="status-chip" [class.up]="health?.status === 'UP'" [class.down]="health?.status !== 'UP'">
+                    {{ health?.status ?? '...' }}
+                </span>
+            </div>
+            <div class="system-card-body" *ngIf="health">
+                <div class="info-row">
+                    <span class="info-label">Java Version</span>
+                    <span class="info-value">{{ health.javaVersion }}</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Server Time</span>
+                    <span class="info-value">{{ now | date:'medium' }}</span>
+                </div>
+            </div>
+            <div class="skeleton-content" *ngIf="loading"></div>
+        </div>
+
+        <!-- Database card -->
+        <div class="system-card">
+            <div class="system-card-header">
+                <div class="system-icon">🗃️</div>
+                <h2>Database</h2>
+                <span class="status-chip" [class.up]="health?.database?.status === 'UP'"
+                    [class.down]="health?.database?.status !== 'UP'">
+                    {{ health?.database?.status ?? '...' }}
+                </span>
+            </div>
+            <div class="system-card-body" *ngIf="health">
+                <div class="info-row">
+                    <span class="info-label">Total Users</span>
+                    <span class="info-value">{{ health?.database?.userCount ?? '—' }}</span>
+                </div>
+            </div>
+            <div class="skeleton-content" *ngIf="loading"></div>
+        </div>
+
+        <!-- Memory card -->
+        <div class="system-card memory-card">
+            <div class="system-card-header">
+                <div class="system-icon">💾</div>
+                <h2>Memory Usage</h2>
+            </div>
+            <div class="system-card-body" *ngIf="health?.memory">
+                <div class="memory-bar-container">
+                    <div class="memory-label">
+                        <span>Used: {{ formatBytes(health.memory.used) }}</span>
+                        <span>Total: {{ formatBytes(health.memory.total) }}</span>
+                    </div>
+                    <div class="memory-bar">
+                        <div class="memory-fill" [style.width.%]="getMemoryPercent()"
+                            [class.danger]="getMemoryPercent() > 80"></div>
+                    </div>
+                    <div class="memory-percent">{{ getMemoryPercent() }}% used</div>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Free Memory</span>
+                    <span class="info-value">{{ formatBytes(health.memory.free) }}</span>
+                </div>
+            </div>
+            <div class="skeleton-content" *ngIf="loading"></div>
+        </div>
+
+        <!-- Endpoints card -->
+        <div class="system-card endpoints-card">
+            <div class="system-card-header">
+                <div class="system-icon">🔌</div>
+                <h2>API Endpoints</h2>
+                <button class="refresh-btn" (click)="loadHealth()" [disabled]="loading">
+                    {{ loading ? '⏳' : '↻' }} Refresh
+                </button>
+            </div>
+            <div class="endpoints-list">
+                <div class="endpoint-item" *ngFor="let ep of endpoints">
+                    <div class="endpoint-left">
+                        <span class="method-badge" [class]="ep.method.toLowerCase()">{{ ep.method }}</span>
+                        <span class="endpoint-path">{{ ep.path }}</span>
+                    </div>
+                    <span class="status-dot" [class.up]="ep.status === 'OK'" [class.down]="ep.status !== 'OK'">
+                        {{ ep.status }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>

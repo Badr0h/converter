@@ -1,63 +1,37 @@
-<nav class="nav-header">
+<nav class="nav-header" [class.scrolled]="isScrolled">
   <div class="nav-container">
-    <!-- Logo -->
+    <!-- Sophisticated Brand Identity -->
     <a routerLink="/" class="nav-logo" (click)="closeMenu()">
+      <div class="logo-icon">C</div>
       <span class="logo-text">Converter</span>
     </a>
 
-    <!-- Mobile Menu Toggle -->
-    <button class="mobile-toggle" (click)="toggleMenu()" *ngIf="isAuthenticated()">
+    <!-- Precision Mobile Toggle -->
+    <button class="mobile-toggle" (click)="toggleMenu()" *ngIf="isAuthenticated()" aria-label="Toggle Navigation">
       <span class="toggle-icon">{{ isMenuOpen ? '✕' : '☰' }}</span>
     </button>
 
-    <!-- Navigation Links (Only show when authenticated) -->
+    <!-- Tactical Navigation Array -->
     <div class="nav-menu" [class.active]="isMenuOpen" *ngIf="isAuthenticated()">
-      <a 
-        routerLink="/dashboard" 
-        routerLinkActive="active"
-        class="nav-link"
-        (click)="closeMenu()"
-      >
-        Dashboard
-      </a>
-      <a 
-        routerLink="/conversion" 
-        routerLinkActive="active"
-        class="nav-link"
-        (click)="closeMenu()"
-      >
-        Convert
-      </a>
-      <a 
-        routerLink="/subscription/plans" 
-        routerLinkActive="active"
-        class="nav-link"
-        (click)="closeMenu()"
-      >
-        Plans
-      </a>
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-link" (click)="closeMenu()">Dashboard</a>
+      <a routerLink="/conversion" routerLinkActive="active" class="nav-link" (click)="closeMenu()">Converter</a>
+      <a routerLink="/subscription/plans" routerLinkActive="active" class="nav-link" (click)="closeMenu()">Pricing</a>
+      <a routerLink="/admin" routerLinkActive="active" class="nav-link admin-link" (click)="closeMenu()"
+        *ngIf="isAdmin()">⚡ Admin</a>
     </div>
 
-    <!-- User Menu (When authenticated) -->
+    <!-- User Command Module -->
     <div class="navbar-user" *ngIf="isAuthenticated()">
-      <a 
-        routerLink="/profile"
-        class="user-info"
-        (click)="closeMenu()"
-      >
-        <div class="user-avatar">
-          <span class="user-initials">{{ currentUser?.fullName?.charAt(0) || 'U' }}</span>
-        </div>
+      <a routerLink="/profile" class="user-trigger" (click)="closeMenu()">
+        <div class="user-avatar">{{ currentUser?.fullName?.charAt(0) || 'U' }}</div>
         <span class="user-name">{{ currentUser?.fullName }}</span>
       </a>
-      <button class="btn btn-ghost btn-sm" (click)="logout()">
-        Logout
-      </button>
+      <button class="btn btn-ghost btn-sm" (click)="logout()">Sign Out</button>
     </div>
 
-    <!-- Guest Links (When NOT authenticated) -->
-    <div class="navbar-guest" *ngIf="!isAuthenticated()">
-      <a routerLink="/auth/login" class="btn btn-secondary btn-sm">Login</a>
+    <!-- Guest Access Portal -->
+    <div class="navbar-guest flex gap-md" *ngIf="!isAuthenticated()">
+      <a routerLink="/auth/login" class="btn btn-ghost btn-sm">Sign In</a>
       <a routerLink="/auth/register" class="btn btn-primary btn-sm">Get Started</a>
     </div>
   </div>

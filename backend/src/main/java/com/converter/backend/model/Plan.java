@@ -20,7 +20,7 @@ public class Plan {
     private Long id;
 
     @Column(nullable = false)
-    private String name; // EX: "Basic", "Pro", "Premium"
+    private String name; // EX: "STARTER", "PROFESSIONAL", "ENTERPRISE"
 
     @Column(columnDefinition = "TEXT")
     private String description;

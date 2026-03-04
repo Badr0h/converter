@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -37,7 +37,7 @@ export class ConverterComponent implements OnInit, OnDestroy {
   errorMessage = '';
   showAdvanced = false;
   showHistory = false;
-  
+
   // Toast notification
   toast: ToastMessage | null = null;
 
@@ -134,8 +134,9 @@ export class ConverterComponent implements OnInit, OnDestroy {
     private readonly formBuilder: FormBuilder,
     private readonly conversionService: ConversionService,
     private readonly route: ActivatedRoute,
-    private readonly router: Router
-  ) {}
+    private readonly router: Router,
+    private readonly cdr: ChangeDetectorRef
+  ) { }
 
   ngOnInit(): void {
     this.initForm();
@@ -179,22 +180,26 @@ export class ConverterComponent implements OnInit, OnDestroy {
   }
 
   private updateOutputFormats(inputFormat: string): void {
-    // Type-safe format lookup
     const formats = this.availableFormats[inputFormat as FormatType];
-    
+
     if (!formats) {
       console.warn(`No formats available for ${inputFormat}`);
       this.filteredOutputFormats = [];
+      this.cdr.detectChanges();
       return;
     }
 
     // Filter by advanced mode
     this.filteredOutputFormats = this.showAdvanced
-      ? formats
+      ? [...formats]
       : formats.filter(f => f.level !== 'advanced');
+
+    console.log('[converter] updated filteredOutputFormats:', this.filteredOutputFormats.map(f => f.format));
 
     // Set default output format intelligently
     this.setDefaultOutputFormat();
+
+    this.cdr.detectChanges();
   }
 
   private setDefaultOutputFormat(): void {
@@ -207,7 +212,7 @@ export class ConverterComponent implements OnInit, OnDestroy {
     if (!isCurrentValid) {
       const recommended = this.filteredOutputFormats.find(f => f.level === 'recommended');
       const defaultFormat = recommended?.format ?? this.filteredOutputFormats[0].format;
-      
+
       this.conversionForm.patchValue(
         { outputFormat: defaultFormat },
         { emitEvent: false } // Prevent circular updates
@@ -216,10 +221,14 @@ export class ConverterComponent implements OnInit, OnDestroy {
   }
 
   toggleAdvancedMode(): void {
+    console.log('[converter] BUTTON CLICKED');
     this.showAdvanced = !this.showAdvanced;
+    console.log('[converter] showAdvanced is now:', this.showAdvanced);
     const inputFormat = this.conversionForm.get('inputFormat')?.value;
     if (inputFormat) {
+      console.log('[converter] updating output formats for:', inputFormat);
       this.updateOutputFormats(inputFormat);
+      console.log('[converter] filteredOutputFormats:', this.filteredOutputFormats.map(f => f.format));
     }
   }
 
@@ -325,34 +334,38 @@ export class ConverterComponent implements OnInit, OnDestroy {
    * Builds a structured prompt for better AI conversion results
    */
   private buildStructuredPrompt(inputFormat: string, outputFormat: string, userPrompt: string): string {
-    return `You are a professional code conversion assistant.
-- Convert the following input from ${inputFormat} to ${outputFormat}.
-- Keep all operations, logic, and expressions intact.
-- Only return valid ${outputFormat} code or expression.
-- Do NOT add explanations or comments unless explicitly asked.
-- Use best practices and optimized syntax.
-- Output must be ready to execute or copy-paste.
-- If input is ambiguous, provide a clear conversion based on the most standard convention.
+    return `You are a code conversion tool. Your ONLY task is to convert the input code from ${inputFormat} to ${outputFormat}.
 
-Input:
-${userPrompt.trim()}`;
+      RULES:
+      - RETURN ONLY the converted code
+      - NO explanations, comments, or markdown
+      - NO backticks or code blocks
+      - NO "Here's the code" or similar phrases
+      - NO additional text before or after
+      - PRESERVE all logic, operations, and functionality exactly
+      - USE ${outputFormat} syntax and conventions
+
+      Input (${inputFormat}):
+      ${userPrompt.trim()}
+
+      Converted ${outputFormat} code (ONLY the code, no other text):`;
   }
 
   swapFormats(): void {
     const inputFormat = this.f['inputFormat'].value;
     const outputFormat = this.f['outputFormat'].value;
-    
-    this.conversionForm.patchValue({ 
-      inputFormat: outputFormat, 
-      outputFormat: inputFormat 
+
+    this.conversionForm.patchValue({
+      inputFormat: outputFormat,
+      outputFormat: inputFormat
     });
   }
 
   clearForm(): void {
-    this.conversionForm.reset({ 
-      inputFormat: 'TEXT', 
-      outputFormat: 'PYTHON', 
-      prompt: '' 
+    this.conversionForm.reset({
+      inputFormat: 'TEXT',
+      outputFormat: 'PYTHON',
+      prompt: ''
     });
     this.conversionResult = null;
     this.errorMessage = '';
@@ -393,7 +406,7 @@ ${userPrompt.trim()}`;
 
   deleteFromHistory(id: number, event: Event): void {
     event.stopPropagation();
-    
+
     if (!this.confirmAction('Delete this conversion from history?')) {
       return;
     }
@@ -421,11 +434,11 @@ ${userPrompt.trim()}`;
 
   formatDate(date: Date | string): string {
     const dateObj = typeof date === 'string' ? new Date(date) : date;
-    return dateObj.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric', 
-      hour: '2-digit', 
-      minute: '2-digit' 
+    return dateObj.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     });
   }
 

@@ -14,6 +14,7 @@ public class UserResponseDto {
     private String email;
     private String fullName;
     private Role role;
+    private Boolean enabled;
     private LocalDateTime createdAt ;
     private LocalDateTime updatedAt ;
 

@@ -1,35 +1,80 @@
-version: '3.8'
-
 services:
-
-  backend:
-    build: ./backend
-    container_name: converter-backend
-    ports:
-      - "8081:8081"
-    env_file:
-      - .env
-    depends_on:
-      - db
-
   db:
     image: postgres:15
     container_name: converter-db
-    restart: always
+    restart: unless-stopped
     env_file:
       - .env
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      target: development
+    container_name: converter-backend
+    ports:
+      - "8081:8081"
+      - "5005:5005"
+    env_file:
+      - .env
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_DEVTOOLS_RESTART_ENABLED=true
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/src/main/resources/application.properties:/app/src/main/resources/application.properties
+      - ./backend/src/main/resources/application-dev.properties:/app/src/main/resources/application-dev.properties
+      - ./backend/pom.xml:/app/pom.xml
+      - ./backend/.mvn:/app/.mvn
+      - ./backend/mvnw:/app/mvnw
+      - maven_cache:/root/.m2
+    develop:
+      watch:
+        - path: ./backend/src
+          action: sync
+          target: /app/src
+        - path: ./backend/pom.xml
+          action: rebuild
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      target: development
     container_name: converter-frontend
     ports:
-      - "4200:80"
+      - "4200:4200"
     depends_on:
       - backend
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/angular.json:/app/angular.json
+      - ./frontend/package.json:/app/package.json
+      - ./frontend/tsconfig.json:/app/tsconfig.json
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    develop:
+      watch:
+        - path: ./frontend/src
+          action: sync
+          target: /app/src
+        - path: ./frontend/package.json
+          action: rebuild
 
 volumes:
   postgres_data:
+    name: converter_postgres_data
+  maven_cache:
+    name: converter_maven_cache

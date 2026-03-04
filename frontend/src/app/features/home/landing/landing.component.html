@@ -1,57 +1,43 @@
 <div class="landing-container">
-  
+
   <!-- Hero Section -->
   <section class="hero-section">
-    <div class="hero-background">
-      <div class="floating-symbols">
-        <span 
-          class="symbol" 
-          *ngFor="let symbol of mathSymbols; trackBy: trackBySymbol"
-        >
-          {{ symbol }}
-        </span>
-      </div>
+    <div class="hero-background"></div>
+    <div class="floating-symbols">
+      <span class="symbol" *ngFor="let symbol of mathSymbols; trackBy: trackBySymbol">
+        {{ symbol }}
+      </span>
     </div>
-    
+
     <div class="hero-content">
-      <div class="hero-badge">
+      <div class="hero-badge animate-slide-up">
         <span class="badge-icon">✨</span>
         <span>Powered by Advanced AI</span>
       </div>
-      
-      <h1 class="hero-title">
-        Transform Your Code &<br/>
+
+      <h1 class="hero-title animate-slide-up">
+        Transform Your Code &<br />
         Data <span class="gradient-text">Instantly</span>
       </h1>
-      
-      <p class="hero-description">
+
+      <p class="hero-description animate-slide-up">
         Convert between any programming language or data format using AI.
         Fast, accurate, and intelligent conversions at your fingertips.
       </p>
-      
-      <div class="hero-buttons">
-        <button 
-          class="btn btn-primary btn-large" 
-          (click)="handleGetStarted()"
-          aria-label="Get started with AI Converter"
-        >
-          {{ isAuthenticated() ? 'Go to Converter' : 'Get Started Free' }}
+
+      <div class="hero-buttons animate-slide-up">
+        <button class="btn btn-primary btn-large" (click)="handleGetStarted()"
+          aria-label="Get started with AI Converter">
+          {{ isAuthenticated() ? 'Go to Converter' : 'Get Started' }}
           <span class="btn-arrow">→</span>
         </button>
-        <button 
-          class="btn btn-outline btn-large" 
-          (click)="scrollToFeatures()"
-          aria-label="Learn more about features"
-        >
+        <button class="btn btn-outline btn-large" (click)="scrollToFeatures()" aria-label="Learn more about features">
           Learn More
         </button>
       </div>
-      
-      <div class="hero-stats">
-        <div 
-          class="stat-item" 
-          *ngFor="let stat of stats; trackBy: trackByStatLabel"
-        >
+
+      <div class="hero-stats animate-fade-in">
+        <div class="stat-item" *ngFor="let stat of stats; trackBy: trackByStatLabel">
           <span class="stat-number">{{ stat.number }}</span>
           <span class="stat-label">{{ stat.label }}</span>
         </div>
@@ -62,19 +48,16 @@
   <!-- Supported Formats Section -->
   <section class="formats-section">
     <div class="section-container">
-      <h2 class="section-title">Supported Formats</h2>
-      <p class="section-subtitle">Convert between any of these formats and more</p>
-      
+      <h2 class="section-title text-center mb-md">Supported Formats</h2>
+      <p class="section-subtitle text-center mb-3xl">Convert between any of these formats and more</p>
+
       <div class="formats-grid">
-        <div 
-          class="format-card" 
-          *ngFor="let format of supportedFormats; trackBy: trackByFormatName"
-          [attr.data-format]="format.name"
-        >
+        <div class="format-card" *ngFor="let format of supportedFormats; trackBy: trackByFormatName"
+          [attr.data-format]="format.name">
           <div class="format-icon" [style.background-color]="format.color">
             {{ format.symbol }}
           </div>
-          <span class="format-name">{{ format.name }}</span>
+          <span class="format-name font-semibold">{{ format.name }}</span>
         </div>
       </div>
     </div>
@@ -83,17 +66,14 @@
   <!-- Features Section -->
   <section class="features-section" id="features">
     <div class="section-container">
-      <h2 class="section-title">Why Choose AI Converter?</h2>
-      <p class="section-subtitle">Everything you need for seamless code and data conversion</p>
-      
+      <h2 class="section-title text-center mb-md">Why Choose AI Converter?</h2>
+      <p class="section-subtitle text-center mb-3xl">Everything you need for seamless code and data conversion</p>
+
       <div class="features-grid">
-        <div 
-          class="feature-card" 
-          *ngFor="let feature of features; trackBy: trackByFeatureTitle"
-        >
+        <div class="feature-card" *ngFor="let feature of features; trackBy: trackByFeatureTitle">
           <div class="feature-icon">{{ feature.icon }}</div>
           <h3 class="feature-title">{{ feature.title }}</h3>
-          <p class="feature-description">{{ feature.description }}</p>
+          <p class="feature-description text-muted">{{ feature.description }}</p>
         </div>
       </div>
     </div>
@@ -102,73 +82,64 @@
   <!-- How It Works Section -->
   <section class="how-it-works-section" id="how-it-works">
     <div class="section-container">
-      <h2 class="section-title">How It Works</h2>
-      <p class="section-subtitle">Three simple steps to convert your code</p>
-      
+      <h2 class="section-title text-center mb-md">How It Works</h2>
+      <p class="section-subtitle text-center mb-3xl">Three simple steps to convert your code</p>
+
       <div class="steps-container">
         <ng-container *ngFor="let step of howItWorksSteps; let isLast = last; trackBy: trackByStepNumber">
           <div class="step-item">
             <div class="step-number">{{ step.number }}</div>
             <div class="step-content">
               <h3>{{ step.title }}</h3>
-              <p>{{ step.description }}</p>
+              <p class="text-muted">{{ step.description }}</p>
             </div>
           </div>
-          
-          <div class="step-arrow" *ngIf="!isLast">→</div>
         </ng-container>
       </div>
     </div>
   </section>
 
   <!-- Pricing Section -->
-  <section class="pricing-section" id="pricing" >
+  <section class="pricing-section" id="pricing">
     <div class="section-container">
-      <h2 class="section-title">Choose Your Plan</h2>
-      <p class="section-subtitle">Select the perfect plan for your conversion needs</p>
-      
+      <h2 class="section-title text-center mb-md">Choose Your Plan</h2>
+      <p class="section-subtitle text-center mb-3xl">Select the perfect plan for your conversion needs</p>
+
       <!-- Loading State -->
       <div class="pricing-loading" *ngIf="isLoadingPricing">
-        <div class="spinner-large"></div>
-        <p>Loading pricing plans...</p>
+        <div class="spinner"></div>
+        <p class="text-muted mt-md">Loading pricing plans...</p>
       </div>
 
 
       <!-- Pricing Plans Grid -->
-      <div class="pricing-grid" >
-        <div 
-          class="pricing-card" 
-          *ngFor="let plan of pricingPlans; trackBy: trackByPlanId"
-          [class.popular]="isPlanPopular(plan)"
-        >
-          <div class="popular-badge" *ngIf="isPlanPopular(plan)">
+      <div class="pricing-grid" *ngIf="!isLoadingPricing">
+        <div class="pricing-card" *ngFor="let plan of pricingPlans; trackBy: trackByPlanId"
+          [class.popular]="isPlanPopular(plan)">
+          <div class="badge badge-primary mb-md" *ngIf="isPlanPopular(plan)">
             ⭐ Most Popular
           </div>
-          
-          <div class="plan-header">
-            <h3 class="plan-name">{{ plan.name }}</h3>
+
+          <div class="plan-header mb-lg">
+            <h3 class="text-xl mb-xs">{{ plan.name }}</h3>
             <div class="plan-price">
               <span class="price-amount">{{ formatPrice(plan.price) }}</span>
-              <span class="price-period" *ngIf="plan.price > 0">
+              <span class="text-muted" *ngIf="plan.price > 0">
                 /{{ formatDuration(plan.duration) }}
               </span>
             </div>
           </div>
 
-          <div class="plan-features">
-            <div class="feature-item" *ngFor="let feature of getPlanFeatures(plan)">
-              <span class="feature-icon">✓</span>
-              <span class="feature-text">{{ feature }}</span>
+          <div class="plan-features mb-xl">
+            <div class="feature-item flex items-center gap-sm mb-sm" *ngFor="let feature of getPlanFeatures(plan)">
+              <span class="text-success">✓</span>
+              <span class="text-sm">{{ feature }}</span>
             </div>
           </div>
 
-          <button 
-            class="btn btn-plan" 
-            [class.btn-primary]="isPlanPopular(plan)"
-            [class.btn-outline]="!isPlanPopular(plan)"
-            (click)="selectPlan(plan)"
-          >
-            {{ plan.price === 0 ? 'Get Started' : 'Choose Plan' }}
+          <button class="btn w-full" [class.btn-primary]="isPlanPopular(plan)"
+            [class.btn-outline]="!isPlanPopular(plan)" (click)="selectPlan(plan)">
+            Choose Plan
           </button>
         </div>
       </div>
@@ -176,31 +147,22 @@
   </section>
 
   <!-- CTA Section -->
-  <section class="cta-section">
+  <section class="cta-section container">
     <div class="cta-content">
       <h2 class="cta-title">Ready to Start Converting?</h2>
-      <p class="cta-description">
+      <p class="cta-description mb-xl">
         Join thousands of developers who trust AI Converter for their code transformation needs
       </p>
-      <div class="cta-buttons">
-        <button 
-          class="btn btn-white btn-large" 
-          (click)="navigateToRegister()"
-          *ngIf="!isAuthenticated()"
-        >
-          Create Free Account
+      <div class="flex justify-center gap-md">
+        <button class="btn btn-white btn-large" (click)="navigateToRegister()" *ngIf="!isAuthenticated()">
+          Create Account
         </button>
-        <button 
-          class="btn btn-white btn-large" 
-          (click)="navigateToConverter()"
-          *ngIf="isAuthenticated()"
-        >
+        <button class="btn btn-white btn-large" (click)="navigateToConverter()" *ngIf="isAuthenticated()">
           Go to Converter
         </button>
-        <button 
-          class="btn btn-outline-white btn-large" 
+        <button class="btn btn-outline-white btn-large"
           (click)="isAuthenticated() ? navigateToDashboard() : navigateToLogin()"
-        >
+          style="border-color: rgba(255,255,255,0.3); color: white;">
           {{ isAuthenticated() ? 'Dashboard' : 'Sign In' }}
         </button>
       </div>
@@ -209,12 +171,12 @@
 
   <!-- Footer -->
   <footer class="footer">
-    <div class="footer-content">
+    <div class="footer-content container">
       <div class="footer-brand">
         <span class="logo-icon">🔄</span>
-        <span class="logo-text">AI Converter</span>
+        <span class="logo-text gradient-text">AI Converter</span>
       </div>
-      
+
       <div class="footer-links">
         <a routerLink="/about" class="footer-link">About</a>
         <a routerLink="/privacy" class="footer-link">Privacy Policy</a>
@@ -222,7 +184,7 @@
         <a routerLink="/contact" class="footer-link">Contact</a>
       </div>
 
-      <p class="footer-text">
+      <p class="text-xs text-muted">
         © {{ currentYear }} AI Converter. All rights reserved.
       </p>
     </div>

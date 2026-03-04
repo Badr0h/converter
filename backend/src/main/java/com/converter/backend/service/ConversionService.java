@@ -13,14 +13,18 @@ import java.util.concurrent.CompletableFuture;
 
 import com.converter.backend.dto.conversion.ConversionCreateDto;
 import com.converter.backend.dto.conversion.ConversionResponseDto;
+import com.converter.backend.exception.IllegalStateException;
 import com.converter.backend.exception.ResourceNotFoundException;
 import com.converter.backend.model.Conversion;
 import com.converter.backend.model.User;
 import com.converter.backend.repository.ConversionRepository;
 import com.converter.backend.repository.UserRepository;
+import com.converter.backend.model.Subscription;
+import com.converter.backend.repository.SubscriptionRepository;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ConversionService {
@@ -31,12 +35,14 @@ public class ConversionService {
     private final AiService aiService ;
 
     private final UserRepository userRepository;
+    private final SubscriptionRepository subscriptionRepository;
 
 
-    public ConversionService(ConversionRepository conversionRepository, AiService aiService, UserRepository userRepository){
+    public ConversionService(ConversionRepository conversionRepository, AiService aiService, UserRepository userRepository, SubscriptionRepository subscriptionRepository){
         this.conversionRepository = conversionRepository ; 
         this.aiService = aiService ;
         this.userRepository = userRepository;
+        this.subscriptionRepository = subscriptionRepository;
     }
 
     public Page<ConversionResponseDto> findByUserIdPaginated(Long userId, int page, int size){
@@ -61,6 +67,21 @@ public class ConversionService {
                 .toList();  
     }
 
+    public List<ConversionResponseDto> getRecentActivity(int limit) {
+        org.springframework.data.domain.Pageable pageable = PageRequest.of(0, limit, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return conversionRepository.findAll(pageable)
+                .stream()
+                .map(this::mapToConversionResponseDto)
+                .toList();
+    }
+
+    public void deleteConversionById(Long id) {
+        if (!conversionRepository.existsById(id)) {
+            throw new ResourceNotFoundException("Conversion not found with id: " + id);
+        }
+        conversionRepository.deleteById(id);
+    }
+
     public ConversionResponseDto getConversionById(Long id){
         Conversion conversion = conversionRepository.findById(id)
                 .orElseThrow(()-> new ResourceNotFoundException("conversion not found with id : " + id));
@@ -71,17 +92,29 @@ public class ConversionService {
 
     @Transactional
     public ConversionResponseDto createConversion(ConversionCreateDto dto, Long userId){
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        // Enforce paid subscription
+        Subscription subscription = subscriptionRepository.findByUserAndStatus(userId, Subscription.Status.ACTIVE.name())
+                .orElseThrow(() -> new IllegalStateException("Paid subscription required for conversion. Please upgrade."));
+
+        // Check conversion limits
+        long currentMonthConversions = getCurrentUserMonthlyConversionCount();
+        if (subscription.getMaxConversionsPerMonth() != null && currentMonthConversions >= subscription.getMaxConversionsPerMonth()) {
+            throw new IllegalStateException("Monthly conversion limit reached (" + subscription.getMaxConversionsPerMonth() + "). Please upgrade your plan.");
+        }
 
         Conversion conversion = new Conversion();
         conversion.setInputFormat(dto.getInputFormat());
         conversion.setOutputFormat(dto.getOutputFormat());
         conversion.setPrompt(dto.getPrompt());
-        conversion.setUser(userRepository.findById(userId).orElseThrow());
+        conversion.setUser(user);
 
-        String userPlan = dto.getPlan() != null ? dto.getPlan().toUpperCase() : "BASIC";
+        String userPlan = subscription.getPlan() != null ? subscription.getPlan().getName().toUpperCase() : "BASIC";
 
         try {
-            // Approche synchrone plus simple et sécurisée
+            // Synchronous simpler and secure approach
             String aiResponse = aiService.generateResponseSync(conversion.getPrompt(), userPlan);
             conversion.setAiResponse(aiResponse);
             Conversion savedConversion = conversionRepository.save(conversion);
@@ -109,6 +142,7 @@ public class ConversionService {
         ConversionResponseDto dto = new ConversionResponseDto();
         dto.setId(conversion.getId());
         dto.setUserId(conversion.getUser() != null ? conversion.getUser().getId() : null);
+        dto.setUserEmail(conversion.getUser() != null ? conversion.getUser().getEmail() : null);
         dto.setInputFormat(conversion.getInputFormat());
         dto.setOutputFormat(conversion.getOutputFormat());
         dto.setAiResponse(conversion.getAiResponse());

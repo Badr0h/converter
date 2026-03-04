@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 public class ConversionResponseDto {
     private Long id ; 
     private Long userId ; // Ajout pour le contrôle de propriété
+    private String userEmail ; // For admin view
     private Format outputFormat ; 
     private Format inputFormat ; 
     private String aiResponse ; 

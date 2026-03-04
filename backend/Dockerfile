@@ -1,14 +1,26 @@
-# 1️⃣ Image Java légère
-FROM eclipse-temurin:21-jdk-alpine
-
-# 2️⃣ Dossier de travail dans le container
+# Stage development
+FROM eclipse-temurin:21-jdk-alpine AS development
 WORKDIR /app
 
-# 3️⃣ Copier le fichier JAR généré
-COPY target/*.jar app.jar
+# Installation des outils
+RUN apk add --no-cache curl
 
-# 4️⃣ Exposer le port de ton app
-EXPOSE 8081
+# Copie des fichiers Maven
+COPY mvnw .
+COPY .mvn .mvn
+COPY pom.xml .
+RUN chmod +x mvnw
 
-# 5️⃣ Commande pour lancer l'application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Télécharge les dépendances (pour le cache)
+RUN ./mvnw dependency:go-offline
+
+# Copie le reste du code
+COPY src ./src
+
+# Expose les ports
+EXPOSE 8081 5005
+
+# Commande avec configuration explicite des profils
+CMD ["./mvnw", "spring-boot:run", \
+     "-Dspring-boot.run.profiles=dev", \
+     "-Dspring.config.additional-location=classpath:/application-dev.properties"]

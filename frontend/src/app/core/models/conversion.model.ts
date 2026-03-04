@@ -14,6 +14,8 @@ export enum Format {
 
 export interface ConversionResponseDto {
   id: number;
+  userId?: number;
+  userEmail?: string;
   outputFormat: Format;
   inputFormat: Format;
   aiResponse: string;

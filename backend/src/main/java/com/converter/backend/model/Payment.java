@@ -46,6 +46,7 @@ public class Payment {
     @Column(name = "currency", nullable = false, length = 3)
     private String currency;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     private Status status = Status.PENDING;

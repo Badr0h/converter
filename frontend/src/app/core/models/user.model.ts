@@ -14,6 +14,7 @@ export interface UserResponseDto {
   email: string;
   fullName: string;
   role: UserRole;
+  enabled: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

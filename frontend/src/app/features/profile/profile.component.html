@@ -1,173 +1,136 @@
 <div class="profile-container">
-  <div class="profile-header">
-    <h1>My Profile</h1>
-    <p>Manage your personal information and account settings</p>
-  </div>
+  <!-- Interactive Profile Header -->
+  <header class="profile-header animate-fade-in text-center">
+    <h1 class="gradient-text">Account Command Center</h1>
+    <p>Securely manage your neural identity and authentication parameters.</p>
+  </header>
 
-  <!-- Loading State -->
-  <div class="loading-overlay" *ngIf="isLoading">
+  <!-- Global Pulse Loader -->
+  <div class="fixed inset-0 flex items-center justify-center z-50 pointer-events-none" *ngIf="isLoading">
     <div class="spinner"></div>
   </div>
 
-  <!-- Success/Error Messages -->
-  <div class="alert alert-success" *ngIf="successMessage">
-    {{ successMessage }}
+  <!-- Real-time Feedback -->
+  <div class="alert alert-success animate-slide-up" *ngIf="successMessage">
+    <span class="mr-sm">✅</span> {{ successMessage }}
   </div>
-  <div class="alert alert-error" *ngIf="errorMessage">
-    {{ errorMessage }}
+  <div class="alert alert-error animate-slide-up" *ngIf="errorMessage">
+    <span class="mr-sm">⚠️</span> {{ errorMessage }}
   </div>
 
-  <!-- Profile Information Section -->
-  <div class="profile-section" *ngIf="currentUser && !isEditing">
+  <!-- Primary Profile Configuration -->
+  <section class="profile-section animate-fade-in" *ngIf="currentUser && !isEditing">
     <div class="section-header">
-      <h2>Personal Information</h2>
-      <button class="btn btn-primary" (click)="enableEditing()">Edit Profile</button>
+      <h2>Identity Blueprint</h2>
+      <button class="btn btn-outline btn-sm" (click)="enableEditing()">Modify Profile</button>
     </div>
 
-    <div class="info-grid">
+    <div class="info-grid mt-xl">
       <div class="info-item">
-        <label>Full Name</label>
+        <label>Full Alias</label>
         <p>{{ currentUser.fullName }}</p>
       </div>
       <div class="info-item">
-        <label>Email Address</label>
+        <label>Secure Email</label>
         <p>{{ currentUser.email }}</p>
       </div>
       <div class="info-item">
-        <label>Role</label>
-        <p>{{ currentUser.role }}</p>
+        <label>Access Tier</label>
+        <p class="text-primary-600 font-bold uppercase">{{ currentUser.role }}</p>
       </div>
       <div class="info-item">
-        <label>Member Since</label>
+        <label>Deployment Date</label>
         <p>{{ currentUser.createdAt | date:'longDate' }}</p>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- Edit Profile Form -->
-  <div class="profile-section" *ngIf="currentUser && isEditing">
+  <!-- Identity Modification Interface -->
+  <section class="profile-section animate-fade-in" *ngIf="currentUser && isEditing">
     <div class="section-header">
-      <h2>Edit Personal Information</h2>
+      <h2>Edit Identity Parameters</h2>
     </div>
 
-    <form [formGroup]="profileForm" (ngSubmit)="updateProfile()" class="profile-form">
+    <form [formGroup]="profileForm" (ngSubmit)="updateProfile()" class="grid gap-lg">
       <div class="form-group">
-        <label for="fullName">Full Name</label>
-        <input 
-          id="fullName"
-          type="text" 
-          formControlName="fullName"
-          class="form-control"
-          [class.invalid]="fullName?.invalid && fullName?.touched"
-        />
-        <div class="error-message" *ngIf="fullName?.invalid && fullName?.touched">
-          <span *ngIf="fullName?.errors?.['required']">Full name is required</span>
-          <span *ngIf="fullName?.errors?.['minlength']">Full name must be at least 2 characters</span>
-        </div>
+        <label for="fullName">Legal Alias</label>
+        <input id="fullName" type="text" formControlName="fullName" class="form-control" placeholder="Enter full name"
+          [class.invalid]="fullName?.invalid && fullName?.touched" />
       </div>
 
       <div class="form-group">
-        <label for="email">Email Address</label>
-        <input 
-          id="email"
-          type="email" 
-          formControlName="email"
-          class="form-control"
-          [class.invalid]="email?.invalid && email?.touched"
-        />
-        <div class="error-message" *ngIf="email?.invalid && email?.touched">
-          <span *ngIf="email?.errors?.['required']">Email is required</span>
-          <span *ngIf="email?.errors?.['email']">Please enter a valid email</span>
-        </div>
+        <label for="email">Communication Channel</label>
+        <input id="email" type="email" formControlName="email" class="form-control" placeholder="enterprise@domain.com"
+          [class.invalid]="email?.invalid && email?.touched" />
       </div>
 
-      <div class="form-actions">
-        <button type="submit" class="btn btn-primary" [disabled]="profileForm.invalid || isLoading">
-          {{ isLoading ? 'Saving...' : 'Save Changes' }}
+      <div class="flex gap-md mt-lg">
+        <button type="submit" class="btn btn-primary flex-1" [disabled]="profileForm.invalid || isLoading">
+          {{ isLoading ? 'Synchronizing...' : 'Upload Changes' }}
         </button>
-        <button type="button" class="btn btn-secondary" (click)="cancelEditing()">Cancel</button>
+        <button type="button" class="btn btn-outline" (click)="cancelEditing()">Discard</button>
       </div>
     </form>
-  </div>
+  </section>
 
-  <!-- Password Change Section -->
-  <div class="profile-section">
+  <!-- Cryptographic Security Control -->
+  <section class="profile-section animate-fade-in">
     <div class="section-header">
-      <h2>Security</h2>
-      <button class="btn btn-outline" *ngIf="!isChangingPassword" (click)="enablePasswordChange()">
-        Change Password
+      <h2>Cryptographic Security</h2>
+      <button class="btn btn-outline btn-sm" *ngIf="!isChangingPassword" (click)="enablePasswordChange()">
+        Cycle Password
       </button>
     </div>
 
-    <!-- Password Change Success/Error Messages -->
-    <div class="alert alert-success" *ngIf="passwordSuccessMessage">
+    <!-- Security Feedback -->
+    <div class="alert alert-success mb-lg" *ngIf="passwordSuccessMessage">
       {{ passwordSuccessMessage }}
     </div>
-    <div class="alert alert-error" *ngIf="passwordErrorMessage">
+    <div class="alert alert-error mb-lg" *ngIf="passwordErrorMessage">
       {{ passwordErrorMessage }}
     </div>
 
-    <!-- Password Change Form -->
-    <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="password-form" *ngIf="isChangingPassword">
+    <!-- Password Rotation Interface -->
+    <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" *ngIf="isChangingPassword" class="grid gap-md">
       <div class="form-group">
-        <label for="oldPassword">Current Password</label>
-        <input 
-          id="oldPassword"
-          type="password" 
-          formControlName="oldPassword"
-          class="form-control"
-          [class.invalid]="oldPassword?.invalid && oldPassword?.touched"
-        />
-        <div class="error-message" *ngIf="oldPassword?.invalid && oldPassword?.touched">
-          Current password is required
-        </div>
+        <label for="oldPassword">Current Credentials</label>
+        <input id="oldPassword" type="password" formControlName="oldPassword" class="form-control"
+          placeholder="••••••••" />
       </div>
 
       <div class="form-group">
-        <label for="newPassword">New Password</label>
-        <input 
-          id="newPassword"
-          type="password" 
-          formControlName="newPassword"
-          class="form-control"
-          [class.invalid]="newPassword?.invalid && newPassword?.touched"
-        />
-        <div class="error-message" *ngIf="newPassword?.invalid && newPassword?.touched">
-          <span *ngIf="newPassword?.errors?.['required']">New password is required</span>
-          <span *ngIf="newPassword?.errors?.['minlength']">Password must be at least 6 characters</span>
-        </div>
+        <label for="newPassword">New Vault Key</label>
+        <input id="newPassword" type="password" formControlName="newPassword" class="form-control"
+          placeholder="Minimum 8 characters" />
       </div>
 
       <div class="form-group">
-        <label for="confirmPassword">Confirm New Password</label>
-        <input 
-          id="confirmPassword"
-          type="password" 
-          formControlName="confirmPassword"
-          class="form-control"
-          [class.invalid]="confirmPassword?.invalid && confirmPassword?.touched"
-        />
-        <div class="error-message" *ngIf="confirmPassword?.invalid && confirmPassword?.touched">
-          <span *ngIf="confirmPassword?.errors?.['required']">Please confirm your password</span>
-          <span *ngIf="passwordForm.errors?.['passwordMismatch']">Passwords do not match</span>
-        </div>
+        <label for="confirmPassword">Verify New Key</label>
+        <input id="confirmPassword" type="password" formControlName="confirmPassword" class="form-control"
+          placeholder="••••••••" />
       </div>
 
-      <div class="form-actions">
-        <button type="submit" class="btn btn-primary" [disabled]="passwordForm.invalid || isLoading">
-          {{ isLoading ? 'Changing...' : 'Change Password' }}
+      <div class="flex gap-md mt-lg">
+        <button type="submit" class="btn btn-primary flex-1" [disabled]="passwordForm.invalid || isLoading">
+          Rotate Password
         </button>
-        <button type="button" class="btn btn-secondary" (click)="cancelPasswordChange()">Cancel</button>
+        <button type="button" class="btn btn-outline" (click)="cancelPasswordChange()">Keep Existing</button>
       </div>
     </form>
-  </div>
+  </section>
 
-  <!-- Account Management Section -->
-  <div class="profile-section danger-zone">
+  <!-- Absolute Neutralization Zone -->
+  <section class="profile-section danger-zone mt-3xl">
     <div class="section-header">
-      <h2>Danger Zone</h2>
-      <p class="warning-text">Once you delete your account, there is no going back. Please be certain.</p>
+      <h2>Neutralization Zone</h2>
     </div>
-    <button class="btn btn-danger" (click)="deleteAccount()">Delete Account</button>
-  </div>
+    <div class="flex flex-col md:flex-row justify-between items-center gap-xl">
+      <div>
+        <h3 class="font-bold text-error-600 mb-xs">Permanently Deactivate Account</h3>
+        <p class="warning-text">Neutralizing your identity will purge all neural data and historical conversions. This
+          operation is non-reversible.</p>
+      </div>
+      <button class="btn btn-danger btn-large" (click)="deleteAccount()">Purge Identity</button>
+    </div>
+  </section>
 </div>

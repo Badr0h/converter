@@ -24,7 +24,7 @@ export class PlansComponent implements OnInit {
   errorMessage = '';
   billingCycle: 'monthly' | 'annual' = 'monthly';
   readonly SubscriptionStatus = SubscriptionStatus;
-  
+
   selectedPlanDetails: any = null;
   showPlanDetails = false;
 
@@ -34,12 +34,12 @@ export class PlansComponent implements OnInit {
     private route: ActivatedRoute,
     private paymentService: PaymentService,
     private authService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadPlans();
     this.loadCurrentSubscription();
-    
+
     // Reload subscription data when returning to this page
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd && event.urlAfterRedirects.includes('/subscription/plans')))
@@ -60,9 +60,15 @@ export class PlansComponent implements OnInit {
   loadPlans(): void {
     this.subscriptionService.getPlans().subscribe({
       next: (plans) => {
-        // Hide FREE plan for now
-        const visible = plans.filter(p => p.name?.toUpperCase() !== 'FREE');
-        this.plans = visible.sort((a, b) => ((a.monthlyPrice ?? a.price) - (b.monthlyPrice ?? b.price)));
+        this.plans = plans.map(p => {
+          // Map backend ALL_CAPS name to match PLANS_DESCRIPTION keys (e.g., STARTER -> Starter)
+          const planKey = p.name.charAt(0).toUpperCase() + p.name.slice(1).toLowerCase();
+          const localDetails = PLANS_DESCRIPTION[planKey];
+          return {
+            ...p,
+            features: p.features && p.features.length > 0 ? p.features : (localDetails?.features || [])
+          };
+        }).sort((a, b) => ((a.monthlyPrice ?? a.price) - (b.monthlyPrice ?? b.price)));
         this.loading = false;
       },
       error: (error) => {
@@ -131,7 +137,7 @@ export class PlansComponent implements OnInit {
     if (this.isCurrentPlan(plan)) {
       return 'Current Plan';
     }
-    
+
     if (plan.price === 0) {
       return 'Free Plan';
     }
@@ -140,7 +146,7 @@ export class PlansComponent implements OnInit {
       // Get monthly price for comparison
       const currentPrice = this.currentSubscription.monthlyPrice ?? this.currentSubscription.price ?? 0;
       const planPrice = plan.monthlyPrice ?? plan.price ?? 0;
-      
+
       if (currentPrice < planPrice) {
         return 'Upgrade';
       } else if (currentPrice > planPrice) {
@@ -154,10 +160,10 @@ export class PlansComponent implements OnInit {
   }
 
   getPlanBadge(plan: PlanResponseDto): string | null {
-    if (plan.name === 'Pro') {
+    if (plan.name === 'PROFESSIONAL') {
       return 'Popular';
     }
-    if (plan.name === 'Business') {
+    if (plan.name === 'ENTERPRISE') {
       return 'Best Value';
     }
     return null;
@@ -185,7 +191,7 @@ export class PlansComponent implements OnInit {
     this.selectedPlanDetails = null;
   }
 
-  toggleBilling(cycle: 'monthly' | 'annual'){
+  toggleBilling(cycle: 'monthly' | 'annual') {
     this.billingCycle = cycle;
   }
 

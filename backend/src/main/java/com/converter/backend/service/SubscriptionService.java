@@ -147,28 +147,6 @@ public class SubscriptionService {
         return mapToSubscriptionResponseDto(updatedSubscription);
     }
 
-    @Transactional
-    public SubscriptionResponseDto getOrCreateFreeSubscriptionForUser(User user) {
-        // Check if user already has a subscription
-        List<Subscription> userSubscriptions = subscriptionRepository.findByUser(user);
-        if (!userSubscriptions.isEmpty()) {
-            return mapToSubscriptionResponseDto(userSubscriptions.get(0));
-        }
-
-        // Create a free tier subscription
-        Subscription freeSubscription = new Subscription();
-        freeSubscription.setUser(user);
-        freeSubscription.setStartDate(LocalDate.now());
-        freeSubscription.setEndDate(LocalDate.now().plusMonths(1)); // Set to expire in one month
-        freeSubscription.setDuration(Subscription.SubscriptionDuration.ONE_MONTH);
-        freeSubscription.setPlan(null); // No plan for free tier
-        freeSubscription.setStatus(Status.ACTIVE);
-        freeSubscription.setMaxConversionsPerMonth(1); // 1 free conversion per month
-
-        Subscription savedSubscription = subscriptionRepository.save(freeSubscription);
-        return mapToSubscriptionResponseDto(savedSubscription);
-    }
-
     @Transactional(readOnly = true)
     public DashboardStatsDto getDashboardStats() {
         try {
@@ -191,12 +169,12 @@ public class SubscriptionService {
             
             return stats;
         } catch (ResourceNotFoundException e) {
-            // User has no subscription, return free tier defaults
+            // User has no subscription, return zeroed stats with NO_SUBSCRIPTION status
             DashboardStatsDto stats = new DashboardStatsDto();
             stats.setTotalConversions(0L);
-            stats.setRemainingConversions(1L); // 1 free conversion
-            stats.setSubscriptionStatus("FREE");
-            stats.setMaxConversionsPerMonth(1);
+            stats.setRemainingConversions(0L);
+            stats.setSubscriptionStatus("NONE");
+            stats.setMaxConversionsPerMonth(0);
             return stats;
         }
     }
@@ -226,13 +204,13 @@ public class SubscriptionService {
         dto.setEndDate(subscription.getEndDate());
         dto.setCreatedAt(subscription.getCreatedAt());
         
-        // Handle null plan for free tier
+        // Handle plans
         if (subscription.getPlan() != null) {
             dto.setPlanName(subscription.getPlan().getName());
             dto.setPlanId(subscription.getPlan().getId());
             dto.setPrice(subscription.getPlan().getPrice());
         } else {
-            dto.setPlanName("Free");
+            dto.setPlanName("None");
             dto.setPlanId(null);
             dto.setPrice(java.math.BigDecimal.ZERO);
         }

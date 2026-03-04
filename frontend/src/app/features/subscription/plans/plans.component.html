@@ -1,200 +1,135 @@
 <div class="plans-container">
-  <!-- Header -->
-  <div class="plans-header">
-    <h1>Choose Your Plan</h1>
-    <p>Select the perfect plan for your conversion needs</p>
-  </div>
+  <div class="plans-page" [class.is-blurred]="showPlanDetails">
+    <!-- Interactive Pricing Header -->
+    <header class="plans-header animate-fade-in text-center">
+      <h1 class="gradient-text">Simple, Transparent Pricing</h1>
+      <p>Choose the model that fits your enterprise requirements.</p>
+    </header>
 
-  <!-- Billing toggle -->
-  <div class="billing-toggle">
-    <button [class.active]="billingCycle==='monthly'" (click)="toggleBilling('monthly')">Monthly</button>
-    <button [class.active]="billingCycle==='annual'" (click)="toggleBilling('annual')">Annual</button>
-  </div>
-
-  <!-- Current Subscription Info -->
-  <div class="current-subscription" *ngIf="currentSubscription">
-    <div class="subscription-badge" [class]="getSubscriptionStatusClass()">
-      <span class="badge-icon">💎</span>
-      <div class="badge-content">
-        <h3>Your Current Plan: <strong>{{ getCurrentPlanName() }}</strong></h3>
-        <p>Status: <span class="status-badge" [class]="getSubscriptionStatusClass()">{{ getSubscriptionStatusText() }}</span> | {{ currentSubscription.maxConversionsPerMonth }} conversions per month</p>
+    <!-- High-Precision Billing Switch -->
+    <div class="billing-wrapper animate-slide-up">
+      <div class="billing-toggle">
+        <button type="button" class="toggle-btn" [class.active]="billingCycle==='monthly'"
+          (click)="toggleBilling('monthly')">Monthly</button>
+        <button type="button" class="toggle-btn" [class.active]="billingCycle==='annual'"
+          (click)="toggleBilling('annual')">
+          Annual <span class="discount-pill">Save 20%</span>
+        </button>
       </div>
     </div>
-  </div>
 
-  <!-- No Subscription Info (Free Tier) -->
-  <div class="no-subscription" *ngIf="!currentSubscription && !loading">
-    <div class="subscription-badge info">
-      <span class="badge-icon">🚀</span>
-      <div class="badge-content">
-        <h3>No Active Plan - Free Tier</h3>
-        <p>You currently have 1 free conversion per month. Upgrade to unlock more conversions!</p>
+    <!-- Subscription Status Summary -->
+    <section class="current-subscription-info animate-fade-in"
+      *ngIf="currentSubscription || (!currentSubscription && !loading)">
+      <div class="glass-status-card">
+        <div class="status-icon">🛡️</div>
+        <div class="status-details">
+          <h3>Current Plan: <span class="highlight">{{ getCurrentPlanName() }}</span></h3>
+          <div class="status-meta">
+            <span class="status-tag" [class]="getSubscriptionStatusClass()">
+              {{ getSubscriptionStatusText() || 'Active' }}
+            </span>
+            <span class="divider"></span>
+            <span>{{ currentSubscription?.maxConversionsPerMonth || 0 }} conversions/mo</span>
+          </div>
+        </div>
       </div>
+    </section>
+
+    <!-- Global Loading View -->
+    <div *ngIf="loading" class="flex flex-col items-center justify-center p-4xl">
+      <div class="spinner-large"></div>
+      <p class="mt-lg text-muted">Retrieving market rates...</p>
     </div>
-  </div>
 
-  <!-- Loading State -->
-  <div *ngIf="loading" class="loading-container">
-    <div class="spinner-large"></div>
-    <p>Loading subscription plans...</p>
-  </div>
+    <!-- Pricing Matrix -->
+    <section class="plans-grid" *ngIf="!loading">
+      <article class="plan-card animate-slide-up" *ngFor="let plan of plans; let i = index"
+        [class.popular]="plan.name === 'Pro'" [style.animation-delay]="(i * 0.1) + 's'">
+        <div class="plan-inner">
+          <div class="plan-header">
+            <h2 class="plan-name">{{ plan.name }}</h2>
+            <div class="plan-price">
+              <span class="price-amount">{{ billingCycle === 'monthly' ? formatPrice(plan.monthlyPrice ?? plan.price,
+                plan.currency) : formatPrice(plan.annualPrice ?? ((plan.monthlyPrice ?? plan.price) * 10),
+                plan.currency)
+                }}</span>
+              <span class="price-period">/{{ billingCycle === 'monthly' ? 'mo' : 'yr' }}</span>
+            </div>
+            <p class="plan-subtitle">{{ formatConversions(plan.maxConversions) }} neural conversions monthly</p>
+          </div>
 
-  <!-- Error Message -->
-  <div *ngIf="errorMessage && !loading" class="alert alert-danger">
-    {{ errorMessage }}
-  </div>
-
-  <!-- Plans Grid -->
-  <div class="plans-grid" *ngIf="!loading">
-    <div 
-      class="plan-card" 
-      *ngFor="let plan of plans"
-      [class.popular]="plan.name === 'Pro'"
-      [class.current]="isCurrentPlan(plan)"
-    >
-      <!-- Plan Badge -->
-      <div class="plan-badge" *ngIf="getPlanBadge(plan)">
-        {{ getPlanBadge(plan) }}
-      </div>
-
-      <!-- Current Plan Indicator -->
-      <div class="current-indicator" *ngIf="isCurrentPlan(plan)">
-        ✓ Your Current Plan
-      </div>
-
-      <!-- Upgrade/Downgrade Badge -->
-      <div class="upgrade-badge" *ngIf="!isCurrentPlan(plan) && currentSubscription">
-        <span *ngIf="getPlanButtonText(plan) === 'Upgrade'" class="badge-upgrade">⬆ UPGRADE</span>
-        <span *ngIf="getPlanButtonText(plan) === 'Downgrade'" class="badge-downgrade">⬇ DOWNGRADE</span>
-      </div>
-
-      <!-- Plan Header -->
-      <div class="plan-header">
-        <h2 class="plan-name">{{ plan.name }}</h2>
-        <div class="plan-price">
-          <ng-container *ngIf="billingCycle === 'monthly'">
-            <span class="price-amount">{{ formatPrice(plan.monthlyPrice ?? plan.price, plan.currency) }}</span>
-            <span class="price-period">/month</span>
-          </ng-container>
-          <ng-container *ngIf="billingCycle === 'annual'">
-            <span class="price-amount">{{ formatPrice(plan.annualPrice ?? ((plan.monthlyPrice ?? plan.price) * 10), plan.currency) }}</span>
-            <span class="price-period">/year</span>
-          </ng-container>
-        </div>
-        <p class="plan-conversions">
-          {{ formatConversions(plan.maxConversions) }} conversions per month
-        </p>
-      </div>
-
-      <!-- Plan Action Button -->
-      <button 
-        class="plan-button"
-        [class.current-plan-btn]="isCurrentPlan(plan)"
-        [disabled]="isCurrentPlan(plan) || (isCurrentPlan(plan) && isCurrentPlanActive())"
-        (click)="selectPlan(plan)"
-      >
-        {{ getPlanButtonText(plan) }}
-      </button>
-
-      <!-- View Details Button -->
-      <button 
-        class="view-details-btn"
-        (click)="viewPlanDetails(plan)"
-      >
-        View Details →
-      </button>
-    </div>
-  </div>
-
-  <!-- Plan Details Modal -->
-  <div class="plan-details-modal show" *ngIf="showPlanDetails && selectedPlanDetails">
-    <div class="modal-overlay" (click)="closePlanDetails()"></div>
-    <div class="modal-content">
-      <button class="close-btn" (click)="closePlanDetails()">✕</button>
-      
-      <div class="plan-details-header">
-        <h2>{{ selectedPlanDetails.name }} Plan</h2>
-        <div class="plan-details-price">
-          <ng-container *ngIf="billingCycle === 'monthly'">
-            <span class="price-amount">{{ formatPrice(selectedPlanDetails.monthlyPrice ?? selectedPlanDetails.price, selectedPlanDetails.currency) }}</span>
-            <span class="price-period">/month</span>
-          </ng-container>
-          <ng-container *ngIf="billingCycle === 'annual'">
-            <span class="price-amount">{{ formatPrice(selectedPlanDetails.annualPrice ?? ((selectedPlanDetails.monthlyPrice ?? selectedPlanDetails.price) * 10), selectedPlanDetails.currency) }}</span>
-            <span class="price-period">/year</span>
-          </ng-container>
-        </div>
-      </div>
-
-      <div class="plan-details-body">
-        <div class="details-section">
-          <h3>Overview</h3>
-          <p class="plan-description-full">{{ selectedPlanDetails.description }}</p>
-        </div>
-
-        <div class="details-section">
-          <h3>Conversions & Limits</h3>
-          <p><strong>{{ formatConversions(selectedPlanDetails.maxConversions) }}</strong> conversions per month</p>
-        </div>
-
-        <div class="details-section">
-          <h3>Features Included</h3>
-          <ul class="features-list">
-            <li *ngFor="let feature of selectedPlanDetails.features">
-              <span class="feature-checkmark">✓</span>
-              {{ feature }}
+          <ul class="plan-features">
+            <li *ngFor="let feature of plan.features || []">
+              <span class="check-icon">✓</span> {{ feature }}
             </li>
           </ul>
-        </div>
 
-        <div class="details-actions">
-          <button 
-            class="btn-primary"
-            [disabled]="isCurrentPlan(selectedPlanDetails)"
-            (click)="selectPlan(selectedPlanDetails); closePlanDetails()"
-          >
-            {{ getPlanButtonText(selectedPlanDetails) }}
-          </button>
-          <button 
-            class="btn-secondary"
-            (click)="closePlanDetails()"
-          >
-            Close
-          </button>
+          <div class="plan-actions">
+            <button class="plan-button btn w-full" [class.btn-primary]="plan.name === 'Pro'"
+              [class.btn-outline]="plan.name !== 'Pro'" [class.current-plan-btn]="isCurrentPlan(plan)"
+              [disabled]="isCurrentPlan(plan)" (click)="selectPlan(plan)">
+              {{ getPlanButtonText(plan) }}
+            </button>
+
+            <button class="btn-text" (click)="viewPlanDetails(plan)">
+              View Detailed Specs →
+            </button>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <!-- Strategic Advisory (FAQ) -->
+    <section class="faq-section animate-fade-in" *ngIf="!loading">
+      <h2 class="gradient-text">Operational Guidance</h2>
+      <div class="faq-grid">
+        <div class="faq-item">
+          <h3>Scaling & Flexibility</h3>
+          <p>Dynamic scaling allows transition between tiers at any phase of the billing cycle with pro-rated
+            adjustments.
+          </p>
+        </div>
+        <div class="faq-item">
+          <h3>Token Utilization</h3>
+          <p>Conversion tokens are allocated on a per-cycle basis and reset upon renewal to ensure peak model
+            availability.</p>
         </div>
       </div>
-    </div>
+    </section>
+
+    <footer class="text-center p-2xl">
+      <a routerLink="/dashboard" class="btn btn-ghost">← System Dashboard</a>
+    </footer>
   </div>
 
-  <!-- FAQ Section -->
-  <div class="faq-section" *ngIf="!loading">
-    <h2>Frequently Asked Questions</h2>
-    
-    <div class="faq-grid">
-      <div class="faq-item">
-        <h3>Can I change plans anytime?</h3>
-        <p>Yes! You can upgrade or downgrade your plan at any time. Changes take effect immediately.</p>
+  <!-- Technical Specs Modal -->
+  <div class="plan-details-modal" *ngIf="showPlanDetails && selectedPlanDetails">
+    <div class="modal-overlay" (click)="closePlanDetails()"></div>
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>{{ selectedPlanDetails.name }} Specs</h2>
+        <button class="btn-icon" (click)="closePlanDetails()">✕</button>
       </div>
 
-      <div class="faq-item">
-        <h3>What happens to unused conversions?</h3>
-        <p>Unused conversions expire at the end of each billing cycle and do not roll over.</p>
+      <p class="description">{{ selectedPlanDetails.description }}</p>
+
+      <div class="feature-table">
+        <div class="feature-row" *ngFor="let feature of selectedPlanDetails.features || []">
+          <span class="feature-name">{{ feature }}</span>
+          <span class="feature-status">
+            <span class="text-success">●</span> Enabled
+          </span>
+        </div>
       </div>
 
-      <div class="faq-item">
-        <h3>Do you offer refunds?</h3>
-        <p>We offer a 14-day money-back guarantee on all paid plans. No questions asked.</p>
-      </div>
-
-      <div class="faq-item">
-        <h3>What payment methods do you accept?</h3>
-        <p>We accept all major credit cards, PayPal, and bank transfers for business plans.</p>
+      <div class="flex gap-md">
+        <button class="btn btn-primary flex-1" (click)="selectPlan(selectedPlanDetails); closePlanDetails()"
+          [disabled]="isCurrentPlan(selectedPlanDetails)">
+          Confirm Transition
+        </button>
+        <button class="btn btn-outline" (click)="closePlanDetails()">Close</button>
       </div>
     </div>
-  </div>
-
-  <!-- Back to Dashboard -->
-  <div class="back-section">
-    <a routerLink="/dashboard" class="back-link">← Back to Dashboard</a>
   </div>
 </div>

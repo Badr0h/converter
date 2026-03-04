@@ -1,144 +1,109 @@
 <div class="dashboard-container">
-  <!-- Header -->
-  <div class="dashboard-header">
+  <!-- Dynamic Dashboard Header -->
+  <header class="dashboard-header animate-fade-in">
     <div class="header-content">
-      <h1>Welcome back, {{ currentUser?.fullName }}!</h1>
-      <p>Manage your AI conversions and subscription</p>
+      <h1 class="gradient-text">Welcome back, {{ currentUser?.fullName }}</h1>
+      <p>Precision AI Conversion Suite • Enterprise Access</p>
     </div>
-    <button class="btn btn-danger" (click)="logout()">Logout</button>
-  </div>
+    <div class="header-actions">
+      <button class="btn btn-outline btn-sm animate-pulse" (click)="navigateToPlans()">Upgrade Pro</button>
+    </div>
+  </header>
 
-  <!-- Stats Cards -->
-  <div class="stats-container" *ngIf="!statsLoading">
-    <div class="stat-card">
-      <div class="stat-icon">📊</div>
+  <!-- High-Level Performance Metrics -->
+  <section class="stats-container" *ngIf="!statsLoading">
+    <div class="stat-card animate-slide-up" style="animation-delay: 0.1s;">
+      <div class="stat-icon">📈</div>
       <div class="stat-content">
         <h3>{{ dashboardStats?.totalConversions || 0 }}</h3>
-        <p>Total Conversions</p>
+        <p>Total Processed</p>
       </div>
     </div>
 
-    <div class="stat-card">
+    <div class="stat-card animate-slide-up" style="animation-delay: 0.2s;">
       <div class="stat-icon">⚡</div>
       <div class="stat-content">
         <h3>{{ dashboardStats?.remainingConversions || 0 }}</h3>
-        <p>Remaining Conversions</p>
+        <p>Remaining Tokens</p>
       </div>
     </div>
 
-    <div class="stat-card">
+    <div class="stat-card animate-slide-up" style="animation-delay: 0.3s;">
       <div class="stat-icon">💎</div>
       <div class="stat-content">
-        <h3>{{ dashboardStats?.subscriptionStatus || 'FREE' }}</h3>
-        <p>Subscription Status</p>
+        <h3>{{ dashboardStats?.subscriptionStatus || 'NONE' }}</h3>
+        <p>Account Status</p>
       </div>
     </div>
-  </div>
+  </section>
 
-  <!-- Loading Stats -->
+  <!-- Metric Loading Shimmer -->
   <div class="stats-container" *ngIf="statsLoading">
-    <div class="stat-card loading">
-      <div class="skeleton skeleton-text"></div>
-    </div>
-    <div class="stat-card loading">
-      <div class="skeleton skeleton-text"></div>
-    </div>
-    <div class="stat-card loading">
-      <div class="skeleton skeleton-text"></div>
-    </div>
+    <div class="stat-card skeleton" *ngFor="let i of [1,2,3]"></div>
   </div>
 
-  <!-- Quick Actions -->
-  <div class="quick-actions">
-    <button class="action-btn action-primary" (click)="navigateToConverter()">
-      <span class="action-icon">🔄</span>
+  <!-- Command Center Actions -->
+  <nav class="quick-actions">
+    <div class="action-btn animate-fade-in" (click)="navigateToConverter()" role="button" tabindex="0">
+      <div class="action-icon">🚀</div>
       <div class="action-content">
-        <h3>New Conversion</h3>
-        <p>Convert text with AI</p>
+        <h3>Launch Converter</h3>
+        <p>Start a new AI-powered transformation</p>
       </div>
-    </button>
+    </div>
 
-    <button class="action-btn action-secondary" (click)="navigateToPlans()">
-      <span class="action-icon">⭐</span>
+    <div class="action-btn animate-fade-in" (click)="navigateToPlans()" role="button" tabindex="0"
+      style="animation-delay: 0.1s;">
+      <div class="action-icon">🌟</div>
       <div class="action-content">
-        <h3>Upgrade Plan</h3>
-        <p>Get more conversions</p>
+        <h3>Manage Subscription</h3>
+        <p>Unlock advanced neural models and limits</p>
       </div>
-    </button>
-  </div>
+    </div>
+  </nav>
 
-  <!-- Recent Conversions -->
-  <div class="recent-conversions">
+  <!-- Recent Intelligence Activity -->
+  <section class="recent-conversions">
     <div class="section-header">
-      <h2>Recent Conversions</h2>
-      <a routerLink="/conversion" class="link">View All</a>
+      <h2>Activity Stream</h2>
+      <a routerLink="/conversion" class="link">View Full History</a>
     </div>
 
-    <!-- Loading State -->
-    <div *ngIf="loading" class="loading-container">
+    <!-- Active Loading -->
+    <div *ngIf="loading" class="flex justify-center p-3xl">
       <div class="spinner-large"></div>
-      <p>Loading conversions...</p>
     </div>
 
-    <!-- Empty State -->
-    <div *ngIf="!loading && recentConversions.length === 0" class="empty-state">
-      <div class="empty-icon">📝</div>
-      <h3>No conversions yet</h3>
-      <p>Start converting text formats with AI to see them here</p>
-      <button class="btn btn-primary" (click)="navigateToConverter()">
-        Start Converting
-      </button>
+    <!-- Null State Visualization -->
+    <div *ngIf="!loading && recentConversions.length === 0" class="empty-state animate-fade-in">
+      <div class="empty-icon">📂</div>
+      <h3>No Activity Recorded</h3>
+      <p>Your AI conversion history will be indexed here as you process content.</p>
+      <button class="btn btn-primary" (click)="navigateToConverter()">Launch Your First Task</button>
     </div>
 
-    <!-- Conversions List -->
+    <!-- Feed List -->
     <div *ngIf="!loading && recentConversions.length > 0" class="conversions-list">
-      <div class="conversion-card" *ngFor="let conversion of recentConversions">
-        <div class="conversion-info">
-          <div class="conversion-header">
-            <div class="conversion-formats">
-              <span class="format-badge format-input">{{ conversion.inputFormat }}</span>
-              <span class="arrow">→</span>
-              <span class="format-badge format-output">{{ conversion.outputFormat }}</span>
-            </div>
-            <span class="conversion-date">{{ formatDate(conversion.createdAt) }}</span>
+      <article class="conversion-card" *ngFor="let conversion of recentConversions; let i = index"
+        [style.animation-delay]="(i * 0.05) + 's'">
+        <div class="flex-1">
+          <div class="flex items-center gap-sm mb-xs">
+            <span class="format-badge format-input">{{ conversion.inputFormat }}</span>
+            <span class="text-muted text-xs">→</span>
+            <span class="format-badge format-output">{{ conversion.outputFormat }}</span>
+            <time class="text-3xs text-muted ml-auto">{{ formatDate(conversion.createdAt) }}</time>
           </div>
-          
-          <div class="conversion-content">
-            <div class="content-section">
-              <label>Input:</label>
-              <p class="content-text">{{ truncateText(conversion.prompt, 80) }}</p>
-            </div>
-            <div class="content-section">
-              <label>Output:</label>
-              <p class="content-text">{{ truncateText(conversion.aiResponse, 80) }}</p>
-            </div>
-          </div>
+
+          <p class="content-text">{{ conversion.prompt }}</p>
         </div>
-        
-        <div class="conversion-actions">
-          <button 
-            class="btn-icon" 
-            (click)="viewConversion(conversion)"
-            title="View Full Conversion"
-          >
-            👁️
-          </button>
-          <button 
-            class="btn-icon" 
-            (click)="copyAiResponse(conversion.aiResponse)"
-            title="Copy Result"
-          >
-            📋
-          </button>
-          <button 
-            class="btn-icon btn-icon-danger" 
-            (click)="deleteConversion(conversion.id)"
-            title="Delete"
-          >
-            🗑️
-          </button>
+
+        <div class="flex flex-col gap-xs ml-lg pl-lg border-l border-gray-100">
+          <button class="btn-icon btn-sm" (click)="viewConversion(conversion)" aria-label="Inspect">👁️</button>
+          <button class="btn-icon btn-sm" (click)="copyAiResponse(conversion.aiResponse)" aria-label="Copy">📋</button>
+          <button class="btn-icon btn-sm text-error" (click)="deleteConversion(conversion.id)"
+            aria-label="Purge">🗑️</button>
         </div>
-      </div>
+      </article>
     </div>
-  </div>
+  </section>
 </div>

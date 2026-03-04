@@ -1,0 +1,188 @@
+<div class="admin-page animate-fade-in">
+
+    <!-- Toolbar -->
+    <div class="page-toolbar">
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" placeholder="Search by email, name..." [(ngModel)]="searchQuery" (input)="applyFilters()"
+                class="search-input" />
+        </div>
+        <div class="toolbar-filters">
+            <select class="filter-select" [(ngModel)]="roleFilter" (change)="applyFilters()">
+                <option value="">All Roles</option>
+                <option value="USER">USER</option>
+                <option value="ADMIN">ADMIN</option>
+            </select>
+            <select class="filter-select" [(ngModel)]="statusFilter" (change)="applyFilters()">
+                <option value="">All Status</option>
+                <option value="enabled">Enabled</option>
+                <option value="disabled">Disabled</option>
+            </select>
+        </div>
+        <button class="btn btn-primary btn-sm" (click)="openCreateModal()">+ Add New User</button>
+        <span class="user-count">{{ filteredUsers.length }} users</span>
+    </div>
+
+    <!-- Table -->
+    <div class="admin-table-card">
+        <div class="table-loading" *ngIf="loading">
+            <div class="spinner-large"></div>
+            <p>Loading users...</p>
+        </div>
+
+        <div class="table-scroll" *ngIf="!loading">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th (click)="sortBy('id')" class="sortable">ID {{ getSortIcon('id') }}</th>
+                        <th (click)="sortBy('email')" class="sortable">Email {{ getSortIcon('email') }}</th>
+                        <th (click)="sortBy('fullName')" class="sortable">Full Name {{ getSortIcon('fullName') }}</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th (click)="sortBy('createdAt')" class="sortable">Created {{ getSortIcon('createdAt') }}</th>
+                        <th class="actions-col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let user of paginatedUsers; let i = index" class="table-row"
+                        [class.disabled-row]="!user.enabled">
+                        <td class="id-cell">#{{ user.id }}</td>
+                        <td class="email-cell">{{ user.email }}</td>
+                        <td>{{ user.fullName }}</td>
+                        <td>
+                            <select class="role-select" [value]="user.role" (change)="changeRole(user, $event)">
+                                <option value="USER">USER</option>
+                                <option value="ADMIN">ADMIN</option>
+                            </select>
+                        </td>
+                        <td>
+                            <button class="toggle-btn" [class.enabled]="user.enabled"
+                                [class.disabled-status]="!user.enabled" (click)="toggleUser(user)">
+                                {{ user.enabled ? '● Active' : '○ Inactive' }}
+                            </button>
+                        </td>
+                        <td class="date-cell">{{ formatDate(user.createdAt) }}</td>
+                        <td class="actions-cell">
+                            <button class="action-btn view-btn" title="View conversions"
+                                (click)="viewUserConversions(user)">👁️</button>
+                            <button class="action-btn delete-btn" title="Delete user"
+                                (click)="deleteUser(user)">🗑️</button>
+                        </td>
+                    </tr>
+                    <tr *ngIf="paginatedUsers.length === 0">
+                        <td colspan="7" class="empty-row">No users found matching your filters.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="table-pagination" *ngIf="!loading && filteredUsers.length > pageSize">
+            <button class="page-btn" [disabled]="currentPage === 0" (click)="prevPage()">← Prev</button>
+            <span class="page-info">Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+            <button class="page-btn" [disabled]="currentPage >= totalPages - 1" (click)="nextPage()">Next →</button>
+            <select class="page-size-select" [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+                <option [value]="10">10 / page</option>
+                <option [value]="25">25 / page</option>
+                <option [value]="50">50 / page</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- User Conversions Modal -->
+    <div class="admin-modal-backdrop" *ngIf="showConversionsModal" (click)="closeModal()">
+        <div class="admin-modal" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Conversions for {{ selectedUser?.email }}</h2>
+                <button class="modal-close-btn" (click)="closeModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div *ngIf="userConversionsLoading" class="modal-loading">
+                    <div class="spinner-large"></div>
+                </div>
+                <div *ngIf="!userConversionsLoading && userConversions.length === 0" class="modal-empty">
+                    No conversions found for this user.
+                </div>
+                <div class="conversion-list" *ngIf="!userConversionsLoading">
+                    <div class="conversion-item" *ngFor="let c of userConversions">
+                        <div class="conv-top">
+                            <span class="fmt-badge inp">{{ c.inputFormat }}</span>
+                            <span>→</span>
+                            <span class="fmt-badge out">{{ c.outputFormat }}</span>
+                            <span class="conv-date">{{ formatDate(c.createdAt) }}</span>
+                        </div>
+                        <p class="conv-prompt">{{ c.prompt | slice:0:150 }}{{ c.prompt.length > 150 ? '...' : '' }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirm Modal -->
+    <div class="admin-modal-backdrop" *ngIf="showDeleteModal" (click)="cancelDelete()">
+        <div class="admin-modal confirm-modal" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2>⚠️ Delete User</h2>
+                <button class="modal-close-btn" (click)="cancelDelete()">✕</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to permanently delete <strong>{{ userToDelete?.email }}</strong>?</p>
+                <p class="warning-text">This action cannot be undone. All associated data will be removed.</p>
+                <div class="modal-actions">
+                    <button class="btn btn-outline" (click)="cancelDelete()">Cancel</button>
+                    <button class="btn btn-danger" (click)="confirmDelete()">Delete Permanently</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create User Modal -->
+    <div class="admin-modal-backdrop" *ngIf="showCreateModal" (click)="closeCreateModal()">
+        <div class="admin-modal confirm-modal" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2>🛠️ Create New User</h2>
+                <button class="modal-close-btn" (click)="closeCreateModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <form (ngSubmit)="createUser()" #userForm="ngForm" class="admin-form">
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; color: #4b5563;">Full
+                            Name</label>
+                        <input type="text" [(ngModel)]="newUser.fullName" name="fullName" required
+                            placeholder="John Doe"
+                            style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem;" />
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; color: #4b5563;">Email
+                            Address</label>
+                        <input type="email" [(ngModel)]="newUser.email" name="email" required
+                            placeholder="john@example.com"
+                            style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem;" />
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label
+                            style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; color: #4b5563;">Password</label>
+                        <input type="password" [(ngModel)]="newUser.password" name="password" required
+                            placeholder="••••••••"
+                            style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem;" />
+                    </div>
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label
+                            style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; color: #4b5563;">Role</label>
+                        <select [(ngModel)]="newUser.role" name="role" required
+                            style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem; background: white;">
+                            <option value="USER">USER</option>
+                            <option value="ADMIN">ADMIN</option>
+                        </select>
+                    </div>
+                    <div class="modal-actions"
+                        style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 0.5rem;">
+                        <button type="button" class="btn btn-outline" (click)="closeCreateModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary" [disabled]="!userForm.form.valid">Create
+                            Account</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

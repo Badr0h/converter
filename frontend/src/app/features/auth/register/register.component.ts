@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractContro
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { AuthRequest } from '../../../core/models/auth.model';
-import {UserCreateDto} from "../../../core/models/user.model";
+import { UserCreateDto } from "../../../core/models/user.model";
 
 @Component({
   selector: 'app-register',
@@ -26,13 +26,13 @@ export class RegisterComponent implements OnInit {
     hasSpecialChar: false
   };
 
-  passwordVisible = false;
+  showPassword = false;
 
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // Initialize the form with validation
@@ -95,7 +95,7 @@ export class RegisterComponent implements OnInit {
   }
 
   togglePasswordVisibility(): void {
-    this.passwordVisible = !this.passwordVisible;
+    this.showPassword = !this.showPassword;
   }
 
   onSubmit(): void {
@@ -128,13 +128,13 @@ export class RegisterComponent implements OnInit {
     this.authService.register(registerRequest).subscribe({
       next: (response) => {
         console.log('Registration successful', response);
-        this.router.navigate(['/auth/verify-email'], { 
-          queryParams: { email: registerRequest.email } 
+        this.router.navigate(['/auth/verify-email'], {
+          queryParams: { email: registerRequest.email }
         });
       },
       error: (error) => {
         console.error('Registration error', error);
-        
+
         // Handle specific validation errors
         if (error.status === 429) {
           this.errorMessage = 'Too many registration attempts. Please wait a few minutes before trying again.';
@@ -147,7 +147,7 @@ export class RegisterComponent implements OnInit {
         } else {
           this.errorMessage = error.error?.message || 'Registration failed. Please try again.';
         }
-        
+
         this.loading = false;
       },
       complete: () => {

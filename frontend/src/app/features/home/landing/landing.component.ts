@@ -191,47 +191,38 @@ export class LandingComponent implements OnInit, OnDestroy {
   }
 
   private sortPlans(plans: PlanResponseDto[]): PlanResponseDto[] {
-    // Sort plans by price: free first, then ascending price
-    return plans.sort((a, b) => {
-      if (a.price === 0) return -1;
-      if (b.price === 0) return 1;
-      return a.price - b.price;
-    });
+    // Sort plans by price ascending
+    return plans.sort((a, b) => a.price - b.price);
   }
 
   private getDefaultPlans(): PlanResponseDto[] {
     return [
       {
         id: 1,
-        name: 'FREE',
-        price: 0,
+        name: 'STARTER',
+        price: 15.00,
         currency: 'USD',
         duration: 'ONE_MONTH' as any,
-        maxConversions: 10
+        maxConversions: 300,
+        features: ['300 conversions/mo', 'Fast AI processing', 'Standard support']
       },
       {
         id: 2,
-        name: 'BASIC',
-        price: 9.99,
+        name: 'PROFESSIONAL',
+        price: 39.00,
         currency: 'USD',
         duration: 'ONE_MONTH' as any,
-        maxConversions: 100
+        maxConversions: 1500,
+        features: ['1,500 conversions/mo', 'Priority processing', 'Batch tools']
       },
       {
         id: 3,
-        name: 'PRO',
-        price: 29.99,
+        name: 'ENTERPRISE',
+        price: 89.00,
         currency: 'USD',
         duration: 'ONE_MONTH' as any,
-        maxConversions: 1000
-      },
-      {
-        id: 4,
-        name: 'PREMIUM',
-        price: 99.99,
-        currency: 'USD',
-        duration: 'TWELVE_MONTHS' as any,
-        maxConversions: -1 // Unlimited
+        maxConversions: -1, // Unlimited
+        features: ['Unlimited conversions', 'API access', '24/7 VIP support']
       }
     ];
   }
@@ -301,11 +292,11 @@ export class LandingComponent implements OnInit, OnDestroy {
       'Multiple format support'
     ];
 
-    if (plan.name === 'PRO' || plan.name === 'PREMIUM') {
+    if (plan.name === 'PROFESSIONAL' || plan.name === 'ENTERPRISE') {
       baseFeatures.push('Priority support', 'Advanced AI models');
     }
 
-    if (plan.name === 'PREMIUM') {
+    if (plan.name === 'ENTERPRISE') {
       baseFeatures.push('API access', 'Custom integrations');
     }
 
@@ -313,7 +304,7 @@ export class LandingComponent implements OnInit, OnDestroy {
   }
 
   formatPrice(price: number): string {
-    return price === 0 ? 'Free' : `$${price.toFixed(2)}`;
+    return `$${price.toFixed(2)}`;
   }
 
   formatDuration(duration: string): string {
@@ -327,7 +318,7 @@ export class LandingComponent implements OnInit, OnDestroy {
   }
 
   isPlanPopular(plan: PlanResponseDto): boolean {
-    return plan.name === 'PRO';
+    return plan.name === 'PROFESSIONAL';
   }
 
   // TrackBy Functions for Performance

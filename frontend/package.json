@@ -2,12 +2,12 @@
   "name": "frontend",
   "version": "0.0.0",
   "scripts": {
-  "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "test": "ng test",
-    "lint": "ng lint",
-    "e2e": "ng e2e"
+    "docker:dev": "docker compose up --watch",
+    "docker:dev:backend": "docker compose up backend --watch",
+    "docker:dev:frontend": "docker compose up frontend --watch",
+    "docker:build": "docker compose build",
+    "docker:clean": "docker compose down -v",
+    "docker:logs": "docker compose logs -f"
   },
   "private": true,
   "dependencies": {

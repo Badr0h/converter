@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.converter.backend.dto.user.UserCreateDto;
 import com.converter.backend.dto.user.UserResponseDto;
 import com.converter.backend.dto.user.UserUpdateDto;
 import com.converter.backend.exception.EmailAlreadyExistsException;
@@ -71,6 +72,25 @@ public class UserService {
     }
     
 
+    public UserResponseDto updateUserRole(Long id, String roleName) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+        try {
+            User.Role role = User.Role.valueOf(roleName.toUpperCase());
+            user.setRole(role);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Invalid role: " + roleName);
+        }
+        return mapToResponseDto(userRepository.save(user));
+    }
+
+    public UserResponseDto toggleUserEnabled(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+        user.setEnabled(!user.getEnabled());
+        return mapToResponseDto(userRepository.save(user));
+    }
+
     public void deleteUserById(Long id) {
         if (!userRepository.existsById(id)) {
             throw new ResourceNotFoundException("User not found with id: " + id);
@@ -81,12 +101,26 @@ public class UserService {
 
 
     
+    public UserResponseDto adminCreateUser(UserCreateDto dto) {
+        if (userRepository.existsByEmail(dto.getEmail())) {
+            throw new RuntimeException("Email already exists");
+        }
+        User user = new User();
+        user.setEmail(dto.getEmail());
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        user.setFullName(dto.getFullName());
+        user.setRole(dto.getRole() != null ? User.Role.valueOf(dto.getRole()) : User.Role.USER);
+        user.setEnabled(true); // Admin-created users are enabled by default
+        return mapToResponseDto(userRepository.save(user));
+    }
+
     private UserResponseDto mapToResponseDto(User user){
         UserResponseDto dto = new UserResponseDto();
         dto.setId(user.getId());
         dto.setFullName(user.getFullName());
         dto.setEmail(user.getEmail());
         dto.setRole(user.getRole());
+        dto.setEnabled(user.getEnabled());
         dto.setCreatedAt(user.getCreatedAt());
         dto.setUpdatedAt(user.getUpdatedAt());
         return dto ;

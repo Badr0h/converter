@@ -1,7 +1,7 @@
 <div class="converter-container">
-  <!-- Toast Notification -->
+  <!-- Toast Notification System -->
   <div class="toast-container" *ngIf="toast">
-    <div class="toast" [ngClass]="'toast-' + toast.type">
+    <div class="toast" [ngClass]="'toast-' + toast.type" role="alert" aria-live="polite">
       <span class="toast-icon">
         {{ toast.type === 'success' ? '✓' : toast.type === 'error' ? '✕' : 'ℹ' }}
       </span>
@@ -9,26 +9,30 @@
     </div>
   </div>
 
-  <!-- Header -->
-  <div class="converter-header">
+  <!-- Dashboard Header -->
+  <header class="converter-header animate-fade-in">
     <div class="header-content">
-      <h1>AI Text Converter</h1>
-      <p>Convert text between different formats using AI</p>
+      <h1 class="gradient-text">AI Power Converter</h1>
+      <p>Transform your code and data with neural accuracy</p>
     </div>
-    <button class="btn btn-secondary" (click)="toggleHistory()">
-      {{ showHistory ? 'Hide' : 'Show' }} History ({{ conversionHistory.length }})
-    </button>
-  </div>
+    <div class="header-actions">
+      <button class="btn btn-outline" (click)="toggleHistory()" [attr.aria-expanded]="showHistory">
+        <span class="icon">{{ showHistory ? '📁' : '📊' }}</span>
+        {{ showHistory ? 'Hide' : 'Show' }} History
+      </button>
+    </div>
+  </header>
 
-  <div class="converter-layout">
-    <!-- Main Converter Area -->
-    <div class="converter-main" [class.with-history]="showHistory">
-      <!-- Conversion Form -->
+  <div class="converter-layout" [class.has-sidebar]="showHistory">
+    <!-- Main Workspace Area -->
+    <main class="converter-main animate-slide-up">
+      <!-- Conversion Interface -->
       <form [formGroup]="conversionForm" (ngSubmit)="onSubmit()" class="conversion-form">
-        <!-- Format Selectors -->
+
+        <!-- Logic Selector Grid -->
         <div class="format-selector-container">
           <div class="format-group">
-            <label for="inputFormat">Input Format</label>
+            <label for="inputFormat">Source Format</label>
             <select id="inputFormat" formControlName="inputFormat" class="form-select">
               <option *ngFor="let format of availableInputFormats" [value]="format">
                 {{ format }}
@@ -36,157 +40,124 @@
             </select>
           </div>
 
-          <button type="button" class="swap-button" (click)="swapFormats()" title="Swap formats">
+          <button type="button" class="swap-button" (click)="swapFormats()" aria-label="Swap formats">
             ⇄
           </button>
 
           <div class="format-group">
-            <label for="outputFormat">Output Format</label>
+            <label for="outputFormat">Target Format</label>
             <select id="outputFormat" formControlName="outputFormat" class="form-select">
-              <option *ngFor="let format of filteredOutputFormats" [value]="format.format">
-                {{ format.format }}
-                <span *ngIf="format.level === 'recommended'">★</span>
-                - {{ format.description }}
+              <option *ngFor="let option of filteredOutputFormats" [value]="option.format">
+                {{ option.format }} {{ option.level === 'recommended' ? '★' : '' }}
               </option>
             </select>
           </div>
         </div>
 
-        <!-- Advanced Mode Toggle -->
-        <div class="advanced-toggle">
-          <label class="toggle-label">
-            <input 
-              type="checkbox" 
-              [checked]="showAdvanced" 
-              (change)="toggleAdvancedMode()"
-              class="toggle-input"
-            >
-            <span class="toggle-slider"></span>
-            <span class="toggle-text">Expert Mode (Show Advanced Formats)</span>
-          </label>
+        <!-- Expert Mode Toggle -->
+        <!-- DEBUG: showAdvanced={{showAdvanced}} -->
+        <div class="toggle-container" 
+             style="position: relative; z-index: 100; margin-bottom: 20px; pointer-events: auto !important;"
+             (click)="toggleAdvancedMode()">
+          <button type="button" 
+                  class="advanced-toggle" 
+                  [attr.aria-pressed]="showAdvanced"
+                  style="pointer-events: none !important;">
+            <div class="toggle-switch" [class.active]="showAdvanced"></div>
+            <span class="toggle-text">{{ showAdvanced ? 'Hide Expert Formats' : 'Show Expert Formats' }}</span>
+          </button>
         </div>
 
-        <!-- Input Area -->
+        <!-- Input Editor Section -->
         <div class="input-section">
           <div class="section-header">
-            <label for="prompt">Input Text</label>
-            <button type="button" class="btn-text" (click)="copyInput()" [disabled]="!f['prompt'].value">
-              📋 Copy
-            </button>
+            <label for="prompt">Input Content</label>
+            <div class="actions">
+              <span class="text-xs text-muted mr-sm">{{ f['prompt'].value?.length || 0 }} chars</span>
+              <button type="button" class="btn-text" (click)="copyInput()" [disabled]="!f['prompt'].value">
+                Copy
+              </button>
+            </div>
           </div>
-          <textarea
-            id="prompt"
-            formControlName="prompt"
-            class="form-textarea"
-            [class.invalid]="f['prompt'].invalid && f['prompt'].touched"
-            placeholder="Enter your text here to convert..."
-            rows="12"
-          ></textarea>
-          <div *ngIf="f['prompt'].invalid && f['prompt'].touched" class="error-message">
-            Text must be at least 10 characters long
-          </div>
-          <div class="character-count">
-            {{ f['prompt'].value?.length || 0 }} characters
+          <textarea id="prompt" formControlName="prompt" class="form-textarea"
+            [class.invalid]="f['prompt'].invalid && f['prompt'].touched" placeholder="Paste your code or text here..."
+            rows="10"></textarea>
+          <div *ngIf="f['prompt'].invalid && f['prompt'].touched" class="invalid-feedback">
+            Content must be at least 10 characters
           </div>
         </div>
 
-        <!-- Action Buttons -->
-        <div class="action-buttons">
-          <button type="submit" class="btn btn-primary btn-large" [disabled]="loading || conversionForm.invalid">
+        <!-- Master Action Controls -->
+        <div class="flex gap-md mt-xl">
+          <button type="submit" class="btn btn-primary btn-large flex-1" [disabled]="loading || conversionForm.invalid">
             <span *ngIf="loading" class="spinner"></span>
-            <span *ngIf="!loading">🔄 Convert</span>
-            <span *ngIf="loading">Converting...</span>
+            <span>{{ loading ? 'Processing...' : 'Start Conversion' }}</span>
           </button>
           <button type="button" class="btn btn-outline" (click)="clearForm()" [disabled]="loading">
-            🗑️ Clear
+            Clear
           </button>
         </div>
 
-        <!-- Error Message -->
-        <div *ngIf="errorMessage" class="alert alert-danger">
-          <strong>Error:</strong> {{ errorMessage }}
+        <!-- Dynamic Error Alert -->
+        <div *ngIf="errorMessage" class="alert alert-danger mt-lg animate-shake">
+          <strong>Oops!</strong> {{ errorMessage }}
         </div>
       </form>
 
-      <!-- Output Area -->
-      <div class="output-section" *ngIf="conversionResult && !loading">
+      <!-- Smart Output Display -->
+      <section class="output-section" *ngIf="conversionResult && !loading">
         <div class="output-header">
           <h3>Conversion Result</h3>
-          <div class="output-actions">
-            <button class="btn-text" (click)="useAsInput()">↩️ Use as Input</button>
-            <button class="btn-text" (click)="copyOutput()">📋 Copy</button>
+          <div class="flex gap-sm">
+            <button class="btn btn-ghost btn-sm" (click)="useAsInput()">Use as Input</button>
+            <button class="btn btn-secondary btn-sm" (click)="copyOutput()">Copy Result</button>
           </div>
         </div>
 
         <div class="output-content">
-          <div class="output-meta">
-            <span class="meta-item">
-              <strong>From:</strong> {{ conversionResult.inputFormat }}
-            </span>
-            <span class="meta-item">
-              <strong>To:</strong> {{ conversionResult.outputFormat }}
-            </span>
-            <span class="meta-item">
-              <strong>Date:</strong> {{ formatDate(conversionResult.createdAt) }}
-            </span>
-          </div>
-
           <div class="output-box">
             <pre class="output-text">{{ conversionResult.aiResponse }}</pre>
           </div>
         </div>
-      </div>
+      </section>
 
-      <!-- Loading State -->
-      <div class="loading-state" *ngIf="loading">
-        <div class="loading-animation">
-          <div class="spinner-large"></div>
-          <p>AI is converting your text...</p>
-          <p class="loading-subtitle">This may take a few seconds</p>
-        </div>
+      <!-- Real-time Loading State -->
+      <div class="loading-overlay" *ngIf="loading">
+        <div class="spinner-large"></div>
+        <h3 class="mt-md">Optimizing Conversion...</h3>
+        <p class="text-muted">Our AI is restructuring your content for maximum precision.</p>
       </div>
-    </div>
+    </main>
 
-    <!-- History Sidebar -->
-    <div class="history-sidebar" *ngIf="showHistory">
+    <!-- Contextual History Sidebar -->
+    <aside class="history-sidebar animate-slide-right" *ngIf="showHistory">
       <div class="history-header">
-        <h3>Conversion History</h3>
-        <button class="btn-close" (click)="toggleHistory()" title="Close history">✕</button>
+        <h3>Activity Log</h3>
+        <button class="btn-icon" (click)="toggleHistory()" aria-label="Close history">✕</button>
       </div>
 
       <div class="history-list" *ngIf="conversionHistory.length > 0">
-        <div 
-          class="history-item" 
-          *ngFor="let conversion of conversionHistory; trackBy: trackByConversionId"
-          (click)="loadFromHistory(conversion)"
-          [class.active]="conversionResult?.id === conversion.id"
-        >
-          <div class="history-item-header">
-            <div class="history-formats">
-              <span class="format-mini">{{ conversion.inputFormat }}</span>
-              <span class="arrow-mini">→</span>
-              <span class="format-mini">{{ conversion.outputFormat }}</span>
+        <div class="history-item" *ngFor="let conversion of conversionHistory; trackBy: trackByConversionId"
+          (click)="loadFromHistory(conversion)" [class.active]="conversionResult?.id === conversion.id">
+          <div class="flex justify-between items-center mb-xs">
+            <div class="flex items-center gap-2xs">
+              <span class="badge badge-primary text-3xs">{{ conversion.inputFormat }}</span>
+              <span class="text-muted">→</span>
+              <span class="badge badge-secondary text-3xs">{{ conversion.outputFormat }}</span>
             </div>
-            <button 
-              class="btn-delete" 
-              (click)="deleteFromHistory(conversion.id, $event)"
-              title="Delete conversion"
-            >
+            <button class="btn-icon btn-sm text-error" (click)="deleteFromHistory(conversion.id, $event)"
+              aria-label="Delete entry">
               🗑️
             </button>
           </div>
-          <p class="history-preview">
-            {{ conversion.prompt.length > 60 ? (conversion.prompt.substring(0, 60) + '...') : conversion.prompt }}
-          </p>
-          <span class="history-date">{{ formatDate(conversion.createdAt) }}</span>
+          <p class="history-preview">{{ conversion.prompt }}</p>
+          <div class="text-3xs text-muted mt-xs">{{ formatDate(conversion.createdAt) }}</div>
         </div>
       </div>
 
       <div class="history-empty" *ngIf="conversionHistory.length === 0">
-        <div class="empty-icon">📝</div>
-        <p>No conversion history yet</p>
-        <p class="empty-subtitle">Your conversions will appear here</p>
+        <p class="text-muted">Your conversion history will appear here.</p>
       </div>
-    </div>
+    </aside>
   </div>
 </div>

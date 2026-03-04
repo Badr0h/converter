@@ -88,17 +88,16 @@ public class OpenAiProvider implements AiProvider {
      * Map user plan to GPT model
      */
     private String getModelForPlan(String plan) {
+        if (plan == null) return "gpt-3.5-turbo";
         switch (plan.toUpperCase()) {
-            case "BASIC":
-                return "gpt-3.5-turbo";          // cheapest, fast
-            case "PRO":
-                return "gpt-4";                     // higher quality
-            case "PREMIUM":
-                return "gpt-4-turbo";               // best for complex tasks
-            case "BUSINESS":
-                return "gpt-4-turbo";               // enterprise, heavy usage
+            case "STARTER":
+                return "gpt-3.5-turbo";          // Efficient, fast
+            case "PROFESSIONAL":
+                return "gpt-4";                     // High quality
+            case "ENTERPRISE":
+                return "gpt-4-turbo";               // Best for complex tasks & high volume
             default:
-                return "gpt-3.5-turbo";              // fallback
+                return "gpt-3.5-turbo";              // Fallback
         }
     }
 }

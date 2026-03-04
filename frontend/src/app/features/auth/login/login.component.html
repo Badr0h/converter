@@ -2,41 +2,29 @@
   <div class="login-card">
     <div class="login-header">
       <h2>Welcome Back</h2>
-      <p>Sign in to your account</p>
+      <p>Sign in to your AI Converter account</p>
     </div>
 
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
       <!-- Email Field -->
       <div class="form-group">
-        <label for="email">Email Address</label>
-        <input
-          type="email"
-          id="email"
-          formControlName="email"
-          class="form-control"
-          [class.is-invalid]="submitted && f['email'].errors"
-          placeholder="Enter your email"
-        />
+        <label for="email" class="form-label">Email Address</label>
+        <input type="email" id="email" formControlName="email" class="form-input"
+          [class.invalid]="submitted && f['email'].errors" placeholder="name@company.com" />
         <div *ngIf="submitted && f['email'].errors" class="invalid-feedback">
           <div *ngIf="f['email'].errors['required']">Email is required</div>
-          <div *ngIf="f['email'].errors['email']">Email must be a valid email address</div>
+          <div *ngIf="f['email'].errors['email']">Please enter a valid email</div>
         </div>
       </div>
 
       <!-- Password Field -->
       <div class="form-group">
-        <label for="password">Password</label>
-        <input
-          type="password"
-          id="password"
-          formControlName="password"
-          class="form-control"
-          [class.is-invalid]="submitted && f['password'].errors"
-          placeholder="Enter your password"
-        />
+        <label for="password" class="form-label">Password</label>
+        <input type="password" id="password" formControlName="password" class="form-input"
+          [class.invalid]="submitted && f['password'].errors" placeholder="••••••••" />
         <div *ngIf="submitted && f['password'].errors" class="invalid-feedback">
           <div *ngIf="f['password'].errors['required']">Password is required</div>
-          <div *ngIf="f['password'].errors['minlength']">Password must be at least 6 characters</div>
+          <div *ngIf="f['password'].errors['minlength']">Must be at least 6 characters</div>
         </div>
       </div>
 
@@ -46,19 +34,15 @@
       </div>
 
       <!-- Submit Button -->
-      <button
-        type="submit"
-        class="btn btn-primary btn-block"
-        [disabled]="loading"
-      >
+      <button type="submit" class="btn btn-primary" [disabled]="loading">
         <span *ngIf="loading" class="spinner"></span>
         <span *ngIf="!loading">Sign In</span>
         <span *ngIf="loading">Signing In...</span>
       </button>
 
       <!-- Register Link -->
-      <div class="text-center mt-3">
-        <p>Don't have an account? <a routerLink="/auth/register">Sign Up</a></p>
+      <div class="text-footer">
+        <p>Don't have an account? <a routerLink="/auth/register">Create one free</a></p>
       </div>
     </form>
   </div>

@@ -9,6 +9,7 @@ export interface PlanResponseDto {
   monthlyPrice?: number;
   annualPrice?: number;
   maxConversions?: number; // Maximum conversions per month
+  features: string[];
 }
 
 export interface PlanCreateDto {

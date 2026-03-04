@@ -1,0 +1,114 @@
+<div class="overview-page animate-fade-in">
+
+    <!-- Stats Grid -->
+    <section class="stats-grid">
+        <div class="admin-stat-card animate-slide-up" style="animation-delay: 0.05s">
+            <div class="stat-header">
+                <div class="stat-icon-box"
+                    style="background: linear-gradient(135deg, #7c3aed20, #7c3aed10); color: #7c3aed">👥</div>
+                <span class="stat-trend positive">↑ Total</span>
+            </div>
+            <div class="stat-value">{{ stats?.totalUsers ?? '—' }}</div>
+            <div class="stat-label">Registered Users</div>
+        </div>
+
+        <div class="admin-stat-card animate-slide-up" style="animation-delay: 0.1s">
+            <div class="stat-header">
+                <div class="stat-icon-box"
+                    style="background: linear-gradient(135deg, #ec489920, #ec489910); color: #ec4899">🔄</div>
+                <span class="stat-trend positive">All Time</span>
+            </div>
+            <div class="stat-value">{{ stats?.totalConversions ?? '—' }}</div>
+            <div class="stat-label">Total Conversions</div>
+        </div>
+
+        <div class="admin-stat-card animate-slide-up" style="animation-delay: 0.15s">
+            <div class="stat-header">
+                <div class="stat-icon-box"
+                    style="background: linear-gradient(135deg, #10b98120, #10b98110); color: #10b981">⚡</div>
+                <span class="stat-trend">Today</span>
+            </div>
+            <div class="stat-value">{{ stats?.conversionsToday ?? '—' }}</div>
+            <div class="stat-label">Conversions Today</div>
+        </div>
+
+        <div class="admin-stat-card animate-slide-up" style="animation-delay: 0.2s">
+            <div class="stat-header">
+                <div class="stat-icon-box"
+                    style="background: linear-gradient(135deg, #f59e0b20, #f59e0b10); color: #f59e0b">🔥</div>
+                <span class="stat-trend">7 days</span>
+            </div>
+            <div class="stat-value">{{ stats?.activeUsersThisWeek ?? '—' }}</div>
+            <div class="stat-label">Active Users (7d)</div>
+        </div>
+    </section>
+
+    <!-- Chart + Activity -->
+    <section class="content-grid">
+
+        <!-- Bar Chart -->
+        <div class="chart-card">
+            <div class="card-title-row">
+                <h2>Conversions — Last 7 Days</h2>
+            </div>
+            <div class="bar-chart" *ngIf="chartData.length > 0; else noChart">
+                <div class="chart-bars">
+                    <div class="bar-col" *ngFor="let d of chartData">
+                        <div class="bar-fill" [style.height.%]="getBarHeight(d.count)"
+                            [title]="d.count + ' conversions'">
+                            <span class="bar-tooltip">{{ d.count }}</span>
+                        </div>
+                        <span class="bar-label">{{ formatChartDay(d.day) }}</span>
+                    </div>
+                </div>
+            </div>
+            <ng-template #noChart>
+                <div class="empty-chart">📈 No data for the last 7 days</div>
+            </ng-template>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="activity-card">
+            <div class="card-title-row">
+                <h2>Recent Activity</h2>
+                <a routerLink="/admin/conversions" class="view-all">View all →</a>
+            </div>
+            <div class="activity-list" *ngIf="!activityLoading">
+                <div class="activity-item" *ngFor="let conv of recentActivity">
+                    <div class="activity-left">
+                        <div class="activity-formats">
+                            <span class="fmt-badge inp">{{ conv.inputFormat }}</span>
+                            <span class="arrow-icon">→</span>
+                            <span class="fmt-badge out">{{ conv.outputFormat }}</span>
+                        </div>
+                        <div class="activity-user">{{ conv.userEmail || 'Anonymous' }}</div>
+                    </div>
+                    <div class="activity-time">{{ formatDate(conv.createdAt) }}</div>
+                </div>
+                <div class="empty-activity" *ngIf="recentActivity.length === 0">No recent activity.</div>
+            </div>
+            <div class="loading-spinner" *ngIf="activityLoading">
+                <div class="spinner-large"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Actions -->
+    <section class="quick-actions-grid">
+        <a routerLink="/admin/users" class="quick-action-card">
+            <div class="qa-icon">👥</div>
+            <h3>Manage Users</h3>
+            <p>Edit roles, enable/disable accounts</p>
+        </a>
+        <a routerLink="/admin/conversions" class="quick-action-card">
+            <div class="qa-icon">🔄</div>
+            <h3>View Conversions</h3>
+            <p>Browse and moderate all conversions</p>
+        </a>
+        <a routerLink="/admin/system" class="quick-action-card">
+            <div class="qa-icon">🖥️</div>
+            <h3>System Health</h3>
+            <p>Check database and service status</p>
+        </a>
+    </section>
+</div>

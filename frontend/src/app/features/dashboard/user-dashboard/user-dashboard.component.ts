@@ -29,7 +29,7 @@ export class UserDashboardComponent implements OnInit {
     private conversionService: ConversionService,
     private subscriptionService: SubscriptionService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadUserData();
@@ -53,9 +53,9 @@ export class UserDashboardComponent implements OnInit {
         // Set defaults if stats not found
         this.dashboardStats = {
           totalConversions: 0,
-          remainingConversions: 1,
-          subscriptionStatus: 'FREE',
-          maxConversionsPerMonth: 1
+          remainingConversions: 0,
+          subscriptionStatus: 'NONE',
+          maxConversionsPerMonth: 0
         };
         this.statsLoading = false;
       }
@@ -101,8 +101,8 @@ export class UserDashboardComponent implements OnInit {
 
   viewConversion(conversion: ConversionResponseDto): void {
     // Navigate to converter with query param to view this conversion
-    this.router.navigate(['/conversion'], { 
-      queryParams: { view: conversion.id } 
+    this.router.navigate(['/conversion'], {
+      queryParams: { view: conversion.id }
     });
   }
 
@@ -111,7 +111,7 @@ export class UserDashboardComponent implements OnInit {
       alert('No response to copy');
       return;
     }
-    
+
     navigator.clipboard.writeText(aiResponse).then(() => {
       alert('Response copied to clipboard! ✓');
     }).catch(err => {
