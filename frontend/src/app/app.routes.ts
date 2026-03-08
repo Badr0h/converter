@@ -38,6 +38,23 @@ export const routes: Routes = [
     canActivate: [adminGuard]  // Protected - requires ADMIN role
   },
   {
+    path: 'about',
+    loadComponent: () => import('./features/pages/about/about.component').then(m => m.AboutComponent)
+  },
+  {
+    path: 'privacy',
+    loadComponent: () => import('./features/pages/privacy/privacy.component').then(m => m.PrivacyComponent)
+  },
+  {
+    path: 'terms',
+    loadComponent: () => import('./features/pages/terms/terms.component').then(m => m.TermsComponent)
+  },
+  {
+    path: 'contact',
+    loadComponent: () => import('./features/pages/contact/contact.component').then(m => m.ContactComponent),
+    canActivate: [authGuard]  // Protected - requires login
+  },
+  {
     path: '**',
     redirectTo: ''  // Redirect unknown routes to home
   }

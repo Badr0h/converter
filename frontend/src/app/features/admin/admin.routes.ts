@@ -20,6 +20,10 @@ export const ADMIN_ROUTES: Routes = [
             {
                 path: 'system',
                 loadComponent: () => import('./admin-system/admin-system.component').then(m => m.AdminSystemComponent)
+            },
+            {
+                path: 'messages',
+                loadComponent: () => import('./admin-messages/admin-messages.component').then(m => m.AdminMessagesComponent)
             }
         ]
     }

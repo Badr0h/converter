@@ -1,0 +1,101 @@
+<div class="admin-page-container">
+    <div class="header-section">
+        <h1 class="page-title">Contact Messages</h1>
+        <p class="text-muted">Manage and respond to user inquiries.</p>
+    </div>
+
+    <div class="messages-grid">
+        <!-- Messages List -->
+        <div class="messages-list-card glass">
+            <div class="list-header">
+                <h3>Inbound Messages</h3>
+                <button class="btn btn-ghost btn-sm" (click)="loadMessages(0)">🔄 Refresh</button>
+            </div>
+
+            <div class="loading-overlay" *ngIf="isLoading">
+                <div class="spinner"></div>
+            </div>
+
+            <div class="no-messages" *ngIf="!isLoading && messages.length === 0">
+                <span class="icon">📬</span>
+                <p>No messages found.</p>
+            </div>
+
+            <div class="message-items" *ngIf="!isLoading && messages.length > 0">
+                <div class="message-item" *ngFor="let message of messages"
+                    [class.active]="selectedMessage?.id === message.id" [class.unread]="!message.isRead"
+                    (click)="selectMessage(message)">
+                    <div class="message-meta">
+                        <span class="name">{{ message.name }}</span>
+                        <span class="date">{{ message.createdAt | date:'shortDate' }}</span>
+                    </div>
+                    <div class="subject">{{ message.subject }}</div>
+                    <div class="status">
+                        <span class="badge" [ngClass]="getStatusBadge(message)">
+                            {{ getStatusText(message) }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pagination" *ngIf="totalPages > 1">
+                <button class="btn-nav" [disabled]="currentPage === 0" (click)="loadMessages(currentPage - 1)">←
+                    Previous</button>
+                <span class="page-info">Page {{ currentPage + 1 }} / {{ totalPages }}</span>
+                <button class="btn-nav" [disabled]="currentPage === totalPages - 1"
+                    (click)="loadMessages(currentPage + 1)">Next →</button>
+            </div>
+        </div>
+
+        <!-- Message Detail / Reply View -->
+        <div class="message-detail-card glass">
+            <div class="no-selected" *ngIf="!selectedMessage">
+                <span class="icon">📨</span>
+                <p>Select a message to view details and reply.</p>
+            </div>
+
+            <div class="message-content" *ngIf="selectedMessage">
+                <div class="detail-header">
+                    <div class="user-info">
+                        <div class="avatar">{{ selectedMessage.name.charAt(0) }}</div>
+                        <div class="meta">
+                            <h3>{{ selectedMessage.name }}</h3>
+                            <p>{{ selectedMessage.email }}</p>
+                        </div>
+                    </div>
+                    <div class="date-time">
+                        {{ selectedMessage.createdAt | date:'medium' }}
+                    </div>
+                </div>
+
+                <div class="subject-row">
+                    <strong>Subject:</strong> {{ selectedMessage.subject }}
+                </div>
+
+                <div class="message-body">
+                    {{ selectedMessage.message }}
+                </div>
+
+                <hr />
+
+                <div class="reply-section" *ngIf="!selectedMessage.isReplied">
+                    <h3>Send Reply</h3>
+                    <textarea [(ngModel)]="replyMessage" placeholder="Write your response here..." rows="6"></textarea>
+                    <div class="reply-actions">
+                        <button class="btn btn-primary" [disabled]="isSending || !replyMessage.trim()"
+                            (click)="sendReply()">
+                            {{ isSending ? 'Sending...' : 'Send Reply' }} 🚀
+                        </button>
+                    </div>
+                </div>
+
+                <div class="replied-view" *ngIf="selectedMessage.isReplied">
+                    <div class="replied-label">✅ Replied on {{ selectedMessage.repliedAt | date:'medium' }}</div>
+                    <div class="reply-content">
+                        {{ selectedMessage.replyMessage }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

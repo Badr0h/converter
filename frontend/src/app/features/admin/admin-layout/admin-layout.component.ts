@@ -52,6 +52,7 @@ export class AdminLayoutComponent implements OnInit {
     getPageTitle(): string {
         if (this.currentRoute.includes('/admin/users')) return 'User Management';
         if (this.currentRoute.includes('/admin/conversions')) return 'Conversions History';
+        if (this.currentRoute.includes('/admin/messages')) return 'Contact Messages';
         if (this.currentRoute.includes('/admin/system')) return 'System Health';
         return 'Admin Dashboard';
     }

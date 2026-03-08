@@ -1,0 +1,142 @@
+<div class="page-container">
+    <!-- Hero Section -->
+    <section class="page-hero">
+        <div class="hero-background"></div>
+        <div class="hero-content">
+            <div class="badge-icon">✉️</div>
+            <h1 class="page-title animate-slide-up">Get in <span class="gradient-text">Touch</span></h1>
+            <p class="page-description animate-slide-up">
+                Have questions? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+            </p>
+        </div>
+    </section>
+
+    <!-- Contact Grid -->
+    <section class="section">
+        <div class="container">
+            <div class="contact-grid">
+                <!-- Contact Info -->
+                <div class="contact-info animate-fade-in">
+                    <div class="glass-card info-card">
+                        <h3>Contact Information</h3>
+                        <p>Reach out to us through any of these channels.</p>
+
+                        <div class="info-items">
+                            <div class="info-item">
+                                <span class="icon">📧</span>
+                                <div>
+                                    <strong>Email</strong>
+                                    <p>oussaihbadreddine&#64;gmail.com</p>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <span class="icon">📍</span>
+                                <div>
+                                    <strong>Location</strong>
+                                    <p>Tech Hub, Innovation Street<br>Modern City, 10101</p>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <span class="icon">🕒</span>
+                                <div>
+                                    <strong>Working Hours</strong>
+                                    <p>Monday - Friday: 9 AM - 6 PM</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="social-links">
+                            <span class="social-icon">𝕏</span>
+                            <span class="social-icon">📸</span>
+                            <span class="social-icon">🔗</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Form -->
+                <div class="contact-form-container animate-slide-up">
+                    <div class="form-card">
+                        <h2 class="mb-lg">Send Message</h2>
+
+                        <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" novalidate>
+                            <div class="form-group mb-md">
+                                <label for="name">Name</label>
+                                <input type="text" id="name" formControlName="name" placeholder="Your Name"
+                                    [class.error]="contactForm.get('name')?.invalid && contactForm.get('name')?.touched">
+                                <span class="error-text"
+                                    *ngIf="contactForm.get('name')?.invalid && contactForm.get('name')?.touched">
+                                    Name is required (min 2 characters).
+                                </span>
+                            </div>
+
+                            <div class="form-group mb-md">
+                                <label for="email">Email</label>
+                                <input type="email" id="email" formControlName="email" placeholder="your&#64;email.com"
+                                    [class.error]="contactForm.get('email')?.invalid && contactForm.get('email')?.touched">
+                                <span class="error-text"
+                                    *ngIf="contactForm.get('email')?.invalid && contactForm.get('email')?.touched">
+                                    Please enter a valid email.
+                                </span>
+                            </div>
+
+                            <div class="form-group mb-md">
+                                <label for="subject">Subject</label>
+                                <select id="subject" formControlName="subject"
+                                    [class.error]="contactForm.get('subject')?.invalid && contactForm.get('subject')?.touched">
+                                    <option value="" disabled selected>Select a subject</option>
+                                    <option value="General Inquiry">General Inquiry</option>
+                                    <option value="Technical Support">Technical Support</option>
+                                    <option value="Billing">Billing & Subscription</option>
+                                    <option value="Feedback">Feedback</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group mb-xl">
+                                <label for="message">Message</label>
+                                <textarea id="message" rows="5" formControlName="message" placeholder="How can we help?"
+                                    [class.error]="contactForm.get('message')?.invalid && contactForm.get('message')?.touched"></textarea>
+                                <span class="error-text"
+                                    *ngIf="contactForm.get('message')?.invalid && contactForm.get('message')?.touched">
+                                    Message should be at least 10 characters.
+                                </span>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-full" [disabled]="isSubmitting">
+                                {{ isSubmitting ? 'Sending...' : 'Send Message' }}
+                                <span class="btn-icon" *ngIf="!isSubmitting">🚀</span>
+                            </button>
+
+                            <div class="success-message mt-md" *ngIf="isSuccess">
+                                🎉 Your message has been sent successfully!
+                            </div>
+
+                            <div class="error-text mt-md text-center" *ngIf="errorMessage">
+                                {{ errorMessage }}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content container">
+            <div class="footer-brand">
+                <span class="logo-icon">🔄</span>
+                <span class="logo-text gradient-text">AI Converter</span>
+            </div>
+            <div class="footer-links">
+                <a routerLink="/" class="footer-link">Home</a>
+                <a routerLink="/about" class="footer-link">About</a>
+                <a routerLink="/privacy" class="footer-link">Privacy Policy</a>
+                <a routerLink="/terms" class="footer-link">Terms of Service</a>
+                <a routerLink="/contact" class="footer-link active">Contact</a>
+            </div>
+            <p class="text-xs text-muted">
+                © {{ currentYear }} AI Converter. All rights reserved.
+            </p>
+        </div>
+    </footer>
+</div>

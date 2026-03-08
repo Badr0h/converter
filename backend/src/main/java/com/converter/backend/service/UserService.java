@@ -46,9 +46,13 @@ public class UserService {
     }
 
     public UserResponseDto getUserByEmail(String email){
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(()-> new ResourceNotFoundException("User not found with email: " + email));
+        User user = getUserEntityByEmail(email);
         return mapToResponseDto(user);
+    }
+
+    public User getUserEntityByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + email));
     }
 
     public UserResponseDto updateUser(Long id, UserUpdateDto dto) {

@@ -25,6 +25,10 @@
                 <span class="nav-icon">🔄</span>
                 <span class="nav-label" *ngIf="!sidebarCollapsed">Conversions</span>
             </a>
+            <a routerLink="/admin/messages" routerLinkActive="active" class="nav-item" (click)="closeOnMobile()">
+                <span class="nav-icon">📬</span>
+                <span class="nav-label" *ngIf="!sidebarCollapsed">Messages</span>
+            </a>
             <a routerLink="/admin/system" routerLinkActive="active" class="nav-item" (click)="closeOnMobile()">
                 <span class="nav-icon">🖥️</span>
                 <span class="nav-label" *ngIf="!sidebarCollapsed">System Health</span>

@@ -1,0 +1,88 @@
+<div class="page-container">
+    <!-- Hero Section -->
+    <section class="page-hero">
+        <div class="hero-background"></div>
+        <div class="hero-content">
+            <div class="badge-icon">📜</div>
+            <h1 class="page-title animate-slide-up">Terms of <span class="gradient-text">Service</span></h1>
+            <p class="page-description animate-slide-up">
+                Last updated: {{ lastUpdated }}
+            </p>
+        </div>
+    </section>
+
+    <!-- Content Section -->
+    <section class="content-section">
+        <div class="container-small">
+            <div class="glass-card content-card animate-fade-in">
+                <div class="content-block">
+                    <h2>1. Acceptance of Terms</h2>
+                    <p>By accessing or using AI Converter, you agree to be bound by these Terms of Service. If you do
+                        not agree with any part of these terms, you may not use our service.</p>
+                </div>
+
+                <div class="content-block">
+                    <h2>2. Use of Service</h2>
+                    <p>AI Converter provides an AI-powered code and data conversion platform. You agree to use the
+                        service only for lawful purposes and in a way that does not infringe the rights of others.</p>
+                    <ul>
+                        <li>You must be at least 13 years old.</li>
+                        <li>You are responsible for maintaining the security of your account.</li>
+                        <li>You may not use the service to process malicious code or illegal content.</li>
+                    </ul>
+                </div>
+
+                <div class="content-block">
+                    <h2>3. Intellectual Property</h2>
+                    <p>You retain all rights to the code and data you submit for conversion. AI Converter owns all
+                        rights to the platform, its AI models (where applicable), and its visual interface.</p>
+                </div>
+
+                <div class="content-block">
+                    <h2>4. Subscription & Payments</h2>
+                    <p>Certain features require a paid subscription. All fees are non-refundable unless otherwise
+                        required by law. You may cancel your subscription at any time.</p>
+                </div>
+
+                <div class="content-block">
+                    <h2>5. Limitation of Liability</h2>
+                    <p>AI Converter is provided "as is" without any warranties. We are not liable for any damages
+                        resulting from your use of the service, including conversion inaccuracies or service
+                        interruptions.</p>
+                </div>
+
+                <div class="content-block">
+                    <h2>6. Modifications</h2>
+                    <p>We reserve the right to modify these terms at any time. We will notify you of any significant
+                        changes by posting the new terms on this page.</p>
+                </div>
+
+                <div class="content-block">
+                    <h2>7. Governing Law</h2>
+                    <p>These terms are governed by and construed in accordance with the laws of your jurisdiction,
+                        without regard to its conflict of law principles.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content container">
+            <div class="footer-brand">
+                <span class="logo-icon">🔄</span>
+                <span class="logo-text gradient-text">AI Converter</span>
+            </div>
+            <div class="footer-links">
+                <a routerLink="/" class="footer-link">Home</a>
+                <a routerLink="/about" class="footer-link">About</a>
+                <a routerLink="/privacy" class="footer-link">Privacy Policy</a>
+                <a routerLink="/terms" class="footer-link active">Terms of Service</a>
+                <a routerLink="/contact" class="footer-link">Contact</a>
+            </div>
+            <p class="text-xs text-muted">
+                © {{ currentYear }} AI Converter. All rights reserved.
+            </p>
+        </div>
+    </footer>
+</div>

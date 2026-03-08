@@ -1,0 +1,108 @@
+<div class="page-container">
+    <!-- Hero Section -->
+    <section class="page-hero">
+        <div class="hero-background"></div>
+        <div class="hero-content">
+            <div class="badge-icon">🛡️</div>
+            <h1 class="page-title animate-slide-up">Privacy <span class="gradient-text">Policy</span></h1>
+            <p class="page-description animate-slide-up">
+                Last updated: {{ lastUpdated }}
+            </p>
+        </div>
+    </section>
+
+    <!-- Content Section -->
+    <section class="content-section">
+        <div class="container-small">
+            <div class="glass-card content-card animate-fade-in">
+                <div class="content-block">
+                    <h2>1. Introduction</h2>
+                    <p>Welcome to AI Converter. We are committed to protecting your personal data and your privacy. This
+                        Privacy Policy explains how we collect, use, and safeguard your information when you use our
+                        code and data conversion services.</p>
+                </div>
+
+                <div class="content-block">
+                    <h2>2. Information We Collect</h2>
+                    <div class="info-list">
+                        <div class="info-item">
+                            <span class="icon">👤</span>
+                            <div>
+                                <strong>Account Data:</strong>
+                                <p>When you register, we collect your name, email address, and account preferences.</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <span class="icon">💻</span>
+                            <div>
+                                <strong>Usage Data:</strong>
+                                <p>We collect information about how you use our service, including conversion types,
+                                    frequency, and system logs.</p>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <span class="icon">💳</span>
+                            <div>
+                                <strong>Payment Information:</strong>
+                                <p>All payments are processed through secure third-party providers (like Stripe). We do
+                                    not store your full credit card details on our servers.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-block">
+                    <h2>3. How We Process Your Code</h2>
+                    <p>Your code and data are processed solely for the purpose of conversion. We use secure API
+                        connections to advanced AI models. Your input code is encrypted during transit and is not stored
+                        permanently or used to train public AI models unless you explicitly opt-in.</p>
+                </div>
+
+                <div class="content-block">
+                    <h2>4. Data Security</h2>
+                    <p>We implement industry-standard security measures to protect your information, including SSL/TLS
+                        encryption for all data transfers and secure cloud infrastructure.</p>
+                </div>
+
+                <div class="content-block">
+                    <h2>5. Your Rights</h2>
+                    <p>Under GDPR and other privacy laws, you have the right to:</p>
+                    <ul>
+                        <li>Access the personal data we hold about you.</li>
+                        <li>Request the deletion of your account and personal data.</li>
+                        <li>Object to the processing of your data for specific purposes.</li>
+                        <li>Export your data in a machine-readable format.</li>
+                    </ul>
+                </div>
+
+                <div class="content-block">
+                    <h2>6. Contact Us</h2>
+                    <p>If you have any questions about this Privacy Policy, please contact us at <a
+                            href="mailto:oussaihbadreddine&#64;gmail.com"
+                            class="text-primary-600">oussaihbadreddine&#64;gmail.com</a>.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content container">
+            <div class="footer-brand">
+                <span class="logo-icon">🔄</span>
+                <span class="logo-text gradient-text">AI Converter</span>
+            </div>
+            <div class="footer-links">
+                <a routerLink="/" class="footer-link">Home</a>
+                <a routerLink="/about" class="footer-link">About</a>
+                <a routerLink="/privacy" class="footer-link active">Privacy Policy</a>
+                <a routerLink="/terms" class="footer-link">Terms of Service</a>
+                <a routerLink="/contact" class="footer-link">Contact</a>
+            </div>
+            <p class="text-xs text-muted">
+                © {{ currentYear }} AI Converter. All rights reserved.
+            </p>
+        </div>
+    </footer>
+</div>
