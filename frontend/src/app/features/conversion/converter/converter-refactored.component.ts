@@ -252,6 +252,14 @@ export class ConverterRefactoredComponent implements OnInit, OnDestroy {
   
   filteredOutputFormats: FormatOption[] = [];
   
+  get inputFormatOptions(): FormatOption[] {
+    return Object.keys(this.availableFormats).map(f => ({
+      format: f,
+      description: `Format de source ${f}`,
+      level: 'recommended'
+    }));
+  }
+  
   private readonly availableFormats: Record<FormatType, FormatOption[]> = {
     TEXT: [
       { format: 'LATEX', description: 'reports, exams', level: 'recommended' },
