@@ -27,8 +27,8 @@
 
       <div class="hero-buttons animate-slide-up">
         <button class="btn btn-primary btn-large" (click)="handleGetStarted()"
-          aria-label="Get started with AI Converter">
-          {{ isAuthenticated() ? 'Go to Converter' : 'Get Started' }}
+          aria-label="Get started with ZenithConvert">
+          {{ isAuthenticated() ? 'Go to ZenithConvert' : 'Get Started' }}
           <span class="btn-arrow">→</span>
         </button>
         <button class="btn btn-outline btn-large" (click)="scrollToFeatures()" aria-label="Learn more about features">
@@ -66,7 +66,7 @@
   <!-- Features Section -->
   <section class="features-section" id="features">
     <div class="section-container">
-      <h2 class="section-title text-center mb-md">Why Choose AI Converter?</h2>
+      <h2 class="section-title text-center mb-md">Why Choose ZenithConvert?</h2>
       <p class="section-subtitle text-center mb-3xl">Everything you need for seamless code and data conversion</p>
 
       <div class="features-grid">
@@ -151,14 +151,14 @@
     <div class="cta-content">
       <h2 class="cta-title">Ready to Start Converting?</h2>
       <p class="cta-description mb-xl">
-        Join thousands of developers who trust AI Converter for their code transformation needs
+        Join thousands of developers who trust ZenithConvert for their code transformation needs
       </p>
       <div class="flex justify-center gap-md">
         <button class="btn btn-white btn-large" (click)="navigateToRegister()" *ngIf="!isAuthenticated()">
           Create Account
         </button>
         <button class="btn btn-white btn-large" (click)="navigateToConverter()" *ngIf="isAuthenticated()">
-          Go to Converter
+          Go to ZenithConvert
         </button>
         <button class="btn btn-outline-white btn-large"
           (click)="isAuthenticated() ? navigateToDashboard() : navigateToLogin()"
@@ -174,7 +174,7 @@
     <div class="footer-content container">
       <div class="footer-brand">
         <span class="logo-icon">🔄</span>
-        <span class="logo-text gradient-text">AI Converter</span>
+        <span class="logo-text gradient-text">ZenithConvert</span>
       </div>
 
       <div class="footer-links">
@@ -185,7 +185,7 @@
       </div>
 
       <p class="text-xs text-muted">
-        © {{ currentYear }} AI Converter. All rights reserved.
+        © {{ currentYear }} ZenithConvert. All rights reserved.
       </p>
     </div>
   </footer>

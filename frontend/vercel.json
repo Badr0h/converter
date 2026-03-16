@@ -1,5 +1,6 @@
 {
   "version": 2,
+  "name": "zenithconvert",
   "framework": "angular",
   "cleanUrls": true,
   "rewrites": [

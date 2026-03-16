@@ -139,10 +139,10 @@ export class LandingComponent implements OnInit, OnDestroy {
   }
 
   private applySeo(): void {
-    const title = 'AI Converter - Convert Code & Data Formats Instantly';
-    const description = 'AI Converter: Instant code and data format conversion via AI. Transform JSON, XML, SQL, Python & more with fast, accurate results.';
-    const url = 'https://aiconverter.com/';
-    const image = 'https://aiconverter.com/assets/og-image.png';
+    const title = 'ZenithConvert - Convert Code & Data Formats Instantly';
+    const description = 'ZenithConvert: Instant code and data format conversion via AI. Transform JSON, XML, SQL, Python & more with fast, accurate results.';
+    const url = 'https://zenithconvert.vercel.app/';
+    const image = 'https://zenithconvert.vercel.app/assets/og-image.png';
 
     this.title.setTitle(title);
 

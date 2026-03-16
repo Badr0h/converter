@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.converter</groupId>
-	<artifactId>backend</artifactId>
+	<artifactId>zenithconvert</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>converter backend</name>
+	<name>ZenithConvert</name>
 	<description>Spring Boot backend for Converter SaaS</description>
 	<url/>
 	<licenses>

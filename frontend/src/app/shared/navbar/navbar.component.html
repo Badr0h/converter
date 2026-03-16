@@ -2,8 +2,8 @@
   <div class="nav-container">
     <!-- Sophisticated Brand Identity -->
     <a routerLink="/" class="nav-logo" (click)="closeMenu()">
-      <div class="logo-icon">C</div>
-      <span class="logo-text">Converter</span>
+      <div class="logo-icon">Z</div>
+      <span class="logo-text">ZenithConvert</span>
     </a>
 
     <!-- Precision Mobile Toggle -->
@@ -14,7 +14,7 @@
     <!-- Tactical Navigation Array -->
     <div class="nav-menu" [class.active]="isMenuOpen" *ngIf="isAuthenticated()">
       <a routerLink="/dashboard" routerLinkActive="active" class="nav-link" (click)="closeMenu()">Dashboard</a>
-      <a routerLink="/conversion" routerLinkActive="active" class="nav-link" (click)="closeMenu()">Converter</a>
+      <a routerLink="/conversion" routerLinkActive="active" class="nav-link" (click)="closeMenu()">ZenithConvert</a>
       <a routerLink="/subscription/plans" routerLinkActive="active" class="nav-link" (click)="closeMenu()">Pricing</a>
       <a routerLink="/admin" routerLinkActive="active" class="nav-link admin-link" (click)="closeMenu()"
         *ngIf="isAdmin()">⚡ Admin</a>

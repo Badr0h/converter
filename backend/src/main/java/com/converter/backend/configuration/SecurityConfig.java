@@ -71,6 +71,9 @@ public class SecurityConfig {
         if (!allowedOrigins.contains("https://converter.vercel.app")) {
             allowedOrigins.add("https://converter.vercel.app");
         }
+        if (!allowedOrigins.contains("https://zenithconvert.vercel.app")) {
+            allowedOrigins.add("https://zenithconvert.vercel.app");
+        }
         
         configuration.setAllowedOrigins(allowedOrigins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));

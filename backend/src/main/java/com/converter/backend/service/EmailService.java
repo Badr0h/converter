@@ -31,13 +31,13 @@ public class EmailService {
         try {
             log.info("Envoi d'email de vérification à: {}", toEmail);
             
-            String subject = "Vérification de votre compte Converter";
+            String subject = "Vérification de votre compte ZenithConvert";
             String body = "Bonjour,\n\n" +
-                    "Merci de vous être inscrit sur Converter. " +
+                    "Merci de vous être inscrit sur ZenithConvert. " +
                     "Votre code de vérification est : " + verificationCode + "\n\n" +
                     "Ce code expirera dans 15 minutes.\n\n" +
                     "Cordialement,\n" +
-                    "L'équipe Converter";
+                    "L'équipe ZenithConvert";
 
             SimpleMailMessage message = new SimpleMailMessage();
             message.setFrom(fromEmail);
