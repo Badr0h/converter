@@ -67,7 +67,10 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         
         // Parse allowed origins from configuration
-        List<String> allowedOrigins = Arrays.asList(allowedOriginsString.split(","));
+        List<String> allowedOrigins = new java.util.ArrayList<>(Arrays.asList(allowedOriginsString.split(",")));
+        if (!allowedOrigins.contains("https://converter-frontend-16ql.onrender.com")) {
+            allowedOrigins.add("https://converter-frontend-16ql.onrender.com");
+        }
         
         configuration.setAllowedOrigins(allowedOrigins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
