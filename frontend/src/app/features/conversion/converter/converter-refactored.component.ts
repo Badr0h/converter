@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { takeUntil, debounceTime, distinctUntilChanged } from 'rxjs/operators';
-import { ConversionService } from '../../../core/services/conversion.service';
-import { ConversionResponseDto, ConversionCreateDto } from '../../../../../core/models/conversion.model';
+import { ConversionService } from 'src/app/core/services/conversion.service';
+import { ConversionResponseDto, ConversionCreateDto } from 'src/app/core/models/conversion.model';
 import { FormatSelectorComponent } from './components/format-selector/format-selector.component';
 import { ConversionInputComponent } from './components/conversion-input/conversion-input.component';
 import { ConversionResultComponent } from './components/conversion-result/conversion-result.component';
@@ -41,7 +41,7 @@ interface ToastMessage {
         <p class="subtitle">Convert between different mathematical formats</p>
       </div>
 
-      <form [formGroup]="conversionForm" class="conversion-form">
+      <form *ngIf="conversionForm" [formGroup]="conversionForm" class="conversion-form">
         <div class="form-row">
           <app-conversion-input
             label="Input Formula"

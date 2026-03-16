@@ -27,7 +27,7 @@
     <!-- Main Workspace Area -->
     <main class="converter-main animate-slide-up">
       <!-- Conversion Interface -->
-      <form [formGroup]="conversionForm" (ngSubmit)="onSubmit()" class="conversion-form">
+      <form *ngIf="conversionForm" [formGroup]="conversionForm" (ngSubmit)="onSubmit()" class="conversion-form">
 
         <!-- Logic Selector Grid -->
         <div class="format-selector-container">

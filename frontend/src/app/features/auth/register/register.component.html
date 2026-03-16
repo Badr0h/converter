@@ -5,7 +5,7 @@
       <p>Join AI Converter and start transforming your code</p>
     </div>
 
-    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+    <form *ngIf="registerForm" [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
       <!-- Full Name Field -->
       <div class="form-group">
         <label for="fullName" class="form-label">Full Name</label>

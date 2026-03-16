@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ConversionResponseDto } from '../../../../../core/models/conversion.model';
+import { ConversionResponseDto } from 'src/app/core/models/conversion.model';
 
 @Component({
   selector: 'app-conversion-result',

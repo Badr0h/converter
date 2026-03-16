@@ -79,7 +79,7 @@
         </div>
       </div>
 
-      <form [formGroup]="checkoutForm" (ngSubmit)="onSubmit()">
+      <form *ngIf="checkoutForm" [formGroup]="checkoutForm" (ngSubmit)="onSubmit()">
         <!-- Card Payment Fields -->
         <div *ngIf="isCardPaymentRequired()" class="card-payment-fields">
           <!-- Card Number -->

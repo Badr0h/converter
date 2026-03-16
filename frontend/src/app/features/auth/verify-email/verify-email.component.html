@@ -13,7 +13,7 @@
       <p class="email">{{ email }}</p>
     </div>
 
-    <form [formGroup]="verifyForm" (ngSubmit)="onSubmit()" class="verification-form">
+    <form *ngIf="verifyForm" [formGroup]="verifyForm" (ngSubmit)="onSubmit()" class="verification-form">
       <div class="form-group">
         <label for="code" class="form-label">Code de vérification</label>
         <input

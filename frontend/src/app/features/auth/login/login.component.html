@@ -5,7 +5,7 @@
       <p>Sign in to your AI Converter account</p>
     </div>
 
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+    <form *ngIf="loginForm" [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
       <!-- Email Field -->
       <div class="form-group">
         <label for="email" class="form-label">Email Address</label>
@@ -24,7 +24,7 @@
           [class.invalid]="submitted && f['password']?.errors" placeholder="••••••••" />
         <div *ngIf="submitted && f['password']?.errors" class="invalid-feedback">
           <div *ngIf="f['password']?.errors?.['required']">Password is required</div>
-          <div *ngIf="f['password']?.errors?.['minlength']">Must be at least 6 characters</div>
+          <div *ngIf="f['password']?.errors?.['minlength']">Must be at least 8 characters</div>
         </div>
       </div>
 

@@ -37,7 +37,7 @@ export class RegisterComponent implements OnInit {
   ngOnInit(): void {
     // Initialize the form with validation
     this.registerForm = this.formBuilder.group({
-      username: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20), Validators.pattern(/^[a-zA-Z\s]+$/)]],
+      fullName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20), Validators.pattern(/^[a-zA-Z\s]+$/)]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(128), Validators.pattern(/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@$!%*?&])[A-Za-z0-9@$!%*?&]{8,}$/)]],
       confirmPassword: ['', [Validators.required]]
@@ -120,7 +120,7 @@ export class RegisterComponent implements OnInit {
     this.loading = true;
 
     const registerRequest: UserCreateDto = {
-      fullName: this.f['username'].value,
+      fullName: this.f['fullName'].value,
       email: this.f['email'].value,
       password: this.f['password'].value
     };

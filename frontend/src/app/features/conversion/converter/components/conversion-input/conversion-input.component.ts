@@ -29,7 +29,7 @@ import { FormsModule } from '@angular/forms';
             type="button" 
             class="btn btn-outline"
             (click)="toggleAdvanced.emit()">
-            {{ showAdvancedOptions ? 'Simple' : 'Advanced' }}
+            {{ showAdvanced ? 'Simple' : 'Advanced' }}
           </button>
         </span>
       </div>
