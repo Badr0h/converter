@@ -2,6 +2,11 @@
   "name": "frontend",
   "version": "0.0.0",
   "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "build:prod": "ng build --configuration production",
+    "serve:prod": "ng serve --configuration production --host 0.0.0.0 --port 3000",
     "docker:dev": "docker compose up --watch",
     "docker:dev:backend": "docker compose up backend --watch",
     "docker:dev:frontend": "docker compose up frontend --watch",
