@@ -68,8 +68,8 @@ public class SecurityConfig {
         
         // Parse allowed origins from configuration
         List<String> allowedOrigins = new java.util.ArrayList<>(Arrays.asList(allowedOriginsString.split(",")));
-        if (!allowedOrigins.contains("https://converter-frontend-16ql.onrender.com")) {
-            allowedOrigins.add("https://converter-frontend-16ql.onrender.com");
+        if (!allowedOrigins.contains("https://converter.vercel.app")) {
+            allowedOrigins.add("https://converter.vercel.app");
         }
         
         configuration.setAllowedOrigins(allowedOrigins);
