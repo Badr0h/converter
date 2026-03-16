@@ -94,7 +94,7 @@
               maxlength="19"
               (input)="formatCardNumber($event)"
             />
-            <div *ngIf="f['cardNumber'].invalid && f['cardNumber'].touched" class="error-message">
+            <div *ngIf="f['cardNumber']?.invalid && f['cardNumber']?.touched" class="error-message">
               Please enter a valid 16-digit card number
             </div>
           </div>
@@ -109,7 +109,7 @@
               class="form-control"
               placeholder="John Doe"
             />
-            <div *ngIf="f['cardName'].invalid && f['cardName'].touched" class="error-message">
+            <div *ngIf="f['cardName']?.invalid && f['cardName']?.touched" class="error-message">
               Cardholder name is required
             </div>
           </div>
@@ -127,7 +127,7 @@
                 maxlength="5"
                 (input)="formatExpiryDate($event)"
               />
-              <div *ngIf="f['expiryDate'].invalid && f['expiryDate'].touched" class="error-message">
+              <div *ngIf="f['expiryDate']?.invalid && f['expiryDate']?.touched" class="error-message">
                 Format: MM/YY
               </div>
             </div>
@@ -142,7 +142,7 @@
                 placeholder="123"
                 maxlength="4"
               />
-              <div *ngIf="f['cvv'].invalid && f['cvv'].touched" class="error-message">
+              <div *ngIf="f['cvv']?.invalid && f['cvv']?.touched" class="error-message">
                 3-4 digits
               </div>
             </div>

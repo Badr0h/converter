@@ -10,10 +10,10 @@
       <div class="form-group">
         <label for="email" class="form-label">Email Address</label>
         <input type="email" id="email" formControlName="email" class="form-input"
-          [class.invalid]="submitted && f['email'].errors" placeholder="name@company.com" />
-        <div *ngIf="submitted && f['email'].errors" class="invalid-feedback">
-          <div *ngIf="f['email'].errors['required']">Email is required</div>
-          <div *ngIf="f['email'].errors['email']">Please enter a valid email</div>
+          [class.invalid]="submitted && f['email']?.errors" placeholder="name@company.com" />
+        <div *ngIf="submitted && f['email']?.errors" class="invalid-feedback">
+          <div *ngIf="f['email']?.errors?.['required']">Email is required</div>
+          <div *ngIf="f['email']?.errors?.['email']">Please enter a valid email</div>
         </div>
       </div>
 
@@ -21,10 +21,10 @@
       <div class="form-group">
         <label for="password" class="form-label">Password</label>
         <input type="password" id="password" formControlName="password" class="form-input"
-          [class.invalid]="submitted && f['password'].errors" placeholder="••••••••" />
-        <div *ngIf="submitted && f['password'].errors" class="invalid-feedback">
-          <div *ngIf="f['password'].errors['required']">Password is required</div>
-          <div *ngIf="f['password'].errors['minlength']">Must be at least 6 characters</div>
+          [class.invalid]="submitted && f['password']?.errors" placeholder="••••••••" />
+        <div *ngIf="submitted && f['password']?.errors" class="invalid-feedback">
+          <div *ngIf="f['password']?.errors?.['required']">Password is required</div>
+          <div *ngIf="f['password']?.errors?.['minlength']">Must be at least 6 characters</div>
         </div>
       </div>
 

@@ -10,9 +10,9 @@
       <div class="form-group">
         <label for="fullName" class="form-label">Full Name</label>
         <input type="text" id="fullName" formControlName="fullName" class="form-input"
-          [class.invalid]="submitted && f['fullName'].errors" placeholder="John Doe" />
-        <div *ngIf="submitted && f['fullName'].errors" class="invalid-feedback">
-          <div *ngIf="f['fullName'].errors['required']">Full Name is required</div>
+          [class.invalid]="submitted && f['fullName']?.errors" placeholder="John Doe" />
+        <div *ngIf="submitted && f['fullName']?.errors" class="invalid-feedback">
+          <div *ngIf="f['fullName']?.errors?.['required']">Full Name is required</div>
         </div>
       </div>
 
@@ -20,10 +20,10 @@
       <div class="form-group">
         <label for="email" class="form-label">Email Address</label>
         <input type="email" id="email" formControlName="email" class="form-input"
-          [class.invalid]="submitted && f['email'].errors" placeholder="name@company.com" />
-        <div *ngIf="submitted && f['email'].errors" class="invalid-feedback">
-          <div *ngIf="f['email'].errors['required']">Email is required</div>
-          <div *ngIf="f['email'].errors['email']">Please enter a valid email</div>
+          [class.invalid]="submitted && f['email']?.errors" placeholder="name@company.com" />
+        <div *ngIf="submitted && f['email']?.errors" class="invalid-feedback">
+          <div *ngIf="f['email']?.errors?.['required']">Email is required</div>
+          <div *ngIf="f['email']?.errors?.['email']">Please enter a valid email</div>
         </div>
       </div>
 
@@ -31,9 +31,9 @@
       <div class="form-group">
         <label for="password" class="form-label">Password</label>
         <input [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password" class="form-input"
-          [class.invalid]="submitted && f['password'].errors" placeholder="••••••••" />
-        <div *ngIf="submitted && f['password'].errors" class="invalid-feedback">
-          <div *ngIf="f['password'].errors['required']">Password is required</div>
+          [class.invalid]="submitted && f['password']?.errors" placeholder="••••••••" />
+        <div *ngIf="submitted && f['password']?.errors" class="invalid-feedback">
+          <div *ngIf="f['password']?.errors?.['required']">Password is required</div>
         </div>
 
         <div class="mt-2">
@@ -48,12 +48,12 @@
       <div class="form-group">
         <label for="confirmPassword" class="form-label">Confirm Password</label>
         <input type="password" id="confirmPassword" formControlName="confirmPassword" class="form-input"
-          [class.invalid]="submitted && (f['confirmPassword'].errors || registerForm.errors?.['passwordMismatch'])"
+          [class.invalid]="submitted && (f['confirmPassword']?.errors || registerForm.errors?.['passwordMismatch'])"
           placeholder="••••••••" />
-        <div *ngIf="submitted && f['confirmPassword'].errors" class="invalid-feedback">
-          <div *ngIf="f['confirmPassword'].errors['required']">Please confirm your password</div>
+        <div *ngIf="submitted && f['confirmPassword']?.errors" class="invalid-feedback">
+          <div *ngIf="f['confirmPassword']?.errors?.['required']">Please confirm your password</div>
         </div>
-        <div *ngIf="submitted && registerForm.errors?.['passwordMismatch'] && !f['confirmPassword'].errors"
+        <div *ngIf="submitted && registerForm.errors?.['passwordMismatch'] && !f['confirmPassword']?.errors"
           class="invalid-feedback">
           <div>Passwords do not match</div>
         </div>

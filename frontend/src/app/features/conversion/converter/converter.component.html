@@ -73,16 +73,16 @@
           <div class="section-header">
             <label for="prompt">Input Content</label>
             <div class="actions">
-              <span class="text-xs text-muted mr-sm">{{ f['prompt'].value?.length || 0 }} chars</span>
-              <button type="button" class="btn-text" (click)="copyInput()" [disabled]="!f['prompt'].value">
+              <span class="text-xs text-muted mr-sm">{{ f['prompt']?.value?.length || 0 }} chars</span>
+              <button type="button" class="btn-text" (click)="copyInput()" [disabled]="!f['prompt']?.value">
                 Copy
               </button>
             </div>
           </div>
           <textarea id="prompt" formControlName="prompt" class="form-textarea"
-            [class.invalid]="f['prompt'].invalid && f['prompt'].touched" placeholder="Paste your code or text here..."
+            [class.invalid]="f['prompt']?.invalid && f['prompt']?.touched" placeholder="Paste your code or text here..."
             rows="10"></textarea>
-          <div *ngIf="f['prompt'].invalid && f['prompt'].touched" class="invalid-feedback">
+          <div *ngIf="f['prompt']?.invalid && f['prompt']?.touched" class="invalid-feedback">
             Content must be at least 10 characters
           </div>
         </div>
