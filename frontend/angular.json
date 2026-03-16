@@ -37,23 +37,26 @@
             "scripts": []
           },
           "configurations": {
-            "production": {
-              "budgets": [],
-              "outputHashing": "all",
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.prod.ts"
-                }
-              ]
-            },
-            "development": {
-              "optimization": false,
-              "extractLicenses": false,
-              "sourceMap": true
-            }
+          "production": {
+            "budgets": [],
+            "outputHashing": "all",
+            "optimization": true,
+            "extractLicenses": true,
+            "sourceMap": false,
+            "fileReplacements": [
+              {
+                "replace": "src/environments/environment.ts",
+                "with": "src/environments/environment.prod.ts"
+              }
+            ]
           },
-          "defaultConfiguration": "production"
+          "development": {
+            "optimization": false,
+            "extractLicenses": false,
+            "sourceMap": true
+          }
+        },
+        "defaultConfiguration": "production"
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
