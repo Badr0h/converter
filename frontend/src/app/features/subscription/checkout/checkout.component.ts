@@ -8,6 +8,7 @@ import { SubscriptionResponseDto, SubscriptionCreateDto, SubscriptionDuration } 
 import { PaymentCreateDto, PaymentResponseDto } from '../../../core/models/payment.model';
 import { PlanResponseDto } from '../../../core/models/plan.model';
 import { AuthService } from '../../../core/services/auth.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-checkout',
@@ -40,12 +41,12 @@ export class CheckoutComponent implements OnInit {
     this.loadPlan();
     const billing = this.route.snapshot.queryParamMap.get('billing');
     if (billing === 'annual') this.billingCycle = 'annual';
-    
+
     // Initialize validators for default payment method
     this.selectPaymentMethod(this.selectedPaymentMethod);
   }
 
-  private mapPlanDurationToEnum(durationValue: number | string) {
+  private mapPlanDurationToEnum(durationValue: number | string): string {
     // Backend plan.duration may be stored as months OR as days (e.g. 30, 90, 365).
     const n = Number(durationValue);
     if (isNaN(n)) return String(durationValue);
@@ -66,7 +67,6 @@ export class CheckoutComponent implements OnInit {
 
   initForm(): void {
     this.checkoutForm = this.formBuilder.group({
-      // Accept either 16 contiguous digits or groups of 4 separated by spaces (e.g. "4552 5670 1500 8958")
       cardNumber: [''],
       cardName: [''],
       expiryDate: [''],
@@ -81,7 +81,7 @@ export class CheckoutComponent implements OnInit {
 
   loadPlan(): void {
     this.planId = Number(this.route.snapshot.paramMap.get('planId'));
-    
+
     if (!this.planId) {
       this.errorMessage = 'Invalid plan selected';
       return;
@@ -98,15 +98,13 @@ export class CheckoutComponent implements OnInit {
         this.loading = false;
       },
       error: (error) => {
-        console.error('Error loading plan', error);
+        if (!environment.production) { console.error('Error loading plan', error); }
         this.errorMessage = 'Failed to load plan details';
         this.loading = false;
-
       }
     });
   }
 
-  
   get f() {
     return this.checkoutForm.controls;
   }
@@ -134,13 +132,13 @@ export class CheckoutComponent implements OnInit {
 
   onSubmit(): void {
     if (!this.plan) {
-      console.error('No plan selected');
+      if (!environment.production) { console.error('No plan selected'); }
       return;
     }
 
     // Only validate card fields if card payment is selected
     if (this.selectedPaymentMethod === 'card' && this.checkoutForm.invalid) {
-      console.log('Form validation failed for card payment');
+      if (!environment.production) { console.log('Form validation failed for card payment'); }
       return;
     }
 
@@ -150,9 +148,7 @@ export class CheckoutComponent implements OnInit {
     // Create subscription first (status will be PENDING)
     const subscriptionRequest: SubscriptionCreateDto = {
       planId: this.plan!.id,
-      // Send ISO LocalDate (yyyy-MM-dd) so backend's LocalDate binds correctly
       startDate: this.localDateString(new Date()) as any,
-      // Backend expects SubscriptionDuration enum names (ONE_MONTH, THREE_MONTHS, TWELVE_MONTHS)
       duration: this.mapPlanDurationToEnum(this.plan!.duration as any) as any
     };
 
@@ -165,7 +161,7 @@ export class CheckoutComponent implements OnInit {
         }
       },
       error: (error) => {
-        console.error('Subscription creation error', error);
+        if (!environment.production) { console.error('Subscription creation error', error); }
         this.errorMessage = 'Failed to create subscription. Please try again.';
         this.processing = false;
       }
@@ -173,7 +169,6 @@ export class CheckoutComponent implements OnInit {
   }
 
   private processCardPayment(createdSubscription: any): void {
-    // Then create payment linked to the subscription
     const paymentRequest: PaymentCreateDto = {
       userId: this.authService.currentUserValue?.id || 0,
       subscriptionId: createdSubscription.id,
@@ -183,12 +178,12 @@ export class CheckoutComponent implements OnInit {
     };
 
     this.paymentService.createSimulatedPayment(paymentRequest).subscribe({
-      next: (paymentResponse) => {
-        console.log('Payment successful', paymentResponse);
+      next: (_paymentResponse) => {
+        if (!environment.production) { console.log('Payment successful'); }
         // After payment is successful, activate the subscription on the backend
         this.subscriptionService.activateSubscription(createdSubscription.id).subscribe({
-          next: (activated) => {
-            console.log('Subscription activated', activated);
+          next: (_activated) => {
+            if (!environment.production) { console.log('Subscription activated'); }
             this.processing = false;
             // Wait a moment for database to fully update, then navigate
             setTimeout(() => {
@@ -196,14 +191,14 @@ export class CheckoutComponent implements OnInit {
             }, 500);
           },
           error: (actErr) => {
-            console.error('Activation error', actErr);
+            if (!environment.production) { console.error('Activation error', actErr); }
             this.errorMessage = 'Payment succeeded but activation failed. Please contact support.';
             this.processing = false;
           }
         });
       },
       error: (error) => {
-        console.error('Payment error', error);
+        if (!environment.production) { console.error('Payment error', error); }
         this.errorMessage = error.error?.message || 'Payment failed. Please check your card details.';
         this.processing = false;
       }
@@ -220,12 +215,12 @@ export class CheckoutComponent implements OnInit {
 
     this.paymentService.createPayPalOrder(paymentRequest).subscribe({
       next: (response) => {
-        console.log('PayPal order created', response);
+        if (!environment.production) { console.log('PayPal order created'); }
         // Redirect to PayPal for approval
         window.location.href = response.approvalUrl;
       },
       error: (error) => {
-        console.error('PayPal order creation error', error);
+        if (!environment.production) { console.error('PayPal order creation error', error); }
         this.errorMessage = error.error?.message || 'Failed to create PayPal order. Please try again.';
         this.processing = false;
       }
@@ -235,13 +230,18 @@ export class CheckoutComponent implements OnInit {
   selectPaymentMethod(method: 'card' | 'paypal'): void {
     this.selectedPaymentMethod = method;
     this.checkoutForm.patchValue({ paymentMethod: method });
-    
+
     // Update validators based on payment method
     if (method === 'card') {
-      // Add validators for card fields
-      this.checkoutForm.get('cardNumber')?.setValidators([Validators.required, Validators.pattern(/^(?:\d{4}\s){3}\d{4}$|^\d{16}$/)]);
+      this.checkoutForm.get('cardNumber')?.setValidators([
+        Validators.required,
+        Validators.pattern(/^(?:\d{4}\s){3}\d{4}$|^\d{16}$/)
+      ]);
       this.checkoutForm.get('cardName')?.setValidators([Validators.required, Validators.minLength(3)]);
-      this.checkoutForm.get('expiryDate')?.setValidators([Validators.required, Validators.pattern(/^(0[1-9]|1[0-2])\/\d{2}$/)]);
+      this.checkoutForm.get('expiryDate')?.setValidators([
+        Validators.required,
+        Validators.pattern(/^(0[1-9]|1[0-2])\/\d{2}$/)
+      ]);
       this.checkoutForm.get('cvv')?.setValidators([Validators.required, Validators.pattern(/^\d{3,4}$/)]);
       this.checkoutForm.get('billingAddress')?.setValidators(Validators.required);
       this.checkoutForm.get('city')?.setValidators(Validators.required);
@@ -258,21 +258,16 @@ export class CheckoutComponent implements OnInit {
       this.checkoutForm.get('zipCode')?.clearValidators();
       this.checkoutForm.get('country')?.clearValidators();
     }
-    
+
     // Update form status
-    this.checkoutForm.get('cardNumber')?.updateValueAndValidity();
-    this.checkoutForm.get('cardName')?.updateValueAndValidity();
-    this.checkoutForm.get('expiryDate')?.updateValueAndValidity();
-    this.checkoutForm.get('cvv')?.updateValueAndValidity();
-    this.checkoutForm.get('billingAddress')?.updateValueAndValidity();
-    this.checkoutForm.get('city')?.updateValueAndValidity();
-    this.checkoutForm.get('zipCode')?.updateValueAndValidity();
-    this.checkoutForm.get('country')?.updateValueAndValidity();
+    ['cardNumber', 'cardName', 'expiryDate', 'cvv', 'billingAddress', 'city', 'zipCode', 'country']
+      .forEach(field => this.checkoutForm.get(field)?.updateValueAndValidity());
   }
 
   isCardPaymentRequired(): boolean {
     return this.selectedPaymentMethod === 'card';
   }
+
   cancel(): void {
     if (confirm('Are you sure you want to cancel?')) {
       this.router.navigate(['/subscription/plans']);
@@ -280,7 +275,6 @@ export class CheckoutComponent implements OnInit {
   }
 
   calculateTotal(): number {
-    // Default to monthly price for checkout total if available
     if (!this.plan) return 0;
     return this.billingCycle === 'annual'
       ? (this.plan.annualPrice ?? ((this.plan.monthlyPrice ?? this.plan.price) * 10))
@@ -290,6 +284,4 @@ export class CheckoutComponent implements OnInit {
   formatPrice(price: number): string {
     return `$${price.toFixed(2)}`;
   }
-
 }
-

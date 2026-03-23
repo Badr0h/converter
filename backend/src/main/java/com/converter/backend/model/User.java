@@ -1,6 +1,6 @@
 package com.converter.backend.model;
 
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,6 +26,7 @@ public class User implements UserDetails {
     @Column(nullable = false, unique = true)
     private String email ;
 
+    @JsonIgnore
     @Column(name = "password_hash")
     private String password;
 
@@ -45,9 +46,11 @@ public class User implements UserDetails {
     @Column(name = "enabled", nullable = false)
     private Boolean enabled = false;
 
+    @JsonIgnore
     @Column(name = "verification_code")
     private String verificationCode;
 
+    @JsonIgnore
     @Column(name = "verification_code_expiry")
     private LocalDateTime verificationCodeExpiry;
 

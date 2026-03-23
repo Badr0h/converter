@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,7 +37,7 @@ public class PaymentController {
      * Endpoint pour créer un paiement simulé (ton code d'origine)
      */
     @PostMapping("/simulate")
-    public ResponseEntity<PaymentResponseDto> createSimulatedPayment(@RequestBody PaymentCreateDto payment) {
+    public ResponseEntity<PaymentResponseDto> createSimulatedPayment(@Valid @RequestBody PaymentCreateDto payment) {
         PaymentResponseDto createdPayment = paymentService.createPayment(payment);
         return ResponseEntity
             .created(URI.create("/api/payments/" + createdPayment.getId()))
@@ -47,7 +48,7 @@ public class PaymentController {
      * STEP 1: Créer l'ordre PayPal et récupérer l'URL d'approbation
      */
     @PostMapping("/paypal/create")
-    public ResponseEntity<Map<String, String>> createPayPalOrder(@RequestBody PaymentCreateDto dto) {
+    public ResponseEntity<Map<String, String>> createPayPalOrder(@Valid @RequestBody PaymentCreateDto dto) {
         log.info("Initiating PayPal order for user: {}", dto.getUserId());
         String approvalUrl = paymentService.createPayPalOrder(dto);
         
