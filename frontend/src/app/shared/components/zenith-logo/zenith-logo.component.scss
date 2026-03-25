@@ -1,0 +1,45 @@
+/* ===== ZENITH LOGO COMPONENT STYLES ===== */
+
+:host {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.zenith-logo {
+  /* Smooth color transitions */
+  transition: all var(--transition-base);
+
+  /* High-quality rendering */
+  shape-rendering: geometricPrecision;
+  text-rendering: optimizeLegibility;
+
+  /* Prevent distortion */
+  overflow: visible;
+
+  /* Hover effect - subtle scaling */
+  &:hover {
+    filter: drop-shadow(0 2px 8px rgba(124, 58, 237, 0.2));
+    transform: scale(1.03);
+  }
+
+  /* Focus state for accessibility */
+  &:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  /* Active state */
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+/* Responsive adjustments for small screens */
+@media (max-width: 640px) {
+  .zenith-logo {
+    /* Slightly enhance visibility on mobile */
+    filter: drop-shadow(0 1px 3px rgba(124, 58, 237, 0.15));
+  }
+}

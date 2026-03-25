@@ -42,7 +42,7 @@
 .nav-logo {
   display: flex;
   align-items: center;
-  gap: var(--space-xs);
+  gap: var(--space-sm);
   text-decoration: none;
   font-size: var(--text-lg);
   font-weight: 700;
@@ -53,21 +53,27 @@
 
   &:hover {
     transform: scale(1.02);
+
+    /* Enhance logo on hover */
+    ::ng-deep {
+      .zenith-logo {
+        filter: drop-shadow(0 4px 12px rgba(124, 58, 237, 0.3));
+      }
+    }
   }
 
-  .logo-icon {
-    width: 36px;
-    height: 36px;
-    background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
-    border-radius: var(--radius-lg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--white);
-    font-size: 18px;
-    font-weight: 700;
-    box-shadow: var(--shadow-md);
-    flex-shrink: 0;
+  /* SVG Logo Component Styling */
+  ::ng-deep {
+    app-zenith-logo {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .zenith-logo {
+      transition: filter var(--transition-base);
+    }
   }
 
   .logo-text {

@@ -1,0 +1,57 @@
+<svg
+  [style]="logoStyles"
+  [attr.viewBox]="'0 0 128 128'"
+  [attr.xmlns]="'http://www.w3.org/2000/svg'"
+  class="zenith-logo"
+  [attr.role]="'img'"
+  [attr.aria-label]="title"
+>
+  <!-- Main Zenith Peak - Geometric Summit Symbol -->
+  <!-- Upper triangle forming the peak -->
+  <path
+    d="M 64 8 L 96 56 L 64 48 L 32 56 Z"
+    [attr.fill]="color"
+    opacity="1"
+  />
+
+  <!-- Middle ascending platform -->
+  <path
+    d="M 32 56 L 96 56 L 88 88 L 40 88 Z"
+    [attr.fill]="color"
+    opacity="0.85"
+  />
+
+  <!-- Lower base platform -->
+  <path
+    d="M 40 88 L 88 88 L 80 120 L 48 120 Z"
+    [attr.fill]="color"
+    opacity="0.7"
+  />
+
+  <!-- Conversion Arrow - Subtle transformation element -->
+  <!-- Right-pointing arrow inside the logo suggesting conversion/transformation -->
+  <g opacity="0.35">
+    <!-- Arrow shaft -->
+    <line
+      x1="52"
+      y1="72"
+      x2="76"
+      y2="72"
+      [attr.stroke]="color"
+      stroke-width="2.5"
+      stroke-linecap="round"
+    />
+    <!-- Arrow head (right-pointing) -->
+    <polyline
+      points="72,68 76,72 72,76"
+      [attr.stroke]="color"
+      stroke-width="2.5"
+      fill="none"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  </g>
+
+  <!-- Optional accessibility title -->
+  <title>{{ title }}</title>
+</svg>

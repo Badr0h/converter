@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 import { UserResponseDto, UserRole } from '../../core/models/user.model';
+import { ZenithLogoComponent } from '../components/zenith-logo/zenith-logo.component';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterLinkActive, ZenithLogoComponent],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss'
 })
