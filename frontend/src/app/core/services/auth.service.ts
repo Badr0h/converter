@@ -83,7 +83,13 @@ export class AuthService {
           localStorage.setItem('token', response.token);
         })
       );  
-      
-        
+  }
+
+  requestPasswordReset(email: string): Observable<{message: string}> {
+    return this.http.post<{message: string}>(`${this.apiUrl}/request-password-reset`, {email});
+  }
+
+  resetPassword(token: string, password: string): Observable<{message: string}> {
+    return this.http.post<{message: string}>(`${this.apiUrl}/reset-password`, {token, password});
   }
 }

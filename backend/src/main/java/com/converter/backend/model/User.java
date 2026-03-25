@@ -54,6 +54,14 @@ public class User implements UserDetails {
     @Column(name = "verification_code_expiry")
     private LocalDateTime verificationCodeExpiry;
 
+    @JsonIgnore
+    @Column(name = "reset_token")
+    private String resetToken;
+
+    @JsonIgnore
+    @Column(name = "reset_token_expiry")
+    private LocalDateTime resetTokenExpiry;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));

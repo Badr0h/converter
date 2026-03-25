@@ -6,43 +6,60 @@
    A. VARIABLES CSS GLOBALES
    =================================== */
 :root {
-  /* ===== MODERN PREMIUM PALETTE - Indigo & Pulse ===== */
+  /* ===== PROFESSIONAL MODERN PALETTE - Navy, Slate, Emerald & Indigo ===== */
+  /* Primary: Indigo (trust, focus, professional) */
   --primary-50: #f5f3ff;
   --primary-100: #ede9fe;
   --primary-200: #ddd6fe;
   --primary-300: #c4b5fd;
   --primary-400: #a78bfa;
   --primary-500: #8b5cf6;
-  /* Main AI Indigo */
   --primary-600: #7c3aed;
   --primary-700: #6d28d9;
   --primary-800: #5b21b6;
   --primary-900: #4c1d95;
 
-  --secondary-50: #fdf2f8;
-  --secondary-500: #ec4899;
-  /* Accent Pulse Pink */
-  --secondary-600: #db2777;
+  /* Secondary: Emerald (growth, success, vitality) */
+  --secondary-50: #f0fdf4;
+  --secondary-100: #d1fae5;
+  --secondary-300: #6ee7b7;
+  --secondary-500: #10b981;
+  --secondary-600: #059669;
+  --secondary-700: #047857;
 
   /* ===== SEMANTIC COLORS ===== */
   --success: #10b981;
+  --success-50: #f0fdf4;
+  --success-600: #059669;
   --warning: #f59e0b;
+  --warning-50: #fffbeb;
+  --warning-600: #d97706;
   --error: #ef4444;
+  --error-50: #fef2f2;
+  --error-600: #dc2626;
   --info: #3b82f6;
+  --info-50: #eff6ff;
+  --info-600: #2563eb;
 
-  /* ===== NEUTRALS - Clean & Airy ===== */
+  /* ===== NEUTRALS - Navy, Slate & Gray Professional ===== */
   --white: #ffffff;
-  --gray-25: #fcfcfd;
-  --gray-50: #f9fafb;
-  --gray-100: #f3f4f6;
-  --gray-200: #eaecf0;
-  --gray-300: #d0d5dd;
-  --gray-400: #98a2b3;
-  --gray-500: #667085;
-  --gray-600: #475467;
-  --gray-700: #344054;
-  --gray-800: #1d2939;
-  --gray-900: #101828;
+  --navy-900: #0f172a;
+  --navy-800: #1e293b;
+  --navy-700: #334155;
+  --navy-600: #475569;
+  --navy-500: #64748b;
+  
+  --gray-25: #f8fafc;
+  --gray-50: #f1f5f9;
+  --gray-100: #e2e8f0;
+  --gray-200: #cbd5e1;
+  --gray-300: #94a3b8;
+  --gray-400: #64748b;
+  --gray-500: #475569;
+  --gray-600: #334155;
+  --gray-700: #1e293b;
+  --gray-800: #0f172a;
+  --gray-900: #0f172a;
 
   /* Color mapping for legacy support */
   --color-primary-50: var(--primary-50);
@@ -64,7 +81,7 @@
   --color-error-500: var(--error);
   --color-error-600: #dc2626;
 
-  /* ===== SPACING - More whitespace for 'Aérée' feel ===== */
+  /* ===== SPACING - Generous whitespace for premium feel ===== */
   --space-3xs: 0.125rem;
   --space-2xs: 0.25rem;
   --space-xs: 0.5rem;
@@ -95,9 +112,9 @@
   --shadow-xl: 0px 20px 24px -4px rgba(16, 24, 40, 0.08), 0px 8px 8px -4px rgba(16, 24, 40, 0.03);
   --shadow-2xl: 0px 32px 64px -12px rgba(16, 24, 40, 0.14);
 
-  /* ===== TYPOGRAPHY ===== */
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-display: 'Inter', sans-serif;
+  /* ===== TYPOGRAPHY - Modern & Professional ===== */
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-display: 'Inter', 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
@@ -121,9 +138,10 @@
   --glass-border: rgba(255, 255, 255, 0.3);
   --glass-blur: 12px;
 
-  /* ===== TRANSITIONS ===== */
-  --transition-normal: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  /* ===== TRANSITIONS - Light and fluid ===== */
+  --transition-normal: 0.2s ease-in-out;
+  --transition-slow: 0.4s ease-in-out;
+  --transition-fast: 0.15s ease-in-out;
 }
 
 /* ===================================
@@ -147,7 +165,7 @@ body {
   font-size: var(--text-base);
   line-height: 1.6;
   color: var(--gray-900);
-  background-color: var(--gray-25);
+  background-color: var(--white);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

@@ -56,4 +56,25 @@ public class AuthController {
         authService.resendVerificationCode(email);
         return ResponseEntity.ok(Map.of("message", "Code de vérification renvoyé"));
     }
+
+    @PostMapping("/request-password-reset")
+    public ResponseEntity<Map<String, String>> requestPasswordReset(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        authService.requestPasswordReset(email);
+        return ResponseEntity.ok(Map.of("message", "Un email de réinitialisation a été envoyé"));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, String>> resetPassword(@RequestBody Map<String, String> request) {
+        String resetToken = request.get("token");
+        String newPassword = request.get("password");
+        
+        boolean isReset = authService.resetPassword(resetToken, newPassword);
+        
+        if (isReset) {
+            return ResponseEntity.ok(Map.of("message", "Mot de passe réinitialisé avec succès"));
+        } else {
+            return ResponseEntity.badRequest().body(Map.of("message", "Token de réinitialisation invalide ou expiré"));
+        }
+    }
 }

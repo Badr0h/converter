@@ -28,7 +28,35 @@ public class AuthService {
     private final EmailService emailService;
 
     public AuthResponse register(UserCreateDto request) {
-        var user = new User();
+        // Check if user already exists
+        var existingUser = userRepository.findByEmail(request.getEmail());
+        
+        User user;
+        if (existingUser.isPresent()) {
+            // If user exists but is not enabled, update their verification code
+            user = existingUser.get();
+            if (!user.isEnabled()) {
+                String verificationCode = emailService.generateVerificationCode();
+                user.setVerificationCode(verificationCode);
+                user.setVerificationCodeExpiry(LocalDateTime.now().plusMinutes(15));
+                user.setUpdatedAt(LocalDateTime.now());
+                userRepository.save(user);
+                emailService.sendVerificationEmail(user.getEmail(), verificationCode);
+                
+                UserResponseDto userDto = mapUserToDto(user);
+                return AuthResponse.builder()
+                        .token(null)
+                        .user(userDto)
+                        .refreshToken(null)
+                        .build();
+            } else {
+                // User already exists and is enabled - return error response
+                throw new RuntimeException("Un compte avec cet email existe déjà");
+            }
+        }
+        
+        // Create new user
+        user = new User();
         user.setFullName(request.getFullName());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -138,5 +166,42 @@ public class AuthService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return userRepository.findByEmail(auth.getName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    public void requestPasswordReset(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Utilisateur avec cet email non trouvé"));
+
+        // Generate reset token (using a simple UUID-based token)
+        String resetToken = java.util.UUID.randomUUID().toString();
+        user.setResetToken(resetToken);
+        user.setResetTokenExpiry(LocalDateTime.now().plusHours(1)); // Token valid for 1 hour
+        user.setUpdatedAt(LocalDateTime.now());
+        
+        userRepository.save(user);
+        
+        // Send reset email with token
+        emailService.sendPasswordResetEmail(user.getEmail(), resetToken);
+    }
+
+    public boolean resetPassword(String resetToken, String newPassword) {
+        User user = userRepository.findAll().stream()
+                .filter(u -> resetToken.equals(u.getResetToken()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Token de réinitialisation invalide"));
+
+        // Check if token has expired
+        if (user.getResetTokenExpiry() == null || user.getResetTokenExpiry().isBefore(LocalDateTime.now())) {
+            return false;
+        }
+
+        // Update password and clear reset token
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setResetToken(null);
+        user.setResetTokenExpiry(null);
+        user.setUpdatedAt(LocalDateTime.now());
+        
+        userRepository.save(user);
+        return true;
     }
 }
