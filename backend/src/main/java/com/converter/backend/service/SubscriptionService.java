@@ -63,10 +63,10 @@ public class SubscriptionService {
         User user = userRepository.findByEmail(currentUsername)
             .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + currentUsername));
 
-        // Try to find ACTIVE subscription first
-        var activeSubscription = subscriptionRepository.findByUserAndStatus(user.getId(), Status.ACTIVE.name());
-        if (activeSubscription.isPresent()) {
-            return mapToSubscriptionResponseDto(activeSubscription.get());
+        // Try to find ACTIVE subscription first (retrieve only the latest one)
+        var activeSubscriptions = subscriptionRepository.findByUserAndStatusList(user.getId(), Status.ACTIVE.name());
+        if (!activeSubscriptions.isEmpty()) {
+            return mapToSubscriptionResponseDto(activeSubscriptions.get(0));
         }
 
         // If no active, find PENDING subscription
@@ -97,10 +97,11 @@ public class SubscriptionService {
             .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + currentUsername));
 
         // Cancel any existing ACTIVE subscription
-        var existingActive = subscriptionRepository.findByUserAndStatus(user.getId(), Status.ACTIVE.name());
-        if (existingActive.isPresent()) {
-            existingActive.get().setStatus(Status.CANCELLED);
-            subscriptionRepository.save(existingActive.get());
+        var existingActiveList = subscriptionRepository.findByUserAndStatusList(user.getId(), Status.ACTIVE.name());
+        if (!existingActiveList.isEmpty()) {
+            var existingActive = existingActiveList.get(0);
+            existingActive.setStatus(Status.CANCELLED);
+            subscriptionRepository.save(existingActive);
         }
 
         Subscription subscription = new Subscription() ; 
@@ -129,10 +130,13 @@ public class SubscriptionService {
         }
 
         // Cancel any other ACTIVE subscriptions for this user
-        var otherActive = subscriptionRepository.findByUserAndStatus(subscription.getUser().getId(), Status.ACTIVE.name());
-        if (otherActive.isPresent() && !otherActive.get().getId().equals(id)) {
-            otherActive.get().setStatus(Status.CANCELLED);
-            subscriptionRepository.save(otherActive.get());
+        var otherActiveList = subscriptionRepository.findByUserAndStatusList(subscription.getUser().getId(), Status.ACTIVE.name());
+        if (!otherActiveList.isEmpty()) {
+            var otherActive = otherActiveList.get(0);
+            if (!otherActive.getId().equals(id)) {
+                otherActive.setStatus(Status.CANCELLED);
+                subscriptionRepository.save(otherActive);
+            }
         }
 
         subscription.setStatus(Status.ACTIVE);

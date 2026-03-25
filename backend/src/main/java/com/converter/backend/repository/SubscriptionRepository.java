@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import com.converter.backend.model.Subscription;
 import com.converter.backend.model.User;
 import java.util.List;
-import java.util.Optional;
+
 import java.time.LocalDate;
 
 
@@ -22,8 +22,8 @@ public interface SubscriptionRepository extends JpaRepository<Subscription, Long
     List<Subscription> findByUser(User user);
 
     @EntityGraph(attributePaths = {"plan"})
-    @Query(value = "SELECT * FROM subscriptions WHERE user_id = :userId AND status = :status ORDER BY created_at DESC LIMIT 1", nativeQuery = true)
-    Optional<Subscription> findByUserAndStatus(@Param("userId") Long userId, @Param("status") String status);
+    @Query("SELECT s FROM Subscription s WHERE s.user.id = :userId AND s.status = :status ORDER BY s.createdAt DESC")
+    List<Subscription> findByUserAndStatusList(@Param("userId") Long userId, @Param("status") String status);
 
     @EntityGraph(attributePaths = {"plan"})
     List<Subscription> findByUserAndStatus(User user, Subscription.Status status);

@@ -93,7 +93,9 @@ public class ConversionService {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         // Enforce paid subscription
-        Subscription subscription = subscriptionRepository.findByUserAndStatus(userId, Subscription.Status.ACTIVE.name())
+        var subscriptionList = subscriptionRepository.findByUserAndStatusList(userId, Subscription.Status.ACTIVE.name());
+        Subscription subscription = subscriptionList.stream()
+                .findFirst()
                 .orElseThrow(() -> new IllegalStateException("Paid subscription required for conversion. Please upgrade."));
 
         // Check conversion limits
