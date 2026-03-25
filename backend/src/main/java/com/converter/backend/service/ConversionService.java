@@ -2,14 +2,12 @@ package com.converter.backend.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import reactor.core.publisher.Mono;
-import java.util.concurrent.CompletableFuture;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 
 import com.converter.backend.dto.conversion.ConversionCreateDto;
 import com.converter.backend.dto.conversion.ConversionResponseDto;
@@ -24,7 +22,6 @@ import com.converter.backend.repository.SubscriptionRepository;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ConversionService {

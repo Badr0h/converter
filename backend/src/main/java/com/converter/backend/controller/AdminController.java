@@ -4,26 +4,21 @@ import com.converter.backend.dto.conversion.ConversionResponseDto;
 import com.converter.backend.dto.user.UserCreateDto;
 import com.converter.backend.dto.user.UserResponseDto;
 import com.converter.backend.dto.user.UserUpdateDto;
-import com.converter.backend.model.User;
 import com.converter.backend.service.ConversionService;
 import com.converter.backend.service.UserService;
 import com.converter.backend.repository.UserRepository;
 import com.converter.backend.repository.ConversionRepository;
-import com.converter.backend.repository.SubscriptionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.time.YearMonth;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -36,7 +31,6 @@ public class AdminController {
     private final ConversionService conversionService;
     private final UserRepository userRepository;
     private final ConversionRepository conversionRepository;
-    private final SubscriptionRepository subscriptionRepository;
 
     // ===== DASHBOARD STATS =====
 

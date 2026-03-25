@@ -16,10 +16,6 @@ import java.util.Map;
 @Repository
 public interface ConversionRepository extends JpaRepository<Conversion, Long> {
 
-    @EntityGraph(attributePaths = {"user"})
-    @Override
-    List<Conversion> findAll();
-
     @Query("SELECT COUNT(c) FROM Conversion c WHERE c.user.id = :userId AND c.createdAt >= :startOfMonth")
     long countByUserIdAndCreatedAtAfter(@Param("userId") Long userId, @Param("startOfMonth") LocalDateTime startOfMonth);
 

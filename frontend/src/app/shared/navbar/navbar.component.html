@@ -18,9 +18,18 @@
       <a routerLink="/subscription/plans" routerLinkActive="active" class="nav-link" (click)="closeMenu()">Pricing</a>
       <a routerLink="/admin" routerLinkActive="active" class="nav-link admin-link" (click)="closeMenu()"
         *ngIf="isAdmin()">⚡ Admin</a>
+      
+      <!-- Mobile User Section -->
+      <div class="nav-menu-user">
+        <a routerLink="/profile" class="user-trigger-mobile" (click)="closeMenu()">
+          <div class="user-avatar-mobile">{{ currentUser?.fullName?.charAt(0) || 'U' }}</div>
+          <span class="user-name-mobile">{{ currentUser?.fullName }}</span>
+        </a>
+        <button class="btn-sign-out" (click)="logout()">Sign Out</button>
+      </div>
     </div>
 
-    <!-- User Command Module -->
+    <!-- User Command Module (Desktop Only) -->
     <div class="navbar-user" *ngIf="isAuthenticated()">
       <a routerLink="/profile" class="user-trigger" (click)="closeMenu()">
         <div class="user-avatar">{{ currentUser?.fullName?.charAt(0) || 'U' }}</div>
@@ -35,4 +44,7 @@
       <a routerLink="/auth/register" class="btn btn-primary btn-sm">Get Started</a>
     </div>
   </div>
+  
+  <!-- Mobile Menu Overlay Backdrop -->
+  <div class="nav-overlay" [class.active]="isMenuOpen" (click)="closeMenu()" *ngIf="isAuthenticated()"></div>
 </nav>

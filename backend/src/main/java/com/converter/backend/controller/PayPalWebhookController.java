@@ -1,7 +1,6 @@
 package com.converter.backend.controller;
 
 import com.converter.backend.dto.webhook.PayPalWebhookEvent;
-import com.converter.backend.service.PaymentService;
 import com.converter.backend.service.PayPalWebhookService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,7 +20,6 @@ import java.util.Map;
 public class PayPalWebhookController {
 
     private final PayPalWebhookService webhookService;
-    private final PaymentService paymentService;
     private final ObjectMapper objectMapper;
 
     /**

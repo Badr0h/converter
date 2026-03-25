@@ -16,10 +16,6 @@ import java.time.LocalDate;
 public interface SubscriptionRepository extends JpaRepository<Subscription, Long> {
     
     @EntityGraph(attributePaths = {"plan", "user"})
-    @Override
-    List<Subscription> findAll();
-
-    @EntityGraph(attributePaths = {"plan"})
     List<Subscription> findByEndDateBeforeAndStatus(LocalDate date, Subscription.Status status);
 
     @EntityGraph(attributePaths = {"plan"})

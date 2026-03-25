@@ -1,6 +1,5 @@
 package com.converter.backend.health;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.stereotype.Component;
@@ -14,7 +13,6 @@ public class DatabaseHealthIndicator implements HealthIndicator {
 
     private final DataSource dataSource;
 
-    @Autowired
     public DatabaseHealthIndicator(DataSource dataSource) {
         this.dataSource = dataSource;
     }

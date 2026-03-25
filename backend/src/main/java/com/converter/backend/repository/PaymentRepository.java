@@ -15,10 +15,6 @@ import java.util.Optional;
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
-    @EntityGraph(attributePaths = {"user", "subscription"})
-    @Override
-    List<Payment> findAll();
-
     /**
      * Find payment by transaction ID
      */

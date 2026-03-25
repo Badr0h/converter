@@ -9,8 +9,6 @@ import com.converter.backend.model.Plan;
 import com.converter.backend.model.Subscription;
 import com.converter.backend.model.User;
 import com.converter.backend.repository.PaymentRepository;
-import com.converter.backend.repository.PlanRepository;
-import com.converter.backend.repository.ProcessedWebhookRepository;
 import com.converter.backend.repository.SubscriptionRepository;
 import com.converter.backend.repository.UserRepository;
 import com.paypal.core.PayPalEnvironment;
@@ -21,7 +19,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -37,9 +34,7 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final SubscriptionRepository subscriptionRepository;
-    private final PlanRepository planRepository;
     private final UserRepository userRepository;
-    private final ProcessedWebhookRepository processedWebhookRepository;
     
     @Value("${paypal.client.id}")
     private String paypalClientId;
