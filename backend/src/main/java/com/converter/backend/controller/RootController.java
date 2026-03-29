@@ -27,12 +27,4 @@ public class RootController {
         response.put("version", "1.0.7");
         return ResponseEntity.ok(response);
     }
-
-    /**
-     * Alternative endpoint without trailing slash
-     */
-    @GetMapping("")
-    public ResponseEntity<Map<String, String>> getApiStatusRoot() {
-        return getApiStatus();
-    }
 }
