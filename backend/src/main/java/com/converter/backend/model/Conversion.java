@@ -17,7 +17,7 @@ public class Conversion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id ;
     
-    @ManyToOne(fetch = FetchType.LAZY, optional = true)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id")
     private User user ;
 

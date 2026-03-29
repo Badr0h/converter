@@ -22,7 +22,7 @@ import { FormsModule } from '@angular/forms';
       </textarea>
       <div class="input-footer">
         <span class="character-count">
-          {{ value?.length || 0 }}/{{ maxLength }}
+          {{ value.length || 0 }}/{{ maxLength }}
         </span>
         <span *ngIf="showAdvanced" class="advanced-toggle">
           <button 

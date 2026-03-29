@@ -93,6 +93,25 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
     }
 
+    @ExceptionHandler(LimitExceededException.class)
+    public ResponseEntity<Map<String, Object>> handleLimitExceeded(LimitExceededException ex) {
+        log.warn("User limit exceeded: {} | Type: {} | Usage: {}/{}", 
+            ex.getMessage(), ex.getLimitType(), ex.getCurrentUsage(), ex.getLimitValue());
+        
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", java.time.Instant.now().toString());
+        body.put("status", HttpStatus.TOO_MANY_REQUESTS.value());
+        body.put("error", "LIMIT_REACHED");
+        body.put("message", ex.getMessage());
+        body.put("limitType", ex.getLimitType()); // "DAILY" or "MONTHLY"
+        body.put("currentUsage", ex.getCurrentUsage());
+        body.put("limitValue", ex.getLimitValue());
+        body.put("upgradePlanName", ex.getUpgradePlanName()); // "PRO" or "ENTERPRISE"
+        body.put("upgradeUrl", ex.getUpgradeUrl()); // "/pricing?plan=PRO"
+        
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(body);
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     // 2. Database / Constraint Violations  ← THE KEY SECURITY FIX
     // ─────────────────────────────────────────────────────────────────────────

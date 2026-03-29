@@ -89,9 +89,6 @@ public class Payment {
 
     @PrePersist
     protected void onCreate() {
-        if (createdAt == null) {
-            createdAt = LocalDateTime.now();
-        }
         if (status == null) {
             status = Status.PENDING;
         }
@@ -99,62 +96,45 @@ public class Payment {
             currency = "USD";
         }
     }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
-
     // Business logic methods
-    public boolean isSuccess() {
-        return Status.SUCCESS.equals(status);
-    }
 
-    public boolean isPending() {
-        return Status.PENDING.equals(status);
-    }
+    // --- Prédicats (Lecture seule, très bien !) ---
+    public boolean isSuccess() { return Status.SUCCESS.equals(status); }
+    public boolean isPending() { return Status.PENDING.equals(status); }
+    public boolean isFailed() { return Status.FAILED.equals(status); }
+    public boolean isRefunded() { return Status.REFUNDED.equals(status); }
 
-    public boolean isFailed() {
-        return Status.FAILED.equals(status);
-    }
-
-    public boolean isRefunded() {
-        return Status.REFUNDED.equals(status);
-    }
-
-    public boolean isCancelled() {
-        return Status.CANCELLED.equals(status);
-    }
+    // --- Méthodes de transition (Action) ---
 
     public void markAsCompleted(String transactionId) {
+        // Sécurité : On ne complète que ce qui est en attente
+        if (!isPending()) {
+            throw new IllegalStateException("Only a pending transaction can be completed.");
+        }
         this.status = Status.SUCCESS;
         this.transactionId = transactionId;
-        this.updatedAt = LocalDateTime.now();
     }
 
     public void markAsFailed(String reason) {
         this.status = Status.FAILED;
         this.failureReason = reason;
-        this.updatedAt = LocalDateTime.now();
     }
 
-    public void markAsRefunded(BigDecimal refundAmount) {
+    public void markAsRefunded(BigDecimal amountToRefund) {
+        // Sécurité : On ne rembourse que ce qui a été payé avec succès
+        if (!isSuccess()) {
+            throw new IllegalStateException("A failed transaction cannot be refunded.");
+        }
         this.status = Status.REFUNDED;
-        this.refundAmount = refundAmount;
-        this.refundDate = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    public void markAsPartiallyRefunded(BigDecimal refundAmount) {
-        this.status = Status.PARTIALLY_REFUNDED;
-        this.refundAmount = refundAmount;
-        this.refundDate = LocalDateTime.now();
-        this.updatedAt = LocalDateTime.now();
+        this.refundAmount = amountToRefund;
+        this.refundDate = LocalDateTime.now(); // On garde celui-là car c'est une date métier, pas technique
     }
 
     public void markAsCancelled() {
+        if (isSuccess() || isRefunded()) {
+            throw new IllegalStateException("Impossible d'annuler : le paiement est déjà finalisé.");
+        }
         this.status = Status.CANCELLED;
-        this.updatedAt = LocalDateTime.now();
     }
 
     public enum Status {

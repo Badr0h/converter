@@ -68,6 +68,69 @@
           </button>
         </div>
 
+        <!-- Usage Statistics Section -->
+        <div class="usage-stats-container" *ngIf="usageStats && !loadingUsageStats">
+          <div class="usage-stats-card">
+            <div class="usage-header">
+              <h4>📊 Usage Statistics</h4>
+              <span class="usage-period">{{ usageStats.currentMonth }}</span>
+            </div>
+            
+            <div class="usage-grid">
+              <!-- Daily Usage -->
+              <div class="stat-item">
+                <div class="stat-label">Daily Conversions</div>
+                <div class="stat-value" [class.warning]="usageStats.dailyPercentage >= 80" 
+                     [class.exceeded]="usageStats.isDailyLimitExceeded">
+                  {{ usageStats.dailyUsage }} / {{ usageStats.dailyLimit }}
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-fill" 
+                       [style.width.%]="usageStats.dailyPercentage"
+                       [class.warning]="usageStats.dailyPercentage >= 80"
+                       [class.exceeded]="usageStats.isDailyLimitExceeded">
+                  </div>
+                </div>
+                <div class="stat-percentage">{{ usageStats.dailyPercentage }}% used</div>
+              </div>
+
+              <!-- Monthly Usage -->
+              <div class="stat-item">
+                <div class="stat-label">Monthly Conversions</div>
+                <div class="stat-value" [class.warning]="usageStats.monthlyPercentage >= 80" 
+                     [class.exceeded]="usageStats.isMonthlyLimitExceeded">
+                  {{ usageStats.monthlyUsage }} / {{ usageStats.monthlyLimit }}
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-fill" 
+                       [style.width.%]="usageStats.monthlyPercentage"
+                       [class.warning]="usageStats.monthlyPercentage >= 80"
+                       [class.exceeded]="usageStats.isMonthlyLimitExceeded">
+                  </div>
+                </div>
+                <div class="stat-percentage">{{ usageStats.monthlyPercentage }}% used</div>
+              </div>
+
+              <!-- Cache Info (if available) -->
+              <div class="stat-item" *ngIf="usageStats.cachedCount !== undefined && usageStats.cachedCount > 0">
+                <div class="stat-label">Cached Conversions</div>
+                <div class="stat-value cached">{{ usageStats.cachedCount }}</div>
+                <div class="cache-note">💾 Reused from cache</div>
+              </div>
+            </div>
+
+            <!-- Warning Message -->
+            <div class="usage-warning" *ngIf="usageWarningMsg" [class.critical]="usageStats.isDailyLimitExceeded || usageStats.isMonthlyLimitExceeded">
+              {{ usageWarningMsg }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Loading Usage Stats -->
+        <div class="usage-stats-loading" *ngIf="loadingUsageStats">
+          <span class="spinner-small"></span> Loading usage statistics...
+        </div>
+
         <!-- Input Editor Section -->
         <div class="input-section">
           <div class="section-header">
@@ -89,7 +152,7 @@
 
         <!-- Master Action Controls -->
         <div class="flex gap-md mt-xl">
-          <button type="submit" class="btn btn-primary btn-large flex-1" [disabled]="loading || conversionForm.invalid">
+          <button type="submit" class="btn btn-primary btn-large flex-1" [disabled]="isSubmitDisabled">
             <span *ngIf="loading" class="spinner"></span>
             <span>{{ loading ? 'Processing...' : 'Start Conversion' }}</span>
           </button>

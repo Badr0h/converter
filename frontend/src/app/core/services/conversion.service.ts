@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { ConversionResponseDto, ConversionCreateDto } from '../models/conversion.model';
+import { ConversionResponseDto, ConversionCreateDto, UsageStatsDto } from '../models/conversion.model';
 
 @Injectable({
   providedIn: 'root'
@@ -45,5 +45,12 @@ export class ConversionService {
    */
   deleteConversion(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  /**
+   * Get usage statistics for the current user
+   */
+  getUserUsageStats(): Observable<UsageStatsDto> {
+    return this.http.get<UsageStatsDto>(`${this.apiUrl}/stats/usage`);
   }
 }

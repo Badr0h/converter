@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { ConversionService } from '../../../core/services/conversion.service';
-import { ConversionResponseDto, ConversionCreateDto } from '../../../core/models/conversion.model';
+import { ConversionResponseDto, ConversionCreateDto, UsageStatsDto } from '../../../core/models/conversion.model';
 
 // Type definitions
 type FormatLevel = 'recommended' | 'optional' | 'advanced';
@@ -37,6 +37,11 @@ export class ConverterComponent implements OnInit, OnDestroy {
   errorMessage = '';
   showAdvanced = false;
   showHistory = false;
+
+  // Usage statistics
+  usageStats: UsageStatsDto | null = null;
+  loadingUsageStats = false;
+  usageStatsError = '';
 
   // Toast notification
   toast: ToastMessage | null = null;
@@ -141,6 +146,7 @@ export class ConverterComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.initForm();
     this.loadHistory();
+    this.loadUsageStats();
     this.checkForViewParam();
     this.setupFormSubscriptions();
 
@@ -247,6 +253,25 @@ export class ConverterComponent implements OnInit, OnDestroy {
       });
   }
 
+  private loadUsageStats(): void {
+    this.loadingUsageStats = true;
+    this.usageStatsError = '';
+    this.conversionService.getUserUsageStats()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (stats) => {
+          this.usageStats = stats;
+          this.loadingUsageStats = false;
+        },
+        error: (error) => {
+          console.error('Error loading usage stats', error);
+          this.usageStatsError = error.error?.message || 'Failed to load usage statistics';
+          this.loadingUsageStats = false;
+          // Don't show toast on error - it's not critical
+        }
+      });
+  }
+
   private checkForViewParam(): void {
     this.route.queryParams
       .pipe(takeUntil(this.destroy$))
@@ -287,7 +312,46 @@ export class ConverterComponent implements OnInit, OnDestroy {
     return this.conversionForm.controls;
   }
 
+  get isSubmitDisabled(): boolean {
+    return this.conversionForm.invalid 
+      || this.loading 
+      || this.loadingUsageStats
+      || this.usageStats?.isDailyLimitExceeded === true
+      || this.usageStats?.isMonthlyLimitExceeded === true;
+  }
+
+  get usageWarningMsg(): string {
+    if (!this.usageStats) return '';
+    
+    if (this.usageStats.isDailyLimitExceeded) {
+      return '⛔ Daily limit reached';
+    }
+    if (this.usageStats.isMonthlyLimitExceeded) {
+      return '⛔ Monthly limit reached';
+    }
+    if (this.usageStats.dailyPercentage >= 80) {
+      return `⚠️ 80% of daily limit (${this.usageStats.dailyUsage}/${this.usageStats.dailyLimit})`;
+    }
+    if (this.usageStats.monthlyPercentage >= 80) {
+      return `⚠️ 80% of monthly limit (${this.usageStats.monthlyUsage}/${this.usageStats.monthlyLimit})`;
+    }
+    return '';
+  }
+
   onSubmit(): void {
+    // Check if daily or monthly limits are exceeded
+    if (this.usageStats?.isDailyLimitExceeded) {
+      this.errorMessage = 'Daily conversion limit exceeded. Please upgrade your plan or try again tomorrow.';
+      this.showToast(this.errorMessage, 'error');
+      return;
+    }
+
+    if (this.usageStats?.isMonthlyLimitExceeded) {
+      this.errorMessage = 'Monthly conversion limit exceeded. Please upgrade your plan or try again next month.';
+      this.showToast(this.errorMessage, 'error');
+      return;
+    }
+
     // Mark all fields as touched to show validation errors
     if (this.conversionForm.invalid) {
       Object.keys(this.conversionForm.controls).forEach(key => {
@@ -321,11 +385,25 @@ export class ConverterComponent implements OnInit, OnDestroy {
           this.loading = false;
           this.conversionHistory.unshift(response);
           this.showToast('Conversion successful!', 'success');
+          // Reload usage stats after successful conversion
+          this.loadUsageStats();
         },
         error: (error) => {
-          this.errorMessage = error.error?.message || 'Conversion failed. Please try again.';
           this.loading = false;
+          const errorMessage = error.error?.message || 'Conversion failed. Please try again.';
+          
+          // Handle specific limit exceeded errors
+          if (errorMessage.includes('Daily limit exceeded') || errorMessage.includes('limit exceeded')) {
+            this.errorMessage = `⚠️ ${errorMessage}. Please upgrade your plan or try again later.`;
+          } else if (errorMessage.includes('no subscription')) {
+            this.errorMessage = '📋 No active subscription found. Please subscribe to start converting.';
+          } else {
+            this.errorMessage = errorMessage;
+          }
+          
           this.showToast(this.errorMessage, 'error');
+          // Reload usage stats after error to get updated limits
+          this.loadUsageStats();
         }
       });
   }

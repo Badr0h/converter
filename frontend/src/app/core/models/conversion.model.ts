@@ -28,3 +28,16 @@ export interface ConversionCreateDto {
   inputFormat: Format;
   prompt: string;
 }
+
+export interface UsageStatsDto {
+  dailyUsage: number;
+  monthlyUsage: number;
+  dailyLimit: number;
+  monthlyLimit: number;
+  currentMonth: string;
+  dailyPercentage: number;
+  monthlyPercentage: number;
+  isDailyLimitExceeded: boolean;
+  isMonthlyLimitExceeded: boolean;
+  cachedCount?: number;
+}
