@@ -5,11 +5,11 @@
 
 -- Add new columns for AI model selection and usage limiting
 ALTER TABLE plans ADD COLUMN ai_model VARCHAR(50) NOT NULL DEFAULT 'gpt-5-nano';
-ALTER TABLE plans ADD COLUMN daily_limit INT NULL COMMENT 'Daily request limit for FREE plan';
-ALTER TABLE plans ADD COLUMN monthly_limit INT NULL COMMENT 'Monthly request limit for PRO & ENTERPRISE plans';
-ALTER TABLE plans ADD COLUMN prompt_template LONGTEXT NULL COMMENT 'Plan-specific prompt template with placeholders';
-ALTER TABLE plans ADD COLUMN enable_caching BOOLEAN NOT NULL DEFAULT TRUE COMMENT 'Enable result caching for this plan';
-ALTER TABLE plans ADD COLUMN cache_ttl_hours INT NOT NULL DEFAULT 24 COMMENT 'Cache time-to-live in hours';
+ALTER TABLE plans ADD COLUMN daily_limit INTEGER NULL;
+ALTER TABLE plans ADD COLUMN monthly_limit INTEGER NULL;
+ALTER TABLE plans ADD COLUMN prompt_template TEXT NULL;
+ALTER TABLE plans ADD COLUMN enable_caching BOOLEAN NOT NULL DEFAULT TRUE;
+ALTER TABLE plans ADD COLUMN cache_ttl_hours INTEGER NOT NULL DEFAULT 24;
 
 -- Create indexes for better query performance
 CREATE INDEX idx_plans_ai_model ON plans(ai_model);

@@ -10,7 +10,7 @@
 ALTER TABLE plans ADD COLUMN IF NOT EXISTS is_enterprise BOOLEAN DEFAULT FALSE NOT NULL;
 
 -- Set existing ENTERPRISE plan to is_enterprise=true
-UPDATE plans SET is_enterprise = TRUE WHERE LOWER(name) = 'enterprise';;
+UPDATE plans SET is_enterprise = TRUE WHERE LOWER(name) = 'enterprise';
 
 -- Add comment for clarity
 COMMENT ON COLUMN plans.is_enterprise IS 'Marks this as an enterprise plan with hard limits (replaces unlimited)';
@@ -25,11 +25,6 @@ ALTER TABLE plans ADD COLUMN IF NOT EXISTS cache_ttl_hours INTEGER DEFAULT 24 NO
 UPDATE plans SET cache_ttl_hours = 24 WHERE LOWER(name) IN ('free', 'pro');
 UPDATE plans SET cache_ttl_hours = 168 WHERE LOWER(name) = 'enterprise'; -- 7 days
 
--- Create index for global cache lookups
--- Used by GlobalConversionCache.getGlobalCache()
-CREATE INDEX IF NOT EXISTS idx_conversion_formats_prompt 
-ON conversions(input_format, output_format, prompt(255));
-
 -- Create index for rate limiting checks
 -- Used by UsageLimiter for rapid lookups
 CREATE INDEX IF NOT EXISTS idx_conversion_user_created 
@@ -40,25 +35,28 @@ ALTER TABLE conversions ADD COLUMN IF NOT EXISTS was_cached BOOLEAN DEFAULT FALS
 
 -- Create table for rate limiting (server-side)
 CREATE TABLE IF NOT EXISTS api_rate_limits (
-  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  id BIGSERIAL PRIMARY KEY,
   user_id BIGINT NOT NULL,
   endpoint VARCHAR(255) NOT NULL,
   method VARCHAR(10) NOT NULL,
-  request_count INT DEFAULT 0 NOT NULL,
+  request_count INTEGER DEFAULT 0 NOT NULL,
   window_start TIMESTAMP NOT NULL,
   window_end TIMESTAMP NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  UNIQUE INDEX idx_rate_limit_user_endpoint (user_id, endpoint, method)
+  CONSTRAINT fk_rate_limits_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT unique_rate_limit_user_endpoint UNIQUE (user_id, endpoint, method)
 );
+
+-- Create index for rate limiting
+CREATE INDEX IF NOT EXISTS idx_rate_limit_user_endpoint ON api_rate_limits(user_id, endpoint, method);
 
 -- Create table for abuse incidents tracking
 CREATE TABLE IF NOT EXISTS abuse_incidents (
-  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  id BIGSERIAL PRIMARY KEY,
   user_id BIGINT,
-  incident_type VARCHAR(50) NOT NULL, -- 'RATE_LIMIT', 'REPEATED_ERRORS', 'INVALID_INPUT'
+  incident_type VARCHAR(50) NOT NULL,
   description TEXT,
   ip_address VARCHAR(45),
   user_agent VARCHAR(500),
@@ -66,10 +64,12 @@ CREATE TABLE IF NOT EXISTS abuse_incidents (
   resolved_at TIMESTAMP,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
-  INDEX idx_abuse_user (user_id),
-  INDEX idx_abuse_created (created_at DESC)
+  CONSTRAINT fk_abuse_incidents_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
 );
+
+-- Create indexes for abuse incidents
+CREATE INDEX IF NOT EXISTS idx_abuse_user ON abuse_incidents(user_id);
+CREATE INDEX IF NOT EXISTS idx_abuse_created ON abuse_incidents(created_at DESC);
 
 -- Add success indicator for conversions (for abuse detection)
 ALTER TABLE conversions ADD COLUMN IF NOT EXISTS success BOOLEAN DEFAULT TRUE;
