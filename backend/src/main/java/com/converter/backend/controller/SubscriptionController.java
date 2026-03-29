@@ -57,9 +57,8 @@ public class SubscriptionController {
             .body(createdSubscription);
     }
 
-    // Allow both PUT and POST for activation to be resilient to different clients
+    // Allow PUT for activation (semantic update)
     @PutMapping("/{id}/activate")
-    @PostMapping("/{id}/activate")
     public ResponseEntity<SubscriptionResponseDto> activateSubscription(@PathVariable Long id){
         SubscriptionResponseDto activated = subscriptionService.activateSubscription(id);
         return ResponseEntity.ok(activated);
